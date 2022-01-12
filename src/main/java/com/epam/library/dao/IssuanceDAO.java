@@ -8,4 +8,7 @@ public interface IssuanceDAO {
     Issuance getIssuance(int issuanceID) throws DAOException;
     void updateIssuance(Issuance issuance) throws DAOException;
     void deleteIssuance(Issuance issuance) throws DAOException;
+    void updateReturnIssuance(int issuanceID) throws DAOException;
+    void updateExtendIssuance(int issuanceID) throws DAOException;
+    void updateLostIssuance(int issuanceID) throws DAOException;
 }

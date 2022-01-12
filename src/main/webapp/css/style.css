@@ -1,0 +1,133 @@
+main {
+    min-height: 1000px;
+}
+
+.nav-dropdown {
+    padding-bottom: 4.5px;
+    padding-top: 4.5px;
+}
+
+.header-image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.dark-text-color {
+    color: #9eb1bb;
+}
+
+.logo {
+    width: 85px;
+    margin-top: 10px;
+}
+
+.input-padding {
+    padding: 4px;
+}
+
+.image-preview-book {
+    height: 395px;
+}
+
+.image-preview__image-book {
+    /*display: none;*/
+    max-height: 395px;
+    width: 100%;
+}
+
+.image-preview-user {
+    height: 285px;
+}
+
+.image-preview__image-user {
+    /*display: none;*/
+    max-height: 285px;
+    width: 100%;
+}
+
+.half-from {
+    padding-left: 0;
+    padding-right: 4px;
+}
+
+.half-to {
+    padding-left: 4px;
+    padding-right: 0;
+}
+
+.label-filter {
+    padding-top: 5px;
+    padding-right: 5px;
+}
+
+.book-catalog-main {
+    height: 375px;
+}
+
+.book-catalog-half {
+    height: 275px;
+}
+
+.book-catalog-half-left {
+    padding-left: 4px;
+    padding-right: 2px;
+}
+
+.book-catalog-half-right {
+    padding-right: 4px;
+    padding-left: 2px;
+}
+
+.annotation-p {
+    margin: 0;
+}
+
+.annotation-div {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.book-catalog-image {
+    padding-top: 4px;
+    padding-left: 2px;
+    max-height: 250px;
+    width: 100%;
+}
+
+.book-catalog-span {
+    vertical-align: super;
+}
+
+.book-catalog-background-color {
+    color: #1f282d;
+    background-color: #c3cfd5;
+}
+
+.book-image-preview {
+    height: 450px;
+}
+
+.book-image {
+    max-height: 450px;
+    width: 100%;
+}
+
+.user-image-page {
+    height: 200px;
+    width: 200px;
+}
+
+.book-small-image-preview {
+    height: 320px;
+}
+
+.book-small-image {
+    max-height: 320px;
+    width: 100%;
+}
+
+.book-annotation {
+    resize: vertical;
+    height: 150px;
+}

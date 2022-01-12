@@ -30,7 +30,7 @@ public class MYSQLAuthorDAO implements AuthorDAO {
     private static final String UPDATE_AUTHOR = "UPDATE authors SET last_name=?, first_name=?, father_name=? WHERE id=?";
     private static final String GET_BOOKS = "SELECT COUNT(1) AS count_books FROM books_authors WHERE authors_id=?";
     private static final String DELETE_AUTHOR = "DELETE FROM authors WHERE id=?";
-    private static final String SELECT_AUTHORS = "SELECT * FROM authors";
+    private static final String SELECT_AUTHORS = "SELECT * FROM authors ORDER BY last_name, first_name, father_name";
 
     public MYSQLAuthorDAO() {}
 
@@ -69,23 +69,8 @@ public class MYSQLAuthorDAO implements AuthorDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -111,23 +96,8 @@ public class MYSQLAuthorDAO implements AuthorDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return author;
     }
@@ -149,16 +119,8 @@ public class MYSQLAuthorDAO implements AuthorDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -186,23 +148,8 @@ public class MYSQLAuthorDAO implements AuthorDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -219,32 +166,18 @@ public class MYSQLAuthorDAO implements AuthorDAO {
             preparedStatement = connection.prepareStatement(SELECT_AUTHORS);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                authors.add(new Author());
-                authors.get(authors.size() - 1).setId(resultSet.getInt(ID));
-                authors.get(authors.size() - 1).setLastName(resultSet.getString(LAST_NAME));
-                authors.get(authors.size() - 1).setFirstName(resultSet.getString(FIRST_NAME));
-                authors.get(authors.size() - 1).setFatherName(resultSet.getString(FATHER_NAME));
+                Author author = new Author();
+                author.setId(resultSet.getInt(ID));
+                author.setLastName(resultSet.getString(LAST_NAME));
+                author.setFirstName(resultSet.getString(FIRST_NAME));
+                author.setFatherName(resultSet.getString(FATHER_NAME));
+                authors.add(author);
             }
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return authors;
     }

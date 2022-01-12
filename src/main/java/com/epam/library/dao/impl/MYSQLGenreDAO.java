@@ -28,7 +28,7 @@ public class MYSQLGenreDAO implements GenreDAO {
     private static final String UPDATE_GENRE = "UPDATE genres SET name=? WHERE id=?";
     private static final String GET_BOOKS = "SELECT COUNT(1) AS count_books FROM books_genres WHERE genres_id=?";
     private static final String DELETE_GENRE = "DELETE FROM genres WHERE id=?";
-    private static final String SELECT_GENRES = "SELECT * FROM genres";
+    private static final String SELECT_GENRES = "SELECT * FROM genres ORDER BY name";
 
     public MYSQLGenreDAO() {}
 
@@ -63,23 +63,8 @@ public class MYSQLGenreDAO implements GenreDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -103,23 +88,8 @@ public class MYSQLGenreDAO implements GenreDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return genre;
     }
@@ -139,16 +109,8 @@ public class MYSQLGenreDAO implements GenreDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -176,23 +138,8 @@ public class MYSQLGenreDAO implements GenreDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -209,30 +156,16 @@ public class MYSQLGenreDAO implements GenreDAO {
             preparedStatement = connection.prepareStatement(SELECT_GENRES);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                genres.add(new Genre());
-                genres.get(genres.size() - 1).setId(resultSet.getInt(ID));
-                genres.get(genres.size() - 1).setName(resultSet.getString(NAME));
+                Genre genre = new Genre();
+                genre.setId(resultSet.getInt(ID));
+                genre.setName(resultSet.getString(NAME));
+                genres.add(genre);
             }
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return genres;
     }

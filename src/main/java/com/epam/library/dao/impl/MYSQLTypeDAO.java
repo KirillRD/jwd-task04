@@ -28,7 +28,7 @@ public class MYSQLTypeDAO implements TypeDAO {
     private static final String UPDATE_TYPE = "UPDATE types SET name=? WHERE id=?";
     private static final String GET_BOOKS = "SELECT COUNT(1) AS count_books FROM books WHERE types_id=?";
     private static final String DELETE_TYPE = "DELETE FROM types WHERE id=?";
-    private static final String SELECT_TYPES = "SELECT * FROM types";
+    private static final String SELECT_TYPES = "SELECT * FROM types ORDER BY name";
 
     public MYSQLTypeDAO() {}
 
@@ -63,23 +63,8 @@ public class MYSQLTypeDAO implements TypeDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -103,23 +88,8 @@ public class MYSQLTypeDAO implements TypeDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return type;
     }
@@ -139,16 +109,8 @@ public class MYSQLTypeDAO implements TypeDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -176,23 +138,8 @@ public class MYSQLTypeDAO implements TypeDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -209,30 +156,16 @@ public class MYSQLTypeDAO implements TypeDAO {
             preparedStatement = connection.prepareStatement(SELECT_TYPES);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                types.add(new Type());
-                types.get(types.size() - 1).setId(resultSet.getInt(ID));
-                types.get(types.size() - 1).setName(resultSet.getString(NAME));
+                Type type = new Type();
+                type.setId(resultSet.getInt(ID));
+                type.setName(resultSet.getString(NAME));
+                types.add(type);
             }
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return types;
     }

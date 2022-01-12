@@ -1,14 +1,12 @@
 package com.epam.library.dao.connection_pool;
 
-import com.epam.library.dao.exception.ConnectionPoolException;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConnectionPool {
+public final class ConnectionPool {
     private static final ConnectionPool instance = new ConnectionPool();
 
     private final String driverName;
@@ -54,15 +52,42 @@ public class ConnectionPool {
         }
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
         Connection connection = connectionPool.remove(connectionPool.size() - 1);
         usedConnections.add(connection);
         return connection;
     }
 
-    public void releaseConnection(Connection connection) {
+    public synchronized void releaseConnection(Connection connection) {
         connectionPool.add(connection);
         usedConnections.remove(connection);
+    }
+
+    public void closeConnection(ResultSet resultSet, PreparedStatement preparedStatement) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                //TODO logger
+            }
+        }
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                //TODO logger
+            }
+        }
+    }
+
+    public void closeConnection(PreparedStatement preparedStatement) {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                //TODO logger
+            }
+        }
     }
 
     public void shutdown() throws ConnectionPoolException {

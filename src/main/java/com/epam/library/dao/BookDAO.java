@@ -9,6 +9,6 @@ public interface BookDAO {
     void addBook(Book book) throws DAOException;
     Book getBook(int bookID) throws DAOException;
     void updateBook(Book book) throws DAOException;
-    void deleteBook(Book book) throws DAOException;
+    void deleteBook(int bookID) throws DAOException;
     List<Book> getBooksByCriteria() throws DAOException;
 }

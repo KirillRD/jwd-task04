@@ -17,9 +17,6 @@ public class Book implements Serializable {
     private int part;
     private String isbn;
     private String issn;
-    private String udc;
-    private String lbc;
-    private String copyrightMark;
     private String annotation;
     private double price;
     private String imageURL;
@@ -114,30 +111,6 @@ public class Book implements Serializable {
         this.issn = issn;
     }
 
-    public String getUdc() {
-        return udc;
-    }
-
-    public void setUdc(String udc) {
-        this.udc = udc;
-    }
-
-    public String getLbc() {
-        return lbc;
-    }
-
-    public void setLbc(String lbc) {
-        this.lbc = lbc;
-    }
-
-    public String getCopyrightMark() {
-        return copyrightMark;
-    }
-
-    public void setCopyrightMark(String copyrightMark) {
-        this.copyrightMark = copyrightMark;
-    }
-
     public String getAnnotation() {
         return annotation;
     }
@@ -167,12 +140,12 @@ public class Book implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return id == book.id && publisherID == book.publisherID && typeID == book.typeID && publicationYear == book.publicationYear && pages == book.pages && part == book.part && Double.compare(book.price, price) == 0 && Objects.equals(name, book.name) && Objects.equals(authorsID, book.authorsID) && Objects.equals(genresID, book.genresID) && Objects.equals(isbn, book.isbn) && Objects.equals(issn, book.issn) && Objects.equals(udc, book.udc) && Objects.equals(lbc, book.lbc) && Objects.equals(copyrightMark, book.copyrightMark) && Objects.equals(annotation, book.annotation) && Objects.equals(imageURL, book.imageURL);
+        return id == book.id && publisherID == book.publisherID && typeID == book.typeID && publicationYear == book.publicationYear && pages == book.pages && part == book.part && Double.compare(book.price, price) == 0 && Objects.equals(name, book.name) && Objects.equals(authorsID, book.authorsID) && Objects.equals(genresID, book.genresID) && Objects.equals(isbn, book.isbn) && Objects.equals(issn, book.issn) && Objects.equals(annotation, book.annotation) && Objects.equals(imageURL, book.imageURL);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, authorsID, publisherID, typeID, genresID, publicationYear, pages, part, isbn, issn, udc, lbc, copyrightMark, annotation, price, imageURL);
+        return Objects.hash(id, name, authorsID, publisherID, typeID, genresID, publicationYear, pages, part, isbn, issn, annotation, price, imageURL);
     }
 
     @Override
@@ -189,9 +162,6 @@ public class Book implements Serializable {
                 ", part=" + part +
                 ", isbn='" + isbn + '\'' +
                 ", issn='" + issn + '\'' +
-                ", udc='" + udc + '\'' +
-                ", lbc='" + lbc + '\'' +
-                ", copyrightMark='" + copyrightMark + '\'' +
                 ", annotation='" + annotation + '\'' +
                 ", price=" + price +
                 ", imageURL='" + imageURL + '\'' +

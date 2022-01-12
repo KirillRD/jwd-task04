@@ -1,18 +1,17 @@
 package com.epam.library.entity;
 
-import com.epam.library.entity.reservation.ReservationInstance;
+import com.epam.library.entity.reservation.ReservationStatus;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class Reservation implements Serializable {
     private int id;
+    private int instanceID;
     private int readerID;
     private Date date;
-    private List<ReservationInstance> reservationList = new ArrayList<>();
+    private ReservationStatus status;
 
     public Reservation() {}
 
@@ -22,6 +21,14 @@ public class Reservation implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getInstanceID() {
+        return instanceID;
+    }
+
+    public void setInstanceID(int instanceID) {
+        this.instanceID = instanceID;
     }
 
     public int getReaderID() {
@@ -40,12 +47,12 @@ public class Reservation implements Serializable {
         this.date = date;
     }
 
-    public List<ReservationInstance> getReservationList() {
-        return reservationList;
+    public ReservationStatus getStatus() {
+        return status;
     }
 
-    public void setReservationList(List<ReservationInstance> reservationList) {
-        this.reservationList = reservationList;
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
     }
 
     @Override
@@ -53,21 +60,22 @@ public class Reservation implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Reservation that = (Reservation) o;
-        return id == that.id && readerID == that.readerID && Objects.equals(date, that.date) && Objects.equals(reservationList, that.reservationList);
+        return id == that.id && instanceID == that.instanceID && readerID == that.readerID && Objects.equals(date, that.date) && status == that.status;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, readerID, date, reservationList);
+        return Objects.hash(id, instanceID, readerID, date, status);
     }
 
     @Override
     public String toString() {
         return "Reservation{" +
                 "id=" + id +
+                ", instanceID=" + instanceID +
                 ", readerID=" + readerID +
                 ", date=" + date +
-                ", reservationList=" + reservationList +
+                ", status=" + status +
                 '}';
     }
 }

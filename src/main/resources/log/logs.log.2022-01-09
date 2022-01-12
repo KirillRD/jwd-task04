@@ -1,0 +1,10 @@
+[INFO ] 2022-01-09 13:54:29,640 com.epam.library.controller.session.SessionUserProvider - Put session user in session
+[INFO ] 2022-01-09 13:54:31,743 com.epam.library.controller.session.SessionUserProvider - Return session user from session
+[INFO ] 2022-01-09 13:54:46,241 com.epam.library.controller.session.SessionUserProvider - Return session user from session
+[INFO ] 2022-01-09 13:55:22,565 com.epam.library.controller.session.SessionUserProvider - Remove session user from session
+[INFO ] 2022-01-09 13:55:28,437 com.epam.library.controller.session.SessionUserProvider - Put session user in session
+[INFO ] 2022-01-09 14:03:14,649 com.epam.library.controller.session.SessionUserProvider - Return session user from session
+[INFO ] 2022-01-09 14:03:19,302 com.epam.library.controller.session.SessionUserProvider - Remove session user from session
+[INFO ] 2022-01-09 14:03:39,119 com.epam.library.controller.session.SessionUserProvider - Put session user in session
+[INFO ] 2022-01-09 14:04:19,319 com.epam.library.controller.session.SessionUserProvider - Return session user from session
+[INFO ] 2022-01-09 14:04:20,184 com.epam.library.controller.session.SessionUserProvider - Remove session user from session

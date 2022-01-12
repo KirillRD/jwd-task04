@@ -25,9 +25,6 @@ public class MYSQLBookDAO implements BookDAO {
     private static final String PART = "part";
     private static final String ISBN = "isbn";
     private static final String ISSN = "issn";
-    private static final String UDC = "udc";
-    private static final String LBC = "lbc";
-    private static final String COPYRIGHT_MARK = "copyright_mark";
     private static final String ANNOTATION = "annotation";
     private static final String PRICE = "price";
     private static final String IMAGE = "image";
@@ -35,15 +32,15 @@ public class MYSQLBookDAO implements BookDAO {
     private static final String AUTHOR_ID = "authors_id";
     private static final String DEFAULT_IMAGE_BOOK = "images/books/default_image_book";
 
-    private static final String GET_BOOK_BY_ISBN_ISSN = "SELECT COUNT(1) AS count_books FROM books WHERE (isbn IS NULL OR isbn=?) OR (issn IS NULL OR issn=?)";
+    private static final String GET_BOOK_BY_ISBN_ISSN = "SELECT COUNT(1) AS count_books FROM books WHERE (isbn IS NULL OR isbn=?) AND (issn IS NULL OR issn=?)";
     private static final String GET_MAX_ID_BOOK = "SELECT MAX(id) FROM books";
-    private static final String INSERT_BOOK = "INSERT INTO books (id, name, publishers_id, types_id, publication_year, pages, part, isbn, issn, udc, lbc, copyright_mark, annotation, price, image) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    private static final String INSERT_BOOK = "INSERT INTO books (id, name, publishers_id, types_id, publication_year, pages, part, isbn, issn, annotation, price, image) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String INSERT_BOOK_GENRE = "INSERT INTO books_genres (books_id, genres_id) VALUES (?,?)";
     private static final String INSERT_BOOK_AUTHOR = "INSERT INTO books_authors (books_id, authors_id) VALUES (?,?)";
     private static final String SELECT_BOOK = "SELECT * FROM books WHERE id=?";
     private static final String SELECT_BOOK_GENRES = "SELECT * FROM books_genres WHERE books_id=?";
     private static final String SELECT_BOOK_AUTHORS = "SELECT * FROM books_authors WHERE books_id=?";
-    private static final String UPDATE_BOOK = "UPDATE books SET name=?, publishers_id=?, types_id=?, publication_year=?, pages=?, part=?, isbn=?, issn=?, udc=?, lbc=?, copyright_mark=?, annotation=?, price=?, image=? WHERE id=?";
+    private static final String UPDATE_BOOK = "UPDATE books SET name=?, publishers_id=?, types_id=?, publication_year=?, pages=?, part=?, isbn=?, issn=?, annotation=?, price=?, image=? WHERE id=?";
     private static final String DELETE_BOOK_GENRES = "DELETE FROM books_genres WHERE books_id=?";
     private static final String DELETE_BOOK_AUTHORS = "DELETE FROM books_authors WHERE books_id=?";
     private static final String GET_INSTANCES = "SELECT COUNT(1) AS count_instances FROM instances WHERE books_id=?";
@@ -85,12 +82,9 @@ public class MYSQLBookDAO implements BookDAO {
                     preparedStatement.setInt(7, book.getPart());
                     preparedStatement.setString(8, book.getIsbn());
                     preparedStatement.setString(9, book.getIssn());
-                    preparedStatement.setString(10, book.getUdc());
-                    preparedStatement.setString(11, book.getLbc());
-                    preparedStatement.setString(12, book.getCopyrightMark());
-                    preparedStatement.setString(13, book.getAnnotation());
-                    preparedStatement.setDouble(14, book.getPrice());
-                    preparedStatement.setString(15, DEFAULT_IMAGE_BOOK);//TODO загрузка картинки книги
+                    preparedStatement.setString(10, book.getAnnotation());
+                    preparedStatement.setDouble(11, book.getPrice());
+                    preparedStatement.setString(12, DEFAULT_IMAGE_BOOK);//TODO загрузка картинки книги
                     preparedStatement.executeUpdate();
 
                     preparedStatement = connection.prepareStatement(INSERT_BOOK_GENRE);
@@ -122,23 +116,8 @@ public class MYSQLBookDAO implements BookDAO {
                 //TODO logger
             }
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -165,9 +144,6 @@ public class MYSQLBookDAO implements BookDAO {
                 book.setPart(resultSet.getInt(PART));
                 book.setIsbn(resultSet.getString(ISBN));
                 book.setIssn(resultSet.getString(ISSN));
-                book.setUdc(resultSet.getString(UDC));
-                book.setLbc(resultSet.getString(LBC));
-                book.setCopyrightMark(resultSet.getString(COPYRIGHT_MARK));
                 book.setAnnotation(resultSet.getString(ANNOTATION));
                 book.setPrice(resultSet.getDouble(PRICE));
                 book.setImageURL(resultSet.getString(IMAGE));
@@ -189,23 +165,8 @@ public class MYSQLBookDAO implements BookDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return book;
     }
@@ -229,13 +190,10 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.setInt(6, book.getPart());
             preparedStatement.setString(7, book.getIsbn());
             preparedStatement.setString(8, book.getIssn());
-            preparedStatement.setString(9, book.getUdc());
-            preparedStatement.setString(10, book.getLbc());
-            preparedStatement.setString(11, book.getCopyrightMark());
-            preparedStatement.setString(12, book.getAnnotation());
-            preparedStatement.setDouble(13, book.getPrice());
-            preparedStatement.setString(14, book.getImageURL());
-            preparedStatement.setInt(15, book.getId());
+            preparedStatement.setString(9, book.getAnnotation());
+            preparedStatement.setDouble(10, book.getPrice());
+            preparedStatement.setString(11, book.getImageURL());
+            preparedStatement.setInt(12, book.getId());
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(DELETE_BOOK_GENRES);
@@ -271,21 +229,13 @@ public class MYSQLBookDAO implements BookDAO {
                 //TODO logger
             }
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 
     @Override
-    public void deleteBook(Book book) throws DAOException {
+    public void deleteBook(int bookID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -294,26 +244,26 @@ public class MYSQLBookDAO implements BookDAO {
             connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_INSTANCES);
-            preparedStatement.setInt(1, book.getId());
+            preparedStatement.setInt(1, bookID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (resultSet.getInt(COUNT_INSTANCES) == 0) {
                     connection.setAutoCommit(false);
 
                     preparedStatement = connection.prepareStatement(DELETE_BOOK_GENRES);
-                    preparedStatement.setInt(1, book.getId());
+                    preparedStatement.setInt(1, bookID);
                     preparedStatement.executeUpdate();
 
                     preparedStatement = connection.prepareStatement(DELETE_BOOK_AUTHORS);
-                    preparedStatement.setInt(1, book.getId());
+                    preparedStatement.setInt(1, bookID);
                     preparedStatement.executeUpdate();
 
                     preparedStatement = connection.prepareStatement(DELETE_BOOK_REVIEWS);
-                    preparedStatement.setInt(1, book.getId());
+                    preparedStatement.setInt(1, bookID);
                     preparedStatement.executeUpdate();
 
                     preparedStatement = connection.prepareStatement(DELETE_BOOK);
-                    preparedStatement.setInt(1, book.getId());
+                    preparedStatement.setInt(1, bookID);
                     preparedStatement.executeUpdate();
 
                     connection.commit();
@@ -331,23 +281,8 @@ public class MYSQLBookDAO implements BookDAO {
                 //TODO logger
             }
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 

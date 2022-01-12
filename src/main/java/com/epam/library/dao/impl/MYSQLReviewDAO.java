@@ -25,7 +25,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
 
     private static final String GET_REVIEW_BY_BOOK_READER = "SELECT COUNT(1) AS count_reviews FROM reviews WHERE books_id=? AND reader_id=?";
     private static final String GET_MAX_ID_REVIEW = "SELECT MAX(id) FROM reviews";
-    private static final String INSERT_REVIEW = "INSERT INTO reviews (id, books_id, reader_id, rating, comment, date) VALUES (?,?,?,?,?,?)";
+    private static final String INSERT_REVIEW = "INSERT INTO reviews (id, books_id, reader_id, rating, comment, date) VALUES (?,?,?,?,?,CURDATE())";
     private static final String SELECT_REVIEW = "SELECT * FROM reviews WHERE id=?";
     private static final String UPDATE_REVIEW = "UPDATE reviews SET books_id=?, reader_id=?, rating=?, comment=?, date=? WHERE id=?";
     private static final String DELETE_REVIEW = "DELETE FROM reviews WHERE id=?";
@@ -59,7 +59,6 @@ public class MYSQLReviewDAO implements ReviewDAO {
                     preparedStatement.setInt(3, review.getReaderID());
                     preparedStatement.setInt(4, review.getRating());
                     preparedStatement.setString(5, review.getComment());
-                    preparedStatement.setDate(6, review.getDate());
                     preparedStatement.executeUpdate();
                 } else {
                     //TODO logger
@@ -68,23 +67,8 @@ public class MYSQLReviewDAO implements ReviewDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -112,23 +96,8 @@ public class MYSQLReviewDAO implements ReviewDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return review;
     }
@@ -152,16 +121,8 @@ public class MYSQLReviewDAO implements ReviewDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -179,16 +140,8 @@ public class MYSQLReviewDAO implements ReviewDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 

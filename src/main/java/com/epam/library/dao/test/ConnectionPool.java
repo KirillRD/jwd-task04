@@ -2,7 +2,7 @@ package com.epam.library.dao.test;
 
 import com.epam.library.dao.connection_pool.DBParameter;
 import com.epam.library.dao.connection_pool.DBResourceManager;
-import com.epam.library.dao.exception.ConnectionPoolException;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 
 import java.sql.*;
 import java.util.Map;

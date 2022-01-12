@@ -1,0 +1,179 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<fmt:setLocale value="${sessionScope.locale}"/>
+<fmt:setBundle basename="locale"/>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><fmt:message key="title"/></title>
+        <jsp:include page="tempalte/links.jsp" />
+    </head>
+    <body class="w3-theme-l4">
+        <jsp:include page="tempalte/header.jsp" />
+        <jsp:include page="tempalte/nav.jsp" />
+        <main class="w3-auto w3-container">
+            <div class="w3-quarter w3-container">
+                <div class="w3-margin-top w3-display-container book-small-image-preview">
+                    <img class="book-small-image w3-display-middle" src="${requestScope.book_info.imageURL}">
+                </div>
+            </div>
+            <div class="w3-threequarter w3-container">
+                <p>
+                    <b>${requestScope.book_info.name}</b>
+                    <br>
+                    <c:forEach var="author" varStatus="loop" items="${requestScope.book_info.authors}">
+                        <c:if test="${loop.index != 0}">
+                            ,
+                        </c:if>
+                        ${author}
+                    </c:forEach>
+                    <br>
+                    <br><fmt:message key="book.publisher"/>: ${requestScope.book_info.publisher}
+                    <br><fmt:message key="book.city"/>: ${requestScope.book_info.city}
+                    <br><fmt:message key="book.publication-year"/>: ${requestScope.book_info.publicationYear}
+                    <br><fmt:message key="book.pages"/>: ${requestScope.book_info.pages}
+                    <c:if test="${requestScope.book_info.part > 0}">
+                        <br><fmt:message key="book.part"/>: ${requestScope.book_info.part}
+                    </c:if>
+                    <br><fmt:message key="book.type"/>: ${requestScope.book_info.type}
+                    <br><fmt:message key="book.genres"/>:
+                    <c:forEach var="genre" varStatus="loop" items="${requestScope.book_info.genres}">
+                        <c:if test="${loop.index != 0}">
+                            ,
+                        </c:if>
+                        ${genre}
+                    </c:forEach>
+                    <br>
+                    <c:if test="${requestScope.book_info.isbn != ''}">
+                        <br><fmt:message key="book.isbn"/>: ${requestScope.book_info.isbn}
+                    </c:if>
+                    <c:if test="${requestScope.book_info.issn != ''}">
+                        <br><fmt:message key="book.issn"/>: ${requestScope.book_info.issn}
+                    </c:if>
+                </p>
+            </div>
+
+            <div class="w3-container w3-text-blue-grey">
+                <div class="w3-row">
+                    <div class="w3-col w3-container" style="width: 10%"></div>
+                    <div class="w3-col w3-container" style="width: 80%">
+                        <h3 class="w3-center"><fmt:message key="instance.instances"/></h3>
+                        <div class="w3-container w3-card w3-round-large">
+                            <form action="controller" method="post">
+                                <input type="hidden" name="command" value="add-edit-instance">
+                                <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
+                                <c:if test="${requestScope.instance != null}">
+                                    <input type="hidden" name="instance_id" value="${requestScope.instance.id}">
+                                </c:if>
+
+                                <div class="w3-half w3-container">
+                                    <p>
+                                        <label><fmt:message key="instance.number"/></label>
+                                        <input class="input-padding w3-input w3-round" type="text" name="number" value="${requestScope.instance.number}">
+                                    </p>
+                                    <p>
+                                        <label><fmt:message key="instance.hall"/></label>
+                                        <select id="single-hall" type="text" name="hall">
+                                            <option data-placeholder="true"></option>
+                                            <c:forEach var="hall" items="${requestScope.halls}">
+                                                <option value="${hall.id}"
+                                                        <c:if test="${hall.id == requestScope.instance.hallID}">
+                                                            selected
+                                                        </c:if>
+                                                >${hall.name}</option>
+                                            </c:forEach>
+                                        </select>
+                                        <script>
+                                            new SlimSelect({
+                                                select: '#single-hall',
+                                                allowDeselect: true
+                                            })
+                                        </script>
+                                    </p>
+                                </div>
+
+                                <div class="w3-half w3-container">
+                                    <p>
+                                        <label><fmt:message key="instance.received-date"/></label>
+                                        <input class="input-padding w3-input w3-round" type="date" name="received_date" value="${requestScope.instance.receivedDate}">
+                                    </p>
+                                    <p>
+                                        <label><fmt:message key="instance.write-off-date"/></label>
+                                        <input class="input-padding w3-input w3-round" type="date" name="write_off_date" value="${requestScope.instance.writeOffDate}">
+                                    </p>
+                                </div>
+                                <button class="w3-button w3-right w3-theme w3-margin-bottom w3-round-large" type="submit"><fmt:message key="instance.save"/></button>
+                            </form>
+                            <form action="controller" method="get">
+                                <input type="hidden" name="command" value="instance-page">
+                                <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
+                                <button class="w3-button w3-right w3-theme w3-margin-bottom w3-margin-right w3-round-large" type="submit"><fmt:message key="instance.cancel"/></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="w3-col w3-container" style="width: 10%"></div>
+                </div>
+
+                <div class="w3-container w3-margin-top">
+                    <table class="w3-table w3-striped w3-border w3-hoverable">
+                        <tr>
+                            <th><fmt:message key="instance.number"/></th>
+                            <th><fmt:message key="instance.hall"/></th>
+                            <th><fmt:message key="instance.received"/></th>
+                            <th><fmt:message key="instance.write-off"/></th>
+                            <th><fmt:message key="instance.status"/></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <c:forEach var="instance" items="${requestScope.book_instances}">
+                            <tr class="
+                                <c:if test="${instance.id == requestScope.instance.id}">
+                                    w3-theme-l3
+                                </c:if>"
+                            >
+                                <td>${instance.number}</td>
+                                <td>${instance.hallName}</td>
+                                <td>${instance.receivedDate}</td>
+                                <td>${instance.writeOffDate}</td>
+                                <td class="${instance.status == 'LOST' ? 'w3-text-red' : ''}
+                                           ${instance.status == 'FREE' ? 'w3-text-green' : ''}
+                                           ${instance.status == 'ISSUED' ? 'w3-text-yellow' : ''}
+                                           ${instance.status == 'RESERVED' ? 'w3-text-yellow' : ''}">${instance.status}</td>
+                                <td>
+                                    <form action="controller" method="get">
+                                        <input type="hidden" name="command" value="instance-page">
+                                        <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
+                                        <input type="hidden" name="instance_id" value="${instance.id}">
+                                        <button class="link" type="submit"><span class="material-icons-outlined w3-text-blue-gray" title="<fmt:message key="instance.edit-instance"/>">mode_edit</span></button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="controller" method="post" onsubmit="return confirm('Do you really want this?');">
+                                        <input type="hidden" name="command" value="delete-instance">
+                                        <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
+                                        <input type="hidden" name="instance_id" value="${instance.id}">
+                                        <button class="link" type="submit"
+                                            <c:if test="${instance.instanceIsUsed}">
+                                                disabled
+                                            </c:if>
+                                        ><span class="material-icons-outlined
+                                             <c:if test="${instance.instanceIsUsed}">
+                                                w3-text-gray
+                                             </c:if>
+                                             <c:if test="${!instance.instanceIsUsed}">
+                                                w3-text-red
+                                             </c:if>"
+                                        title="<fmt:message key="instance.delete-instance"/>">clear</span></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <jsp:include page="tempalte/footer.jsp" />
+    </body>
+</html>

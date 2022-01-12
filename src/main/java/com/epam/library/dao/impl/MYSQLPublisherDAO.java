@@ -29,7 +29,7 @@ public class MYSQLPublisherDAO implements PublisherDAO {
     private static final String UPDATE_PUBLISHER = "UPDATE publishers SET name=?, city=? WHERE id=?";
     private static final String GET_BOOKS = "SELECT COUNT(1) AS count_books FROM books WHERE publishers_id=?";
     private static final String DELETE_PUBLISHER = "DELETE FROM publishers WHERE id=?";
-    private static final String SELECT_PUBLISHERS = "SELECT * FROM publishers";
+    private static final String SELECT_PUBLISHERS = "SELECT * FROM publishers ORDER BY name";
 
     public MYSQLPublisherDAO() {}
 
@@ -65,23 +65,8 @@ public class MYSQLPublisherDAO implements PublisherDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -106,23 +91,8 @@ public class MYSQLPublisherDAO implements PublisherDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return publisher;
     }
@@ -143,16 +113,8 @@ public class MYSQLPublisherDAO implements PublisherDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -180,23 +142,8 @@ public class MYSQLPublisherDAO implements PublisherDAO {
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -213,31 +160,17 @@ public class MYSQLPublisherDAO implements PublisherDAO {
             preparedStatement = connection.prepareStatement(SELECT_PUBLISHERS);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                publishers.add(new Publisher());
-                publishers.get(publishers.size() - 1).setId(resultSet.getInt(ID));
-                publishers.get(publishers.size() - 1).setName(resultSet.getString(NAME));
-                publishers.get(publishers.size() - 1).setCity(resultSet.getString(CITY));
+                Publisher publisher = new Publisher();
+                publisher.setId(resultSet.getInt(ID));
+                publisher.setName(resultSet.getString(NAME));
+                publisher.setCity(resultSet.getString(CITY));
+                publishers.add(publisher);
             }
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    //TODO logger
-                }
-            }
-            if (connection != null) {
-                connectionPool.releaseConnection(connection);
-            }
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
         return publishers;
     }

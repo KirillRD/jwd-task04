@@ -5,25 +5,21 @@ import com.epam.library.entity.user.Role;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class User implements Serializable {
     private int id;
-    private List<Role> roles = new ArrayList<>();
-    private String login;
+    private Role role;
+    private String nickname;
     private String email;
     private String lastName;
     private String firstName;
     private String fatherName;
-    private Date birthdate;
+    private Date birthday;
     private Gender gender;
     private String passport;
     private String address;
     private String phone;
-    private Date registrationDate;
-    private int rating;
     private String imageURL;
 
     public User() {}
@@ -36,20 +32,20 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
-    public String getLogin() {
-        return login;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getEmail() {
@@ -84,12 +80,12 @@ public class User implements Serializable {
         this.fatherName = fatherName;
     }
 
-    public Date getBirthdate() {
-        return birthdate;
+    public Date getBirthday() {
+        return birthday;
     }
 
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
     }
 
     public Gender getGender() {
@@ -124,22 +120,6 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
-    public Date getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(Date registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
     public String getImageURL() {
         return imageURL;
     }
@@ -153,31 +133,29 @@ public class User implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && rating == user.rating && Objects.equals(roles, user.roles) && Objects.equals(login, user.login) && Objects.equals(email, user.email) && Objects.equals(lastName, user.lastName) && Objects.equals(firstName, user.firstName) && Objects.equals(fatherName, user.fatherName) && Objects.equals(birthdate, user.birthdate) && gender == user.gender && Objects.equals(passport, user.passport) && Objects.equals(address, user.address) && Objects.equals(phone, user.phone) && Objects.equals(registrationDate, user.registrationDate) && Objects.equals(imageURL, user.imageURL);
+        return id == user.id && role == user.role && Objects.equals(nickname, user.nickname) && Objects.equals(email, user.email) && Objects.equals(lastName, user.lastName) && Objects.equals(firstName, user.firstName) && Objects.equals(fatherName, user.fatherName) && Objects.equals(birthday, user.birthday) && gender == user.gender && Objects.equals(passport, user.passport) && Objects.equals(address, user.address) && Objects.equals(phone, user.phone) && Objects.equals(imageURL, user.imageURL);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, roles, login, email, lastName, firstName, fatherName, birthdate, gender, passport, address, phone, registrationDate, rating, imageURL);
+        return Objects.hash(id, role, nickname, email, lastName, firstName, fatherName, birthday, gender, passport, address, phone, imageURL);
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", roles=" + roles +
-                ", login='" + login + '\'' +
+                ", role=" + role +
+                ", nickname='" + nickname + '\'' +
                 ", email='" + email + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", fatherName='" + fatherName + '\'' +
-                ", birthdate=" + birthdate +
+                ", birthday=" + birthday +
                 ", gender=" + gender +
                 ", passport='" + passport + '\'' +
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
-                ", registrationDate=" + registrationDate +
-                ", rating=" + rating +
                 ", imageURL='" + imageURL + '\'' +
                 '}';
     }
