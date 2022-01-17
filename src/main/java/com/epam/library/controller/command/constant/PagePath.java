@@ -7,7 +7,7 @@ public final class PagePath {
     public static final String MAIN_PAGE = "/WEB-INF/jsp/main.jsp";
     public static final String REGISTRATION_PAGE = "/WEB-INF/jsp/registration.jsp";
     public static final String AUTHENTICATION_PAGE = "/WEB-INF/jsp/authentication.jsp";
-    public static final String ERROR_PAGE = "/WEB-INF/jsp/error.jsp";
+    public static final String ERROR_PAGE = "error.jsp";
     public static final String ADD_EDIT_BOOK_PAGE = "/WEB-INF/jsp/add-edit-book.jsp";
     public static final String BOOK_CATALOG_PAGE = "/WEB-INF/jsp/book-catalog.jsp";
     public static final String BOOK_PAGE = "/WEB-INF/jsp/book.jsp";

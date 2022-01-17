@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.instance.BookInstance;
 import com.epam.library.entity.instance.Hall;
@@ -14,6 +16,7 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,24 +42,38 @@ public class InstancePage implements Command {
         try {
             halls = hallService.getHallList();
             request.setAttribute(HALLS, halls);
-
+            if (request.getParameter(BOOK_ID) == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+
+            bookInfo = bookCatalogService.getBookCatalog(bookID);
+            if (bookInfo == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
+            request.setAttribute(BOOK_INFO, bookInfo);
+
+            bookInstances = instanceService.getBookInstances(bookID);
+            request.setAttribute(BOOK_INSTANCES, bookInstances);
 
             if (request.getParameter(INSTANCE_ID) != null) {
                 int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
                 BookInstance instance = instanceService.getBookInstance(instanceID);
-                request.setAttribute(INSTANCE, instance);
+                if (instance == null) {
+                    RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                    return;
+                }
+                HttpSession session = request.getSession();
+                if (session.getAttribute(INSTANCE) == null) {
+                    session.setAttribute(INSTANCE, instance);
+                }
             }
 
-            bookInfo = bookCatalogService.getBookCatalog(bookID);
-            request.setAttribute(BOOK_INFO, bookInfo);
-
-            bookInstances = instanceService.getBookInstances(bookInfo.getId());
-            request.setAttribute(BOOK_INSTANCES, bookInstances);
+            RequestProvider.forward(PagePath.INSTANCE_PAGE, request, response);
         } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
-
-        RequestProvider.forward(PagePath.INSTANCE_PAGE, request, response);
     }
 }

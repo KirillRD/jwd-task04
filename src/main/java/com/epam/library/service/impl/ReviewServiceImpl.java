@@ -16,9 +16,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void addReview(Review review) throws ServiceException {
+    public boolean addReview(Review review) throws ServiceException {
         try {
-            reviewDAO.addReview(review);
+            return reviewDAO.addReview(review);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

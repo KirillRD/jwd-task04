@@ -7,9 +7,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public interface InstanceService {
-    void addInstance(Instance instance) throws ServiceException;
-    void updateInstance(Instance instance) throws ServiceException;
-    void deleteInstance(int instanceID) throws ServiceException;
+    boolean addInstance(Instance instance) throws ServiceException;
+    boolean updateInstance(Instance instance) throws ServiceException;
+    boolean deleteInstance(int instanceID) throws ServiceException;
     BookInstance getBookInstance(int instanceID) throws ServiceException;
     List<BookInstance> getBookInstances(int bookID) throws ServiceException;
 }

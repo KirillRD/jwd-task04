@@ -16,9 +16,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void addBook(Book book) throws ServiceException {
+    public boolean addBook(Book book) throws ServiceException {
         try {
-            bookDAO.addBook(book);
+            return bookDAO.addBook(book);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
@@ -36,18 +36,18 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void updateBook(Book book) throws ServiceException {
+    public boolean updateBook(Book book) throws ServiceException {
         try {
-            bookDAO.updateBook(book);
+            return bookDAO.updateBook(book);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public void deleteBook(int bookID) throws ServiceException {
+    public boolean deleteBook(int bookID) throws ServiceException {
         try {
-            bookDAO.deleteBook(bookID);
+            return bookDAO.deleteBook(bookID);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

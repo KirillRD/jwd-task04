@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.Role;
@@ -13,6 +15,7 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -27,21 +30,26 @@ public class GoToEditUserPage implements Command {
         UserService userService = ServiceProvider.getInstance().getUserService();
 
         try {
-            int id;
+            int userID;
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
             if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                id = Integer.parseInt(request.getParameter(USER_ID));
+                userID = Integer.parseInt(request.getParameter(USER_ID));
             } else if (request.getParameter(READER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                id = Integer.parseInt(request.getParameter(READER_ID));
+                userID = Integer.parseInt(request.getParameter(READER_ID));
             } else {
-                id = sessionUser.getId();
+                userID = sessionUser.getId();
             }
-            User user = userService.getUser(id);
-            request.setAttribute(USER, user);
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
+            User user = userService.getUser(userID);
+            if (user == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
+            HttpSession session = request.getSession();
+            session.setAttribute(USER, user);
 
-        RequestProvider.forward(PagePath.EDIT_USER_PAGE, request, response);
+            RequestProvider.forward(PagePath.EDIT_USER_PAGE, request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

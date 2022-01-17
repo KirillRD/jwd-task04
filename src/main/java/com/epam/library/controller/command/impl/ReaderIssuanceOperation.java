@@ -2,7 +2,7 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.service.IssuanceService;
 import com.epam.library.service.ServiceProvider;
@@ -49,11 +49,11 @@ public class ReaderIssuanceOperation implements Command {
                     default:
                 }
             }
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
-        int readerID = Integer.parseInt(request.getParameter(READER_ID));
+            int readerID = Integer.parseInt(request.getParameter(READER_ID));
 
-        RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
+            RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

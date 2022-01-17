@@ -82,6 +82,15 @@
                 <p class="annotation-p"><fmt:message key="book.annotation"/>: ${requestScope.book_info.annotation}</p>
             </div>
 
+            <c:if test="${sessionScope.message != null}">
+                <div class="w3-row">
+                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                        <p><fmt:message key="message.${sessionScope.message}"/></p>
+                    </div>
+                </div>
+                <c:remove var="message" scope="session"/>
+            </c:if>
+
             <c:set var="userCooment" value="true" scope="page"/>
             <c:forEach var="review" items="${requestScope.book_review}">
                 <c:if test="${review.userID == sessionScope.session_user.id}">
@@ -99,19 +108,19 @@
                                 <h3><fmt:message key="book.review"/></h3>
                                 <fieldset class="starability-basic">
                                     <input type="radio" id="rate5" name="rating" value="5" required/>
-                                    <label for="rate5" title="<fmt:message key="book.rating.5"/>">5 stars</label>
+                                    <label for="rate5" title="<fmt:message key="book.rating.5"/>"></label>
 
                                     <input type="radio" id="rate4" name="rating" value="4" required/>
-                                    <label for="rate4" title="<fmt:message key="book.rating.4"/>">4 stars</label>
+                                    <label for="rate4" title="<fmt:message key="book.rating.4"/>"></label>
 
                                     <input type="radio" id="rate3" name="rating" value="3" required/>
-                                    <label for="rate3" title="<fmt:message key="book.rating.3"/>">3 stars</label>
+                                    <label for="rate3" title="<fmt:message key="book.rating.3"/>"></label>
 
                                     <input type="radio" id="rate2" name="rating" value="2" required/>
-                                    <label for="rate2" title="<fmt:message key="book.rating.2"/>">2 stars</label>
+                                    <label for="rate2" title="<fmt:message key="book.rating.2"/>"></label>
 
                                     <input type="radio" id="rate1" name="rating" value="1" required/>
-                                    <label for="rate1" title="<fmt:message key="book.rating.1"/>">1 star</label>
+                                    <label for="rate1" title="<fmt:message key="book.rating.1"/>"></label>
                                 </fieldset>
                                 <textarea class="w3-input w3-round" maxlength="1000" name="comment" style="resize: vertical"></textarea>
                                 <button class="w3-button w3-right w3-theme w3-margin-bottom w3-margin-top w3-round-large" type="submit"><fmt:message key="book.add-review"/></button>

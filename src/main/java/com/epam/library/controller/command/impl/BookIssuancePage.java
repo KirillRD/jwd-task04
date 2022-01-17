@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.book.Author;
 import com.epam.library.entity.book.Genre;
 import com.epam.library.entity.book.Publisher;
@@ -17,9 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BookIssuancePage implements Command {
 
@@ -28,6 +28,7 @@ public class BookIssuancePage implements Command {
 
     private static final String BOOK_CATALOG = "book_catalog";
     private static final String CHECKED = "checked";
+    private static final String ON = "on";
     private static final String SELECTED = "selected";
     private static final String PUBLISHERS = "publishers";
     private static final String TYPES = "types";
@@ -43,128 +44,123 @@ public class BookIssuancePage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Map<String, Object> filters = new LinkedHashMap<>();
+
+        Set<String> filterNames = new HashSet<>(BookCatalogFilterName.bookCatalogFilterName);
+        Map<String, String[]> requestParameterMap = request.getParameterMap();
+        String sortValue = null;
+        List<String> authorsID = new ArrayList<>();
+        List<String> genresID = new ArrayList<>();
+        for (String filterName : requestParameterMap.keySet()) {
+            if (filterNames.contains(filterName)) {
+                for (String filterValue : requestParameterMap.get(filterName)) {
+                    if (!filterValue.isEmpty()) {
+                        switch (filterName) {
+                            case BookCatalogFilterName.SORT:
+                                if (BookCatalogFilterName.bookCatalogFilterSortValues.contains(filterValue)) {
+                                    sortValue = filterValue;
+                                    request.setAttribute(filterValue, SELECTED);
+                                    filterNames.remove(filterName);
+                                }
+                                break;
+                            case BookCatalogFilterName.FREE_INSTANCES:
+                                if (filterValue.equals(ON)) {
+                                    filters.put(filterName, filterValue);
+                                    request.setAttribute(filterName, CHECKED);
+                                    filterNames.remove(filterName);
+                                }
+                                break;
+                            case BookCatalogFilterName.AUTHORS:
+                                authorsID.add(filterValue);
+                                break;
+                            case BookCatalogFilterName.GENRES:
+                                genresID.add(filterValue);
+                                break;
+                            case BookCatalogFilterName.PUBLISHER:
+                                filters.put(filterName, filterValue);
+                                request.setAttribute(SAVED_PUBLISHER, filterValue);
+                                filterNames.remove(filterName);
+                                break;
+                            case BookCatalogFilterName.TYPE:
+                                filters.put(filterName, filterValue);
+                                request.setAttribute(SAVED_TYPE, filterValue);
+                                filterNames.remove(filterName);
+                                break;
+                            default:
+                                filters.put(filterName, filterValue);
+                                request.setAttribute(filterName, filterValue);
+                                filterNames.remove(filterName);
+                        }
+                    }
+                }
+            }
+        }
+        if (!authorsID.isEmpty()) {
+            request.setAttribute(SAVED_AUTHORS, authorsID);
+            filters.put(BookCatalogFilterName.AUTHORS, authorsID.toArray(String[]::new));
+        }
+
+        if (!genresID.isEmpty()) {
+            request.setAttribute(SAVED_GENRES, genresID);
+            filters.put(BookCatalogFilterName.GENRES, genresID.toArray(String[]::new));
+        }
+
+        if (sortValue != null) {
+            filters.put(BookCatalogFilterName.SORT, sortValue);
+        } else {
+            filters.put(BookCatalogFilterName.SORT, BookCatalogFilterName.NAME_ASCENDING);
+        }
+
         PublisherService publisherService = ServiceProvider.getInstance().getPublisherService();
         TypeService typeService = ServiceProvider.getInstance().getTypeService();
         AuthorService authorService = ServiceProvider.getInstance().getAuthorService();
         GenreService genreService = ServiceProvider.getInstance().getGenreService();
 
-        List<Publisher> publishers = null;
-        List<Type> types = null;
-        List<Author> authors = null;
-        List<Genre> genres = null;
-
-        try {
-            publishers = publisherService.getPublishersList();
-            types = typeService.getTypesList();
-            authors = authorService.getAuthorsList();
-            genres = genreService.getGenresList();
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
-
-        for (Author author : authors) {
-            author.setFirstName(SPACE + author.getFirstName().charAt(0) + POINT);
-            if (!"".equals(author.getFatherName())) {
-                author.setFatherName(author.getFatherName().charAt(0) + POINT);
-            }
-        }
-
-        request.setAttribute(PUBLISHERS, publishers.toArray());
-        request.setAttribute(TYPES, types.toArray());
-        request.setAttribute(AUTHORS, authors.toArray());
-        request.setAttribute(GENRES, genres.toArray());
-
-
-        Map<String, Object> filters = new LinkedHashMap<>();
-        if (isValidInsertFilter(BookCatalogFilterName.NAME, request, false)) {
-            filters.put(BookCatalogFilterName.NAME, request.getParameter(BookCatalogFilterName.NAME).trim());
-            request.setAttribute(BookCatalogFilterName.NAME, request.getParameter(BookCatalogFilterName.NAME));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.AUTHORS, request, true)) {
-            filters.put(BookCatalogFilterName.AUTHORS, request.getParameterValues(BookCatalogFilterName.AUTHORS));
-            request.setAttribute(SAVED_AUTHORS, request.getParameterValues(BookCatalogFilterName.AUTHORS));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.GENRES, request, true)) {
-            filters.put(BookCatalogFilterName.GENRES, request.getParameterValues(BookCatalogFilterName.GENRES));
-            request.setAttribute(SAVED_GENRES, request.getParameterValues(BookCatalogFilterName.GENRES));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.PUBLISHER, request, false)) {
-            filters.put(BookCatalogFilterName.PUBLISHER, request.getParameter(BookCatalogFilterName.PUBLISHER));
-            request.setAttribute(SAVED_PUBLISHER, request.getParameter(BookCatalogFilterName.PUBLISHER));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.PUBLICATION_YEAR_FROM, request, false)) {
-            filters.put(BookCatalogFilterName.PUBLICATION_YEAR_FROM, request.getParameter(BookCatalogFilterName.PUBLICATION_YEAR_FROM).trim());
-            request.setAttribute(BookCatalogFilterName.PUBLICATION_YEAR_FROM, request.getParameter(BookCatalogFilterName.PUBLICATION_YEAR_FROM));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.PUBLICATION_YEAR_TO, request, false)) {
-            filters.put(BookCatalogFilterName.PUBLICATION_YEAR_TO, request.getParameter(BookCatalogFilterName.PUBLICATION_YEAR_TO).trim());
-            request.setAttribute(BookCatalogFilterName.PUBLICATION_YEAR_TO, request.getParameter(BookCatalogFilterName.PUBLICATION_YEAR_TO));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.PAGES_TO, request, false)) {
-            filters.put(BookCatalogFilterName.PAGES_TO, request.getParameter(BookCatalogFilterName.PAGES_TO).trim());
-            request.setAttribute(BookCatalogFilterName.PAGES_TO, request.getParameter(BookCatalogFilterName.PAGES_TO));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.PAGES_FROM, request, false)) {
-            filters.put(BookCatalogFilterName.PAGES_FROM, request.getParameter(BookCatalogFilterName.PAGES_FROM).trim());
-            request.setAttribute(BookCatalogFilterName.PAGES_FROM, request.getParameter(BookCatalogFilterName.PAGES_FROM));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.ISBN, request, false)) {
-            filters.put(BookCatalogFilterName.ISBN, request.getParameter(BookCatalogFilterName.ISBN).trim());
-            request.setAttribute(BookCatalogFilterName.ISBN, request.getParameter(BookCatalogFilterName.ISBN));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.ISSN, request, false)) {
-            filters.put(BookCatalogFilterName.ISSN, request.getParameter(BookCatalogFilterName.ISSN).trim());
-            request.setAttribute(BookCatalogFilterName.ISSN, request.getParameter(BookCatalogFilterName.ISSN));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.TYPE, request, false)) {
-            filters.put(BookCatalogFilterName.TYPE, request.getParameter(BookCatalogFilterName.TYPE));
-            request.setAttribute(SAVED_TYPE, request.getParameter(BookCatalogFilterName.TYPE));
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.FREE_INSTANCES, request, false)) {
-            filters.put(BookCatalogFilterName.FREE_INSTANCES, request.getParameter(BookCatalogFilterName.FREE_INSTANCES));
-            request.setAttribute(BookCatalogFilterName.FREE_INSTANCES, CHECKED);
-        }
-        if (isValidInsertFilter(BookCatalogFilterName.SORT, request, false)) {
-            filters.put(BookCatalogFilterName.SORT, request.getParameter(BookCatalogFilterName.SORT));
-            request.setAttribute(request.getParameter(BookCatalogFilterName.SORT), SELECTED);
-        } else {
-            filters.put(BookCatalogFilterName.SORT, BookCatalogFilterName.NAME_ASCENDING);
-        }
-
+        List<Publisher> publishers;
+        List<Type> types;
+        List<Author> authors;
+        List<Genre> genres;
 
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();
         Reader reader;
         List<BookCatalog> bookCatalog;
         try {
+            publishers = publisherService.getPublishersList();
+            types = typeService.getTypesList();
+            authors = authorService.getAuthorsList();
+            genres = genreService.getGenresList();
+
+            for (Author author : authors) {
+                author.setFirstName(SPACE + author.getFirstName().charAt(0) + POINT);
+                if (!author.getFatherName().isEmpty()) {
+                    author.setFatherName(author.getFatherName().charAt(0) + POINT);
+                }
+            }
+
+            request.setAttribute(PUBLISHERS, publishers);
+            request.setAttribute(TYPES, types);
+            request.setAttribute(AUTHORS, authors);
+            request.setAttribute(GENRES, genres);
+
+            if (request.getParameter(READER_ID) == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             int readerID = Integer.parseInt(request.getParameter(READER_ID));
             reader = readerService.getReader(readerID);
+            if (reader == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             request.setAttribute(READER, reader);
 
             bookCatalog = bookCatalogService.getBookCatalogByFilter(filters);
-            request.setAttribute(BOOK_CATALOG, bookCatalog.toArray());
+            request.setAttribute(BOOK_CATALOG, bookCatalog);
+
+            RequestProvider.forward(PagePath.BOOK_ISSUANCE_PAGE, request, response);
         } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
-
-        RequestProvider.forward(PagePath.BOOK_ISSUANCE_PAGE, request, response);
-    }
-
-    private boolean isValidInsertFilter(String nameFilter, HttpServletRequest request, boolean array) {
-        if (array) {
-            String[] values = request.getParameterValues(nameFilter);
-            if (values == null || values.length == 0) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            String value = request.getParameter(nameFilter);
-            if (value == null || value.isEmpty()) {
-                return false;
-            } else {
-                return true;
-            }
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

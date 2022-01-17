@@ -2,7 +2,7 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.Gender;
@@ -12,6 +12,7 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -32,6 +33,10 @@ public class Registration implements Command {
     private static final String PHONE = "phone";
     private static final String REGEX_WHITESPACE_CHARACTERS = "\\s+";
 
+    private static final String USER = "user";
+    private static final String MESSAGE = "message";
+    private static final String ERROR_EXIST_EMAIL = "error-exist-email";
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = new User();
@@ -51,11 +56,17 @@ public class Registration implements Command {
 
         UserService userService = ServiceProvider.getInstance().getUserService();
         try {
-            userService.registration(user, password, repeatedPassword);
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
+            if (!userService.registration(user, password, repeatedPassword)) {
+                HttpSession session = request.getSession();
+                session.setAttribute(USER, user);
+                session.setAttribute(MESSAGE, ERROR_EXIST_EMAIL);
+                RequestProvider.redirect(RedirectCommand.REGISTRATION_PAGE, request, response);
+                return;
+            }
 
-        RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
+            RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

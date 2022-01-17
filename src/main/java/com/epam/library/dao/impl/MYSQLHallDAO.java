@@ -72,7 +72,7 @@ public class MYSQLHallDAO implements HallDAO {
 
     @Override
     public Hall getHall(int hallID) throws DAOException {
-        Hall hall = new Hall();
+        Hall hall = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -84,17 +84,18 @@ public class MYSQLHallDAO implements HallDAO {
             preparedStatement.setInt(1, hallID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                hall = new Hall();
                 hall.setId(hallID);
                 hall.setName(resultSet.getString(NAME));
                 hall.setShortName(resultSet.getString(SHORT_NAME));
             }
+            return hall;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return hall;
     }
 
     @Override
@@ -166,12 +167,12 @@ public class MYSQLHallDAO implements HallDAO {
                 hall.setShortName(resultSet.getString(SHORT_NAME));
                 halls.add(hall);
             }
+            return halls;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return halls;
     }
 }

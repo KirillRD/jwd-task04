@@ -7,44 +7,19 @@
 <nav class="w3-theme w3-container w3-margin-bottom">
     <div class="w3-bar">
         <div class="w3-auto">
-            <form action="controller" method="get">
-                <input type="hidden" name="command" value="go-to-main-page">
-                <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.main"/></button>
-            </form>
-            <form action="controller" method="get">
-                <input type="hidden" name="command" value="book-catalog-page">
-                <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.book-catalog"/></button>
-            </form>
-            <form action="controller" method="get">
-                <input type="hidden" name="command" value="go-to-new-book-catalog-page">
-                <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.new"/></button>
-            </form>
-            <form action="controller" method="get">
-                <input type="hidden" name="command" value="go-to-popular-book-catalog-page">
-                <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.popular"/></button>
-            </form>
-            <form action="controller" method="get">
-                <input type="hidden" name="command" value="eee">
-                <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.rules"/></button>
-            </form>
-            <form action="controller" method="get">
-                <input type="hidden" name="command" value="eee">
-                <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.contacts"/></button>
-            </form>
+            <a class="w3-bar-item w3-button" href="controller?command=go-to-main-page"><fmt:message key="nav.main"/></a>
+            <a class="w3-bar-item w3-button" href="controller?command=book-catalog-page"><fmt:message key="nav.book-catalog"/></a>
+            <a class="w3-bar-item w3-button" href="controller?command=go-to-new-book-catalog-page"><fmt:message key="nav.new"/></a>
+            <a class="w3-bar-item w3-button" href="controller?command=go-to-popular-book-catalog-page"><fmt:message key="nav.popular"/></a>
+            <a class="w3-bar-item w3-button" href="controller?command=go-to-main-page"><fmt:message key="nav.rules"/></a>
+            <a class="w3-bar-item w3-button" href="controller?command=go-to-main-page"><fmt:message key="nav.contacts"/></a>
+
             <c:if test="${sessionScope.session_user.role == 'LIBRARIAN' || sessionScope.session_user.role == 'ADMIN'}">
-                <form action="controller" method="get">
-                    <input type="hidden" name="command" value="book-list-page">
-                    <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.book-list"/></button>
-                </form>
-                <form action="controller" method="get">
-                    <input type="hidden" name="command" value="reader-list-page">
-                    <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.reader-list"/></button>
-                </form>
-                <form action="controller" method="get">
-                    <input type="hidden" name="command" value="user-list-page">
-                    <button class="w3-bar-item w3-button" type="submit"><fmt:message key="nav.user-list"/></button>
-                </form>
+                <a class="w3-bar-item w3-button" href="controller?command=book-list-page"><fmt:message key="nav.book-list"/></a>
+                <a class="w3-bar-item w3-button" href="controller?command=reader-list-page"><fmt:message key="nav.reader-list"/></a>
+                <a class="w3-bar-item w3-button" href="controller?command=user-list-page"><fmt:message key="nav.user-list"/></a>
             </c:if>
+
             <div class="w3-dropdown-hover w3-right">
                 <button class="w3-button nav-dropdown">
                     ${sessionScope.locale == 'en' ? 'EN' : ''}
@@ -59,21 +34,13 @@
                     </form>
                 </div>
             </div>
+
             <c:if test="${sessionScope.session_user == null}">
-                <form action="controller" method="get">
-                    <input type="hidden" name="command" value="go-to-registration-page">
-                    <button class="w3-bar-item w3-button w3-right" type="submit"><fmt:message key="nav.sign-up"/></button>
-                </form>
-                <form action="controller" method="get">
-                    <input type="hidden" name="command" value="go-to-authentication-page">
-                    <button class="w3-bar-item w3-button w3-right" type="submit"><fmt:message key="nav.sign-in"/></button>
-                </form>
+                <a class="w3-bar-item w3-button w3-right" href="controller?command=go-to-registration-page"><fmt:message key="nav.sign-up"/></a>
+                <a class="w3-bar-item w3-button w3-right" href="controller?command=go-to-authentication-page"><fmt:message key="nav.sign-in"/></a>
             </c:if>
             <c:if test="${sessionScope.session_user != null}">
-                <form action="controller" method="get">
-                    <input type="hidden" name="command" value="go-to-user-page">
-                    <button class="w3-bar-item w3-button w3-right" type="submit">${sessionScope.session_user.nickname}</button>
-                </form>
+                <a class="w3-bar-item w3-button w3-right" href="controller?command=go-to-user-page">${sessionScope.session_user.nickname}</a>
             </c:if>
         </div>
     </div>

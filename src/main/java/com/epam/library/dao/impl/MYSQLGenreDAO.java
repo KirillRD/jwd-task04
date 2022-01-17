@@ -70,7 +70,7 @@ public class MYSQLGenreDAO implements GenreDAO {
 
     @Override
     public Genre getGenre(int genreID) throws DAOException {
-        Genre genre = new Genre();
+        Genre genre = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -82,16 +82,17 @@ public class MYSQLGenreDAO implements GenreDAO {
             preparedStatement.setInt(1, genreID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                genre = new Genre();
                 genre.setId(genreID);
                 genre.setName(resultSet.getString(NAME));
             }
+            return genre;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return genre;
     }
 
     @Override
@@ -161,12 +162,12 @@ public class MYSQLGenreDAO implements GenreDAO {
                 genre.setName(resultSet.getString(NAME));
                 genres.add(genre);
             }
+            return genres;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return genres;
     }
 }

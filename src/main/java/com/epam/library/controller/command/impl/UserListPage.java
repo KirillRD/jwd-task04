@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.UserListFilterName;
 import com.epam.library.service.ServiceProvider;
@@ -13,9 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserListPage implements Command {
 
@@ -27,21 +27,32 @@ public class UserListPage implements Command {
         UserService userService = ServiceProvider.getInstance().getUserService();
 
         Map<String, Object> filters = new LinkedHashMap<>();
-        if (isValidInsertFilter(UserListFilterName.LAST_NAME, request)) {
-            filters.put(UserListFilterName.LAST_NAME, request.getParameter(UserListFilterName.LAST_NAME));
-            request.setAttribute(UserListFilterName.LAST_NAME, request.getParameter(UserListFilterName.LAST_NAME));
+
+        Set<String> filterNames = new HashSet<>(UserListFilterName.userListFilterName);
+        Map<String, String[]> requestParameterMap = request.getParameterMap();
+        String sortValue = null;
+        for (String filterName : requestParameterMap.keySet()) {
+            if (filterNames.contains(filterName)) {
+                for (String filterValue : requestParameterMap.get(filterName)) {
+                    if (!filterValue.isEmpty()) {
+                        if (filterName.equals(UserListFilterName.SORT)) {
+                            if (UserListFilterName.userListFilterSortValues.contains(filterValue)) {
+                                sortValue = filterValue;
+                                request.setAttribute(filterValue, SELECTED);
+                                filterNames.remove(filterName);
+                            }
+                        } else {
+                            filters.put(filterName, filterValue);
+                            request.setAttribute(filterName, filterValue);
+                            filterNames.remove(filterName);
+                        }
+                    }
+                }
+            }
         }
-        if (isValidInsertFilter(UserListFilterName.EMAIL, request)) {
-            filters.put(UserListFilterName.EMAIL, request.getParameter(UserListFilterName.EMAIL));
-            request.setAttribute(UserListFilterName.EMAIL, request.getParameter(UserListFilterName.EMAIL));
-        }
-        if (isValidInsertFilter(UserListFilterName.NICKNAME, request)) {
-            filters.put(UserListFilterName.NICKNAME, request.getParameter(UserListFilterName.NICKNAME));
-            request.setAttribute(UserListFilterName.NICKNAME, request.getParameter(UserListFilterName.NICKNAME));
-        }
-        if (isValidInsertFilter(UserListFilterName.SORT, request)) {
-            filters.put(UserListFilterName.SORT, request.getParameter(UserListFilterName.SORT));
-            request.setAttribute(request.getParameter(UserListFilterName.SORT), SELECTED);
+
+        if (sortValue != null) {
+            filters.put(UserListFilterName.SORT, sortValue);
         } else {
             filters.put(UserListFilterName.SORT, UserListFilterName.LAST_NAME_ASCENDING);
         }
@@ -49,20 +60,11 @@ public class UserListPage implements Command {
         List<User> users;
         try {
             users = userService.getUsersByFilter(filters);
-            request.setAttribute(USER_LIST, users.toArray());
+            request.setAttribute(USER_LIST, users);
+
+            RequestProvider.forward(PagePath.USER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
-
-        RequestProvider.forward(PagePath.USER_LIST_PAGE, request, response);
-    }
-
-    private boolean isValidInsertFilter(String nameFilter, HttpServletRequest request) {
-        String value = request.getParameter(nameFilter);
-        if (value == null || value.isEmpty()) {
-            return false;
-        } else {
-            return true;
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

@@ -51,12 +51,12 @@ public class MYSQLBookReviewDAO implements BookReviewDAO {
                 bookReview.setDate(resultSet.getDate(DATE));
                 bookReviews.add(bookReview);
             }
+            return bookReviews;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookReviews;
     }
 }

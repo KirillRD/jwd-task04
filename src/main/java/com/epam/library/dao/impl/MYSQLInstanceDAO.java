@@ -16,7 +16,6 @@ import java.util.List;
 public class MYSQLInstanceDAO implements InstanceDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
-    private static final String COUNT_INSTANCES = "count_instances";
     private static final String COUNT_ISSUANCE = "count_issuance";
     private static final String COUNT_RESERVATIONS = "count_reservations";
     private static final String MAX_ID_INSTANCE = "MAX(id)";
@@ -29,7 +28,8 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     private static final String HALL_NAME = "hall_name";
     private static final String STATUS = "status";
 
-    private static final String GET_INSTANCE_BY_NUMBER = "SELECT COUNT(1) AS count_instances FROM instances WHERE number=?";
+    private static final String GET_INSTANCE_BY_NUMBER = "SELECT * FROM instances WHERE number=?";
+    private static final String GET_INSTANCE_BY_NUMBER_ID = "SELECT * FROM instances WHERE number=? AND id!=?";
     private static final String GET_MAX_ID_INSTANCE = "SELECT MAX(id) FROM instances";
     private static final String INSERT_INSTANCE = "INSERT INTO instances (id, books_id, number, halls_id, date_received, date_write_off) VALUES (?,?,?,?,?,?)";
     private static final String SELECT_INSTANCE = "SELECT * FROM instances WHERE id=?";
@@ -58,7 +58,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     public MYSQLInstanceDAO() {}
 
     @Override
-    public void addInstance(Instance instance) throws DAOException {
+    public boolean addInstance(Instance instance) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -70,25 +70,24 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             preparedStatement.setString(1, instance.getNumber());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_INSTANCES) == 0) {
-                    preparedStatement = connection.prepareStatement(GET_MAX_ID_INSTANCE);
-                    resultSet = preparedStatement.executeQuery();
-                    if (resultSet.next()) {
-                        instance.setId(resultSet.getInt(MAX_ID_INSTANCE) + 1);
-                    }
-
-                    preparedStatement = connection.prepareStatement(INSERT_INSTANCE);
-                    preparedStatement.setInt(1, instance.getId());
-                    preparedStatement.setInt(2, instance.getBookID());
-                    preparedStatement.setString(3, instance.getNumber());
-                    preparedStatement.setInt(4, instance.getHallID());
-                    preparedStatement.setDate(5, instance.getReceivedDate());
-                    preparedStatement.setDate(6, instance.getWriteOffDate());
-                    preparedStatement.executeUpdate();
-                } else {
-                    //TODO logger
-                }
+                return false;
             }
+
+            preparedStatement = connection.prepareStatement(GET_MAX_ID_INSTANCE);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                instance.setId(resultSet.getInt(MAX_ID_INSTANCE) + 1);
+            }
+
+            preparedStatement = connection.prepareStatement(INSERT_INSTANCE);
+            preparedStatement.setInt(1, instance.getId());
+            preparedStatement.setInt(2, instance.getBookID());
+            preparedStatement.setString(3, instance.getNumber());
+            preparedStatement.setInt(4, instance.getHallID());
+            preparedStatement.setDate(5, instance.getReceivedDate());
+            preparedStatement.setDate(6, instance.getWriteOffDate());
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
@@ -99,7 +98,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
 
     @Override
     public Instance getInstance(int instanceID) throws DAOException {
-        Instance instance = new Instance();
+        Instance instance = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -111,6 +110,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             preparedStatement.setInt(1, instanceID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                instance = new Instance();
                 instance.setId(instanceID);
                 instance.setBookID(resultSet.getInt(BOOKS_ID));
                 instance.setNumber(resultSet.getString(NUMBER));
@@ -118,22 +118,31 @@ public class MYSQLInstanceDAO implements InstanceDAO {
                 instance.setReceivedDate(resultSet.getDate(DATE_RECEIVED));
                 instance.setWriteOffDate(resultSet.getDate(DATE_WRITE_OFF));
             }
+            return instance;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return instance;
     }
 
     @Override
-    public void updateInstance(Instance instance) throws DAOException {
+    public boolean updateInstance(Instance instance) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
         try {
             connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(GET_INSTANCE_BY_NUMBER_ID);
+            preparedStatement.setString(1, instance.getNumber());
+            preparedStatement.setInt(2, instance.getId());
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return false;
+            }
 
             preparedStatement = connection.prepareStatement(UPDATE_INSTANCE);
             preparedStatement.setInt(1, instance.getBookID());
@@ -143,16 +152,17 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             preparedStatement.setDate(5, instance.getWriteOffDate());
             preparedStatement.setInt(6, instance.getId());
             preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
+            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
     @Override
-    public void deleteInstance(int instanceID) throws DAOException {
+    public boolean deleteInstance(int instanceID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -163,26 +173,21 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             preparedStatement = connection.prepareStatement(GET_ISSUANCE);
             preparedStatement.setInt(1, instanceID);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_ISSUANCE) != 0) {
-                    //TODO logger
-                    return;
-                }
+            if (resultSet.next() && resultSet.getInt(COUNT_ISSUANCE) != 0) {
+                return false;
             }
 
             preparedStatement = connection.prepareStatement(GET_RESERVATIONS);
             preparedStatement.setInt(1, instanceID);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_RESERVATIONS) != 0) {
-                    //TODO logger
-                    return;
-                }
+            if (resultSet.next() && resultSet.getInt(COUNT_RESERVATIONS) != 0) {
+                return false;
             }
 
             preparedStatement = connection.prepareStatement(DELETE_INSTANCE);
             preparedStatement.setInt(1, instanceID);
             preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
@@ -212,13 +217,13 @@ public class MYSQLInstanceDAO implements InstanceDAO {
                 bookInstance.setReceivedDate(resultSet.getDate(DATE_RECEIVED));
                 bookInstance.setWriteOffDate(resultSet.getDate(DATE_WRITE_OFF));
             }
+            return bookInstance;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookInstance;
     }
 
     @Override
@@ -260,13 +265,13 @@ public class MYSQLInstanceDAO implements InstanceDAO {
 
                 bookInstances.add(bookInstance);
             }
+            return bookInstances;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookInstances;
     }
 
     @Override

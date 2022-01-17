@@ -8,21 +8,22 @@
 <html>
     <head>
         <title><fmt:message key="title"/></title>
-        <jsp:include page="tempalte/links.jsp" />
+        <jsp:include page="WEB-INF/jsp/tempalte/links.jsp" />
     </head>
     <body class="w3-theme-l4">
-        <jsp:include page="tempalte/header.jsp" />
-        <jsp:include page="tempalte/nav.jsp" />
+        <jsp:include page="WEB-INF/jsp/tempalte/header.jsp" />
+        <jsp:include page="WEB-INF/jsp/tempalte/nav.jsp" />
         <main class="w3-auto w3-container">
             <div class="w3-row w3-padding-64">
                 <div class="w3-third w3-container"></div>
                 <div class="w3-third w3-container w3-round-large w3-card w3-text-blue-grey">
-                    <h3 class="w3-text-red w3-center"><fmt:message key="error.error"/></h3>
-                    <p class="w3-large w3-center"><fmt:message key="error.${requestScope.error}"/></p>
+                    <h2 class="w3-text-red w3-center"><fmt:message key="error.error"/></h2>
+                    <p class="w3-large w3-center"><fmt:message key="error.${param.error}"/></p>
+                    <c:remove var="message" scope="session"/>
                 </div>
                 <div class="w3-third w3-container"></div>
             </div>
         </main>
-        <jsp:include page="tempalte/footer.jsp" />
+        <jsp:include page="WEB-INF/jsp/tempalte/footer.jsp" />
     </body>
 </html>

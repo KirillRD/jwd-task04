@@ -19,27 +19,27 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public void addInstance(Instance instance) throws ServiceException {
+    public boolean addInstance(Instance instance) throws ServiceException {
         try {
-            instanceDAO.addInstance(instance);
+            return instanceDAO.addInstance(instance);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public void updateInstance(Instance instance) throws ServiceException {
+    public boolean updateInstance(Instance instance) throws ServiceException {
         try {
-            instanceDAO.updateInstance(instance);
+            return instanceDAO.updateInstance(instance);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public void deleteInstance(int instanceID) throws ServiceException {
+    public boolean deleteInstance(int instanceID) throws ServiceException {
         try {
-            instanceDAO.deleteInstance(instanceID);
+            return instanceDAO.deleteInstance(instanceID);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

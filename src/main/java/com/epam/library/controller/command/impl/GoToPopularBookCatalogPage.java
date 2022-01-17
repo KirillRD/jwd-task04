@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.service.BookCatalogService;
 import com.epam.library.service.ServiceProvider;
@@ -24,11 +26,11 @@ public class GoToPopularBookCatalogPage implements Command {
         List<BookCatalog> bookCatalog;
         try {
             bookCatalog = bookCatalogService.getPopularBookCatalogList();
-            request.setAttribute(BOOK_CATALOG, bookCatalog.toArray());
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
+            request.setAttribute(BOOK_CATALOG, bookCatalog);
 
-        RequestProvider.forward(PagePath.NEW_POPULAR_BOOK_CATALOG_PAGE, request, response);
+            RequestProvider.forward(PagePath.NEW_POPULAR_BOOK_CATALOG_PAGE, request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

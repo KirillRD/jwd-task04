@@ -3,6 +3,9 @@ package com.epam.library.dao.impl;
 import com.epam.library.dao.UserDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.exception.DAOException;
+import com.epam.library.dao.exception.ExistEmailDAOException;
+import com.epam.library.dao.exception.InvalidCurrentPasswordDAOException;
+import com.epam.library.dao.exception.UpdateUserDAOException;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.Gender;
 import com.epam.library.entity.user.Role;
@@ -36,7 +39,7 @@ public class MYSQLUserDAO implements UserDAO {
     private static final String ADDRESS = "address";
     private static final String PHONE = "phone";
     private static final String IMAGE = "image";
-    private static final String DEFAULT_IMAGE_USER = "images/users/default_image_user";
+    private static final String DEFAULT_IMAGE_USER = "images/users/default_image_user.jpg";
 
     private static final String GET_USER_BY_EMAIL = "SELECT * FROM users WHERE email=?";
     private static final String SELECT_USER = "SELECT * FROM users WHERE id=?";
@@ -49,6 +52,7 @@ public class MYSQLUserDAO implements UserDAO {
     private static final String UPDATE_PASSWORD = "UPDATE users SET password=? WHERE id=?";
     //private static final String INSERT_USER_ROLE = "INSERT INTO users_roles (users_id, roles_id) VALUES (?,?)";
     //private static final String SELECT_ROLES_BY_USER = "SELECT roles_id FROM users_roles WHERE users_id=?";
+    private static final String UPDATE_USER_WITH_PASSWORD = "UPDATE users SET roles_id=?, nickname=?, email=?, password=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=?, image=? WHERE id=?";
     private static final String UPDATE_USER = "UPDATE users SET roles_id=?, nickname=?, email=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=?, image=? WHERE id=?";
     //private static final String DELETE_USER = "DELETE FROM users WHERE id=?";
     //private static final String DELETE_USER_ROLES = "DELETE FROM users_roles WHERE users_id=?";
@@ -72,7 +76,7 @@ public class MYSQLUserDAO implements UserDAO {
     public MYSQLUserDAO() {}
 
     @Override
-    public User registration(User user, String password) throws DAOException {
+    public boolean registration(User user, String password) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -85,7 +89,7 @@ public class MYSQLUserDAO implements UserDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 //TODO logger
-                return null;
+                return false;
             }
 
             preparedStatement = connection.prepareStatement(GET_MAX_ID_USER);
@@ -110,23 +114,21 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setString(13, user.getPhone());
             preparedStatement.setString(14, DEFAULT_IMAGE_USER);
             preparedStatement.executeUpdate();
-
-            user.setRole(Role.READER);
+            return true;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return user;
     }
 
     @Override
-    public User authentication(String email, String password) throws DAOException {
-        User user = null;
+    public Integer authentication(String email, String password) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        Integer userID = null;
 
         try {
             connection = connectionPool.getConnection();
@@ -135,32 +137,65 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setString(1, email);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next() && BCrypt.checkpw(password, resultSet.getString(PASSWORD))) {
-                user = new User();
-                user.setId(resultSet.getInt(ID));
-                user.setRole(Role.getRole(resultSet.getInt(ROLES_ID)));
-                user.setNickname(resultSet.getString(NICKNAME));
-                user.setEmail(email);
-                user.setLastName(resultSet.getString(LAST_NAME));
-                user.setFirstName(resultSet.getString(FIRST_NAME));
-                user.setFatherName(resultSet.getString(FATHER_NAME));
-                user.setBirthday(resultSet.getDate(BIRTHDAY));
-                user.setGender(Gender.valueOf(resultSet.getString(GENDER)));
-                user.setPassport(resultSet.getString(PASSPORT));
-                user.setAddress(resultSet.getString(ADDRESS));
-                user.setPhone(resultSet.getString(PHONE));
-                user.setImageURL(resultSet.getString(IMAGE));
+                userID = resultSet.getInt(ID);
             }
+            return userID;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return user;
     }
 
     @Override
-    public boolean updateUser(User user) throws DAOException {
+    public void updateUser(User user, String currentPassword, String newPassword) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(GET_USER_BY_EMAIL);
+            preparedStatement.setString(1, user.getEmail());
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                if (!user.getEmail().equals(resultSet.getString(EMAIL)) && !BCrypt.checkpw(currentPassword, resultSet.getString(PASSWORD))) {
+                    throw new UpdateUserDAOException();
+                } else if (!user.getEmail().equals(resultSet.getString(EMAIL))) {
+                    throw new ExistEmailDAOException();
+                } else if (!BCrypt.checkpw(currentPassword, resultSet.getString(PASSWORD))) {
+                    throw new InvalidCurrentPasswordDAOException();
+                }
+            }
+
+            preparedStatement = connection.prepareStatement(UPDATE_USER_WITH_PASSWORD);
+            preparedStatement.setInt(1, user.getRole().getId());
+            preparedStatement.setString(2, user.getNickname());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, newPassword);
+            preparedStatement.setString(5, user.getLastName());
+            preparedStatement.setString(6, user.getFirstName());
+            preparedStatement.setString(7, user.getFatherName());
+            preparedStatement.setDate(8, user.getBirthday());
+            preparedStatement.setString(9, user.getGender().toString());
+            preparedStatement.setString(10, user.getPassport());
+            preparedStatement.setString(11, user.getAddress());
+            preparedStatement.setString(12, user.getPhone());
+            preparedStatement.setString(13, user.getImageURL());
+            preparedStatement.setInt(14, user.getId());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
+            connectionPool.closeConnection(resultSet, preparedStatement);
+        }
+    }
+
+    @Override
+    public void updateUser(User user) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -172,8 +207,7 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setString(1, user.getEmail());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next() && !user.getEmail().equals(resultSet.getString(EMAIL))) {
-                //TODO logger
-                return false;
+                throw new ExistEmailDAOException();
             }
 
             preparedStatement = connection.prepareStatement(UPDATE_USER);
@@ -191,7 +225,6 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setString(12, user.getImageURL());
             preparedStatement.setInt(13, user.getId());
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
@@ -201,7 +234,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean updatePassword(int userID, String newPassword, String oldPassword) throws DAOException {
+    public boolean updatePassword(int userID, String currentPassword, String newPassword) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -212,7 +245,7 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement = connection.prepareStatement(SELECT_USER);
             preparedStatement.setInt(1, userID);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next() && BCrypt.checkpw(oldPassword, resultSet.getString(PASSWORD))) {
+            if (resultSet.next()) {
                 preparedStatement = connection.prepareStatement(UPDATE_PASSWORD);
                 String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt());
                 preparedStatement.setString(1, hashed);
@@ -232,7 +265,7 @@ public class MYSQLUserDAO implements UserDAO {
 
     @Override
     public User getUser(int userID) throws DAOException {
-        User user = new User();
+        User user = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -244,6 +277,7 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setInt(1, userID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                user = new User();
                 user.setId(resultSet.getInt(ID));
                 user.setRole(Role.getRole(resultSet.getInt(ROLES_ID)));
                 user.setNickname(resultSet.getString(NICKNAME));
@@ -258,13 +292,13 @@ public class MYSQLUserDAO implements UserDAO {
                 user.setPhone(resultSet.getString(PHONE));
                 user.setImageURL(resultSet.getString(IMAGE));
             }
+            return user;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return user;
     }
 
     @Override
@@ -313,14 +347,13 @@ public class MYSQLUserDAO implements UserDAO {
                 user.setImageURL(resultSet.getString(IMAGE));
                 users.add(user);
             }
-
+            return users;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return users;
     }
 
     private void buildQueryByFilter(StringBuilder query, String filterName) {
@@ -343,8 +376,8 @@ public class MYSQLUserDAO implements UserDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        SessionUser sessionUser = new SessionUser();
 
-        SessionUser sessionUser = null;
         try {
             connection = connectionPool.getConnection();
 
@@ -353,17 +386,16 @@ public class MYSQLUserDAO implements UserDAO {
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                sessionUser = new SessionUser();
                 sessionUser.setId(resultSet.getInt(ID));
                 sessionUser.setRole(Role.getRole(resultSet.getInt(ROLES_ID)));
                 sessionUser.setNickname(resultSet.getString(NICKNAME));
             }
+            return sessionUser;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return sessionUser;
     }
 }

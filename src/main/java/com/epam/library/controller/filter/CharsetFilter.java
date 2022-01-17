@@ -8,12 +8,10 @@ public class CharsetFilter implements Filter {
 
     private static final String CHARACTER_ENCODING = "characterEncoding";
     private String encoding;
-//    private ServletContext context;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         encoding = filterConfig.getInitParameter(CHARACTER_ENCODING);
-//        context = filterConfig.getServletContext();
     }
 
     @Override

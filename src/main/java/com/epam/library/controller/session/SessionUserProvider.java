@@ -24,7 +24,7 @@ public final class SessionUserProvider {
 
     public static SessionUser getSessionUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        logger.info(RETURN_SESSION_USER);
+//        logger.info(RETURN_SESSION_USER);
         return (SessionUser) session.getAttribute(SESSION_USER);
     }
 

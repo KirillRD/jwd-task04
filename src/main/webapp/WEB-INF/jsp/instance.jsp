@@ -24,9 +24,10 @@
                     <b>${requestScope.book_info.name}</b>
                     <br>
                     <c:forEach var="author" varStatus="loop" items="${requestScope.book_info.authors}">
-                        <c:if test="${loop.index != 0}">
-                            ,
-                        </c:if>
+                        ${loop.index != 0 ? ',' : ''}
+<%--                        <c:if test="${loop.index != 0}">--%>
+<%--                            ,--%>
+<%--                        </c:if>--%>
                         ${author}
                     </c:forEach>
                     <br>
@@ -40,9 +41,10 @@
                     <br><fmt:message key="book.type"/>: ${requestScope.book_info.type}
                     <br><fmt:message key="book.genres"/>:
                     <c:forEach var="genre" varStatus="loop" items="${requestScope.book_info.genres}">
-                        <c:if test="${loop.index != 0}">
-                            ,
-                        </c:if>
+                        ${loop.index != 0 ? ',' : ''}
+<%--                        <c:if test="${loop.index != 0}">--%>
+<%--                            ,--%>
+<%--                        </c:if>--%>
                         ${genre}
                     </c:forEach>
                     <br>
@@ -60,18 +62,28 @@
                     <div class="w3-col w3-container" style="width: 10%"></div>
                     <div class="w3-col w3-container" style="width: 80%">
                         <h3 class="w3-center"><fmt:message key="instance.instances"/></h3>
+
+                        <c:if test="${sessionScope.message != null}">
+                            <div class="w3-row">
+                                <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                    <p><fmt:message key="message.${sessionScope.message}"/></p>
+                                </div>
+                            </div>
+                            <c:remove var="message" scope="session"/>
+                        </c:if>
+
                         <div class="w3-container w3-card w3-round-large">
                             <form action="controller" method="post">
                                 <input type="hidden" name="command" value="add-edit-instance">
                                 <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
-                                <c:if test="${requestScope.instance != null}">
-                                    <input type="hidden" name="instance_id" value="${requestScope.instance.id}">
+                                <c:if test="${param.instance_id != null}">
+                                    <input type="hidden" name="instance_id" value="${sessionScope.instance.id}">
                                 </c:if>
 
                                 <div class="w3-half w3-container">
                                     <p>
                                         <label><fmt:message key="instance.number"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="number" value="${requestScope.instance.number}">
+                                        <input class="input-padding w3-input w3-round" type="text" name="number" value="${sessionScope.instance.number}" required>
                                     </p>
                                     <p>
                                         <label><fmt:message key="instance.hall"/></label>
@@ -79,9 +91,7 @@
                                             <option data-placeholder="true"></option>
                                             <c:forEach var="hall" items="${requestScope.halls}">
                                                 <option value="${hall.id}"
-                                                        <c:if test="${hall.id == requestScope.instance.hallID}">
-                                                            selected
-                                                        </c:if>
+                                                    ${hall.id == sessionScope.instance.hallID ? 'selected' : ''}
                                                 >${hall.name}</option>
                                             </c:forEach>
                                         </select>
@@ -97,15 +107,16 @@
                                 <div class="w3-half w3-container">
                                     <p>
                                         <label><fmt:message key="instance.received-date"/></label>
-                                        <input class="input-padding w3-input w3-round" type="date" name="received_date" value="${requestScope.instance.receivedDate}">
+                                        <input class="input-padding w3-input w3-round" type="date" name="received_date" value="${sessionScope.instance.receivedDate}" required>
                                     </p>
                                     <p>
                                         <label><fmt:message key="instance.write-off-date"/></label>
-                                        <input class="input-padding w3-input w3-round" type="date" name="write_off_date" value="${requestScope.instance.writeOffDate}">
+                                        <input class="input-padding w3-input w3-round" type="date" name="write_off_date" value="${sessionScope.instance.writeOffDate}">
                                     </p>
                                 </div>
                                 <button class="w3-button w3-right w3-theme w3-margin-bottom w3-round-large" type="submit"><fmt:message key="instance.save"/></button>
                             </form>
+
                             <form action="controller" method="get">
                                 <input type="hidden" name="command" value="instance-page">
                                 <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
@@ -129,9 +140,7 @@
                         </tr>
                         <c:forEach var="instance" items="${requestScope.book_instances}">
                             <tr class="
-                                <c:if test="${instance.id == requestScope.instance.id}">
-                                    w3-theme-l3
-                                </c:if>"
+                                ${instance.id == sessionScope.instance.id ? 'w3-theme-l3' : ''}"
                             >
                                 <td>${instance.number}</td>
                                 <td>${instance.hallName}</td>
@@ -140,7 +149,15 @@
                                 <td class="${instance.status == 'LOST' ? 'w3-text-red' : ''}
                                            ${instance.status == 'FREE' ? 'w3-text-green' : ''}
                                            ${instance.status == 'ISSUED' ? 'w3-text-yellow' : ''}
-                                           ${instance.status == 'RESERVED' ? 'w3-text-yellow' : ''}">${instance.status}</td>
+                                           ${instance.status == 'RESERVED' ? 'w3-text-yellow' : ''}">
+                                    <c:choose>
+                                        <c:when test="${instance.status == 'LOST'}"><fmt:message key="status.instance.lost"/></c:when>
+                                        <c:when test="${instance.status == 'FREE'}"><fmt:message key="status.instance.free"/></c:when>
+                                        <c:when test="${instance.status == 'ISSUED'}"><fmt:message key="status.instance.issued"/></c:when>
+                                        <c:when test="${instance.status == 'RESERVED'}"><fmt:message key="status.instance.reserved"/></c:when>
+                                        <c:when test="${instance.status == 'WRITE OFF'}"><fmt:message key="status.instance.write-off"/></c:when>
+                                    </c:choose>
+                                </td>
                                 <td>
                                     <form action="controller" method="get">
                                         <input type="hidden" name="command" value="instance-page">
@@ -150,21 +167,14 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="controller" method="post" onsubmit="return confirm('Do you really want this?');">
+                                    <form action="controller" method="post" onsubmit="return confirm('<fmt:message key="message.confirm-delete.instance"/>');">
                                         <input type="hidden" name="command" value="delete-instance">
                                         <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
                                         <input type="hidden" name="instance_id" value="${instance.id}">
                                         <button class="link" type="submit"
-                                            <c:if test="${instance.instanceIsUsed}">
-                                                disabled
-                                            </c:if>
+                                            ${instance.instanceIsUsed ? 'disabled' : ''}
                                         ><span class="material-icons-outlined
-                                             <c:if test="${instance.instanceIsUsed}">
-                                                w3-text-gray
-                                             </c:if>
-                                             <c:if test="${!instance.instanceIsUsed}">
-                                                w3-text-red
-                                             </c:if>"
+                                            ${instance.instanceIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
                                         title="<fmt:message key="instance.delete-instance"/>">clear</span></button>
                                     </form>
                                 </td>
@@ -173,6 +183,7 @@
                     </table>
                 </div>
             </div>
+            <c:remove var="instance" scope="session"/>
         </main>
         <jsp:include page="tempalte/footer.jsp" />
     </body>

@@ -132,7 +132,7 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
     @Override
     public Reader getReader(int readerID) throws DAOException {
-        Reader reader = new Reader();
+        Reader reader = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -145,6 +145,7 @@ public class MYSQLReaderDAO implements ReaderDAO {
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
+                reader = new Reader();
                 reader.setId(resultSet.getInt(ID));
                 reader.setNickname(resultSet.getString(NICKNAME));
                 reader.setEmail(resultSet.getString(EMAIL));
@@ -164,13 +165,13 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 reader.setCountReservation(resultSet.getInt(COUNT_RESERVATION));
                 reader.setCountReservationReady(resultSet.getInt(COUNT_RESERVATION_READY));
             }
+            return reader;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return reader;
     }
 
     @Override
@@ -190,30 +191,24 @@ public class MYSQLReaderDAO implements ReaderDAO {
                         buildQueryByFilter(query, filterName);
                     }
                 }
-
-//                if (filters.containsKey(ReaderListFilterName.LAST_NAME) && filters.containsKey(ReaderListFilterName.DEBTORS)) {
-//                    query.append(LAST_NAME_FILTER);
-//                    query.append(AND);
-//                    query.append(DEBTORS_FILTER);
-//                } else if (filters.containsKey(ReaderListFilterName.LAST_NAME)) {
-//                    query.append(LAST_NAME_FILTER);
-//                } else if (filters.containsKey(ReaderListFilterName.DEBTORS)) {
-//                    query.append(DEBTORS_FILTER);
-//                }
             }
             query.append(ORDER_BY);
             query.append(sortValue.get(filters.get(ReaderListFilterName.SORT)));
 
             preparedStatement = connection.prepareStatement(query.toString());
             List<String> filterNames = new ArrayList<>(filters.keySet());
-            for (int i = 0; i < filterNames.size() - 1; i++) {
+            for (int i = 0, n = 1; i < filterNames.size() - 1; i++, n++) {
                 switch (filterNames.get(i)) {
                     case ReaderListFilterName.LAST_NAME:
-                        preparedStatement.setString(i + 1, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
+                        preparedStatement.setString(n, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
                         break;
                     case ReaderListFilterName.RESERVATION_DATE_FROM:
                     case ReaderListFilterName.RESERVATION_DATE_TO:
-                        preparedStatement.setDate(i + 1, Date.valueOf(filters.get(filterNames.get(i)).toString()));
+                        preparedStatement.setDate(n, Date.valueOf(filters.get(filterNames.get(i)).toString()));
+                        break;
+                    case ReaderListFilterName.DEBTORS:
+                    case ReaderListFilterName.RESERVATION:
+                        n--;
                         break;
                 }
             }
@@ -241,14 +236,13 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 reader.setCountReservationReady(resultSet.getInt(COUNT_RESERVATION_READY));
                 readers.add(reader);
             }
-
+            return readers;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return readers;
     }
 
     private void buildQueryByFilter(StringBuilder query, String filterName) {
@@ -314,13 +308,13 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
                 readerIssuanceList.add(readerIssuance);
             }
+            return readerIssuanceList;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return readerIssuanceList;
     }
 
     @Override
@@ -365,13 +359,13 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
                 readerIssuanceHistoryList.add(readerIssuance);
             }
+            return readerIssuanceHistoryList;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return readerIssuanceHistoryList;
     }
 
     @Override
@@ -414,13 +408,13 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
                 readerReservationList.add(readerReservation);
             }
+            return readerReservationList;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return readerReservationList;
     }
 
     @Override
@@ -463,12 +457,12 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
                 readerReservationHistoryList.add(readerReservation);
             }
+            return readerReservationHistoryList;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return readerReservationHistoryList;
     }
 }

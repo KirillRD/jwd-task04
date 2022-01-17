@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class MYSQLIssuanceDAO implements IssuanceDAO {
 
@@ -23,6 +24,20 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     private static final String LOST = "lost";
 
     private static final String GET_MAX_ID_ISSUANCE = "SELECT MAX(id) FROM issuance";
+    private static final String GET_FREE_INSTANCE =
+            "SELECT id " +
+            "FROM instances " +
+            "WHERE instances.id=? AND date_write_off IS NULL AND " +
+            "NOT EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND (date_return IS NULL OR lost=1)) AND " +
+            "NOT EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY'))";
+    private static final String GET_NAMES_NOT_ISSUED_BOOKS =
+            "SELECT books.name " +
+            "FROM instances INNER JOIN books ON instances.books_id = books.id " +
+            "WHERE instances.id IN ";
+    private static final String NAME = "name";
+    private static final String COMMA = ", ";
+    private static final String BRACKET_LEFT = " (";
+    private static final String BRACKET_RIGHT = ") ";
     private static final String INSERT_ISSUANCE = "INSERT INTO issuance (id, instances_id, reader_id, date_issue, date_return_planned, lost) VALUES (?,?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 30 DAY),0)";
     private static final String SELECT_ISSUANCE = "SELECT * FROM issuance WHERE id=?";
     private static final String UPDATE_ISSUANCE = "UPDATE issuance SET instance_id=?, reader_id=?, date_issue=?, date_return=?, date_return_planed=?, lost=? WHERE id=?";
@@ -35,7 +50,7 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     public MYSQLIssuanceDAO() {}
 
     @Override
-    public void addIssuance(Issuance issuance) throws DAOException {
+    public String addIssuance(List<Issuance> issuances) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -43,17 +58,47 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(GET_MAX_ID_ISSUANCE);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                issuance.setId(resultSet.getInt(MAX_ID_ISSUANCE) + 1);
+            StringBuilder messageNotIssuedBooks = new StringBuilder();
+            StringBuilder idNotIssuedBooks = new StringBuilder();
+
+
+            for (Issuance issuance : issuances) {
+                preparedStatement = connection.prepareStatement(GET_FREE_INSTANCE);
+                preparedStatement.setInt(1, issuance.getInstanceID());
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+
+                    preparedStatement = connection.prepareStatement(GET_MAX_ID_ISSUANCE);
+                    ResultSet resultSetIssuance = preparedStatement.executeQuery();
+                    if (resultSetIssuance.next()) {
+                        issuance.setId(resultSetIssuance.getInt(MAX_ID_ISSUANCE) + 1);
+                    }
+                    resultSetIssuance.close();
+
+                    preparedStatement = connection.prepareStatement(INSERT_ISSUANCE);
+                    preparedStatement.setInt(1, issuance.getId());
+                    preparedStatement.setInt(2, issuance.getInstanceID());
+                    preparedStatement.setInt(3, issuance.getReaderID());
+                    preparedStatement.executeUpdate();
+                } else {
+                    if (idNotIssuedBooks.toString().length() != 0) {
+                        idNotIssuedBooks.append(COMMA);
+                    }
+                    idNotIssuedBooks.append(issuance.getInstanceID());
+                }
             }
 
-            preparedStatement = connection.prepareStatement(INSERT_ISSUANCE);
-            preparedStatement.setInt(1, issuance.getId());
-            preparedStatement.setInt(2, issuance.getInstanceID());
-            preparedStatement.setInt(3, issuance.getReaderID());
-            preparedStatement.executeUpdate();
+            if (idNotIssuedBooks.toString().length() != 0) {
+                preparedStatement = connection.prepareStatement(GET_NAMES_NOT_ISSUED_BOOKS + BRACKET_LEFT + idNotIssuedBooks.toString() + BRACKET_RIGHT);
+                resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    if (messageNotIssuedBooks.toString().length() != 0) {
+                        messageNotIssuedBooks.append(COMMA);
+                    }
+                    messageNotIssuedBooks.append(resultSet.getString(NAME));
+                }
+            }
+            return messageNotIssuedBooks.toString();
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
@@ -84,13 +129,13 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
                 issuance.setReturnPlanedDate(resultSet.getDate(DATE_RETURN_PLANED));
                 issuance.setLost(resultSet.getBoolean(LOST));
             }
+            return issuance;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return issuance;
     }
 
     @Override

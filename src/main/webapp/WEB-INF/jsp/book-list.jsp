@@ -30,9 +30,7 @@
                                     <c:forEach var="author" items="${requestScope.authors}">
                                         <option value="${author.id}"
                                                 <c:forEach var="saved_author" items="${requestScope.saved_authors}">
-                                                    <c:if test="${author.id == saved_author}">
-                                                        selected
-                                                    </c:if>
+                                                    ${author.id == saved_author ? 'selected' : ''}
                                                 </c:forEach>
                                         >${author.lastName} ${author.firstName} ${author.fatherName}</option>
                                     </c:forEach>
@@ -49,9 +47,7 @@
                                     <c:forEach var="genre" items="${requestScope.genres}">
                                         <option value="${genre.id}"
                                                 <c:forEach var="saved_genre" items="${requestScope.saved_genres}">
-                                                    <c:if test="${genre.id == saved_genre}">
-                                                        selected
-                                                    </c:if>
+                                                    ${genre.id == saved_genre ? 'selected' : ''}
                                                 </c:forEach>
                                         >${genre.name}</option>
                                     </c:forEach>
@@ -74,9 +70,7 @@
                                     <option data-placeholder="true"></option>
                                     <c:forEach var="publisher" items="${requestScope.publishers}">
                                         <option value="${publisher.id}"
-                                                <c:if test="${publisher.id == requestScope.saved_publisher}">
-                                                    selected
-                                                </c:if>
+                                            ${publisher.id == requestScope.saved_publisher ? 'selected' : ''}
                                         >${publisher.name}</option>
                                     </c:forEach>
                                 </select>
@@ -136,9 +130,7 @@
                                     <option data-placeholder="true"></option>
                                     <c:forEach var="type" items="${requestScope.types}">
                                         <option value="${type.id}"
-                                                <c:if test="${type.id == requestScope.saved_type}">
-                                                    selected
-                                                </c:if>
+                                            ${type.id == requestScope.saved_type ? 'selected' : ''}
                                         >${type.name}</option>
                                     </c:forEach>
                                 </select>
@@ -163,6 +155,16 @@
             <div class="w3-row">
                 <div class="w3-col w3-container" style="width: 15%;"></div>
                 <div class="w3-col w3-container" style="width: 70%;">
+
+                    <c:if test="${sessionScope.message != null}">
+                        <div class="w3-row">
+                            <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                <p><fmt:message key="message.${sessionScope.message}"/></p>
+                            </div>
+                        </div>
+                        <c:remove var="message" scope="session"/>
+                    </c:if>
+
                     <table class="w3-table w3-striped w3-border w3-hoverable">
                         <tr>
                             <th></th>
@@ -180,24 +182,18 @@
                         <c:forEach var="bookInfo" items="${requestScope.book_catalog}">
                             <tr>
                                 <td>
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-book-page">
-                                        <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                        <button class="link" type="submit"><span><img class="book-catalog-image" src="${bookInfo.imageURL}"></span></button>
-                                    </form>
+                                    <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
+                                        <img class="book-catalog-image" src="${bookInfo.imageURL}">
+                                    </a>
                                 </td>
                                 <td>
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-book-page">
-                                        <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                        <button class="link" type="submit"><span>${bookInfo.name}</span></button>
-                                    </form>
+                                    <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
+                                        ${bookInfo.name}
+                                    </a>
                                 </td>
                                 <td>
                                     <c:forEach var="author" varStatus="loop" items="${bookInfo.authors}">
-                                        <c:if test="${loop.index != 0}">
-                                            ,
-                                        </c:if>
+                                        ${loop.index != 0 ? ',' : ''}
                                         ${author}
                                     </c:forEach>
                                 </td>
@@ -211,9 +207,7 @@
                                 <td>${bookInfo.pages}</td>
                                 <td>
                                     <c:forEach var="genre" varStatus="loop" items="${bookInfo.genres}">
-                                        <c:if test="${loop.index != 0}">
-                                            ,
-                                        </c:if>
+                                        ${loop.index != 0 ? ',' : ''}
                                         ${genre}
                                     </c:forEach>
                                 </td>
@@ -241,20 +235,13 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="controller" method="post" onsubmit="return confirm(<fmt:message key="delete.submit.message"/>);">
+                                    <form action="controller" method="post" onsubmit="return confirm('<fmt:message key="message.confirm-delete.book"/>');">
                                         <input type="hidden" name="command" value="delete-book">
                                         <input type="hidden" name="book_id" value="${bookInfo.id}">
                                         <button class="link" type="submit"
-                                            <c:if test="${bookInfo.bookIsUsed}">
-                                                disabled
-                                            </c:if>
+                                            ${bookInfo.bookIsUsed ? 'disabled' : ''}
                                         ><span class="material-icons-outlined
-                                            <c:if test="${bookInfo.bookIsUsed}">
-                                                w3-text-gray
-                                            </c:if>
-                                            <c:if test="${!bookInfo.bookIsUsed}">
-                                                w3-text-red
-                                            </c:if>"
+                                            ${bookInfo.bookIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
                                         title="<fmt:message key="book-list.button.delete-book"/>">clear</span></button>
                                     </form>
                                 </td>

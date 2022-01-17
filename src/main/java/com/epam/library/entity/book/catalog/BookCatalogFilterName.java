@@ -1,5 +1,7 @@
 package com.epam.library.entity.book.catalog;
 
+import java.util.Set;
+
 public final class BookCatalogFilterName {
 
     private BookCatalogFilterName() {}
@@ -19,4 +21,25 @@ public final class BookCatalogFilterName {
     public static final String SORT = "sort";
     public static final String NAME_ASCENDING = "name_ascending";
     public static final String NAME_DESCENDING = "name_descending";
+
+    public static final Set<String> bookCatalogFilterName = Set.of(
+            NAME,
+            AUTHORS,
+            GENRES,
+            PUBLISHER,
+            PUBLICATION_YEAR_FROM,
+            PUBLICATION_YEAR_TO,
+            PAGES_FROM,
+            PAGES_TO,
+            ISBN,
+            ISSN,
+            TYPE,
+            FREE_INSTANCES,
+            SORT
+    );
+
+    public static final Set<String> bookCatalogFilterSortValues = Set.of(
+            NAME_ASCENDING,
+            NAME_DESCENDING
+    );
 }

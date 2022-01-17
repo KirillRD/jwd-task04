@@ -72,7 +72,7 @@ public class MYSQLPublisherDAO implements PublisherDAO {
 
     @Override
     public Publisher getPublisher(int publisherID) throws DAOException {
-        Publisher publisher = new Publisher();
+        Publisher publisher = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -84,17 +84,18 @@ public class MYSQLPublisherDAO implements PublisherDAO {
             preparedStatement.setInt(1, publisherID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                publisher = new Publisher();
                 publisher.setId(publisherID);
                 publisher.setName(resultSet.getString(NAME));
                 publisher.setCity(resultSet.getString(CITY));
             }
+            return publisher;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return publisher;
     }
 
     @Override
@@ -166,12 +167,12 @@ public class MYSQLPublisherDAO implements PublisherDAO {
                 publisher.setCity(resultSet.getString(CITY));
                 publishers.add(publisher);
             }
+            return publishers;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return publishers;
     }
 }

@@ -29,9 +29,7 @@
                                 <c:forEach var="author" items="${requestScope.authors}">
                                     <option value="${author.id}"
                                             <c:forEach var="saved_author" items="${requestScope.saved_authors}">
-                                                <c:if test="${author.id == saved_author}">
-                                                    selected
-                                                </c:if>
+                                                ${author.id == saved_author ? 'selected' : ''}
                                             </c:forEach>
                                     >${author.lastName} ${author.firstName} ${author.fatherName}</option>
                                 </c:forEach>
@@ -48,9 +46,7 @@
                                 <c:forEach var="genre" items="${requestScope.genres}">
                                     <option value="${genre.id}"
                                             <c:forEach var="saved_genre" items="${requestScope.saved_genres}">
-                                                <c:if test="${genre.id == saved_genre}">
-                                                    selected
-                                                </c:if>
+                                                ${genre.id == saved_genre ? 'selected' : ''}
                                             </c:forEach>
                                     >${genre.name}</option>
                                 </c:forEach>
@@ -73,9 +69,7 @@
                                 <option data-placeholder="true"></option>
                                 <c:forEach var="publisher" items="${requestScope.publishers}">
                                     <option value="${publisher.id}"
-                                            <c:if test="${publisher.id == requestScope.saved_publisher}">
-                                                selected
-                                            </c:if>
+                                            ${publisher.id == requestScope.saved_publisher ? 'selected' : ''}
                                     >${publisher.name}</option>
                                 </c:forEach>
                             </select>
@@ -135,9 +129,7 @@
                                 <option data-placeholder="true"></option>
                                 <c:forEach var="type" items="${requestScope.types}">
                                     <option value="${type.id}"
-                                            <c:if test="${type.id == requestScope.saved_type}">
-                                                selected
-                                            </c:if>
+                                            ${type.id == requestScope.saved_type ? 'selected' : ''}
                                     >${type.name}</option>
                                 </c:forEach>
                             </select>
@@ -159,11 +151,9 @@
                         <div class="w3-margin-bottom w3-round-large book-catalog-background-color book-catalog-main w3-hover-shadow">
                             <div class="w3-row book-catalog-half">
                                 <div class="book-catalog-half-left w3-half">
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-book-page">
-                                        <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                        <button class="link" type="submit"><span><img class="book-catalog-image" src="${bookInfo.imageURL}"></span></button>
-                                    </form>
+                                    <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
+                                        <img class="book-catalog-image" src="${bookInfo.imageURL}">
+                                    </a>
                                     <span class="material-icons w3-text-yellow">star</span>
                                     <span class="book-catalog-span">${bookInfo.rating} (${bookInfo.countRatings})</span>
                                     <span class="material-icons w3-text-blue-gray">comment</span>
@@ -177,15 +167,12 @@
                                 </div>
                                 <div class="book-catalog-half-right w3-half">
                                     <p>
-                                        <form action="controller" method="get">
-                                            <input type="hidden" name="command" value="go-to-book-page">
-                                            <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                            <button class="link" type="submit"><span><b>${bookInfo.name}</b></span></button>
-                                        </form>
+                                        <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
+                                            <b>${bookInfo.name}</b>
+                                        </a>
+                                        <br>
                                         <c:forEach var="author" varStatus="loop" items="${bookInfo.authors}">
-                                            <c:if test="${loop.index != 0}">
-                                                ,
-                                            </c:if>
+                                            ${loop.index != 0 ? ',' : ''}
                                             ${author}
                                         </c:forEach>
                                         <br>
@@ -198,9 +185,7 @@
                                         <br><fmt:message key="book.type"/>: ${bookInfo.type}
                                         <br><fmt:message key="book.genres"/>:
                                         <c:forEach var="genre" varStatus="loop" items="${bookInfo.genres}">
-                                            <c:if test="${loop.index != 0}">
-                                                ,
-                                            </c:if>
+                                            ${loop.index != 0 ? ',' : ''}
                                             ${genre}
                                         </c:forEach>
                                         <br>

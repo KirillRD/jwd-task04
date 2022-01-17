@@ -30,12 +30,9 @@
                         <div class="w3-margin-bottom w3-round-large book-catalog-background-color book-catalog-main w3-hover-shadow">
                             <div class="w3-row book-catalog-half">
                                 <div class="book-catalog-half-left w3-half">
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-book-page">
-                                        <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                        <button class="link" type="submit"><span><img class="book-catalog-image" src="${bookInfo.imageURL}"></span></button>
-                                    </form>
-                                        <%--                                    <img class="book-catalog-image" src="images/books/${bookInfo.imageURL}">--%>
+                                    <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
+                                        <img class="book-catalog-image" src="${bookInfo.imageURL}">
+                                    </a>
                                     <span class="material-icons w3-text-yellow">star</span>
                                     <span class="book-catalog-span">${bookInfo.rating} (${bookInfo.countRatings})</span>
                                     <span class="material-icons w3-text-blue-gray">comment</span>
@@ -48,15 +45,11 @@
                                     </c:if>
                                 </div>
                                 <div class="book-catalog-half-right w3-half">
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-book-page">
-                                        <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                        <button class="link" type="submit"><span><b>${bookInfo.name}</b></span></button>
-                                    </form>
+                                    <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
+                                        <b>${bookInfo.name}</b>
+                                    </a>
                                     <c:forEach var="author" varStatus="loop" items="${bookInfo.authors}">
-                                        <c:if test="${loop.index != 0}">
-                                            ,
-                                        </c:if>
+                                        ${loop.index != 0 ? ',' : ''}
                                         ${author}
                                     </c:forEach>
                                     <br>
@@ -69,9 +62,7 @@
                                     <br>Type: ${bookInfo.type}
                                     <br>Genres:
                                     <c:forEach var="genre" varStatus="loop" items="${bookInfo.genres}">
-                                        <c:if test="${loop.index != 0}">
-                                            ,
-                                        </c:if>
+                                        ${loop.index != 0 ? ',' : ''}
                                         ${genre}
                                     </c:forEach>
                                     <br>

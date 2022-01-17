@@ -46,30 +46,6 @@
                             </div>
                         </div>
                         <div class="w3-third w3-container">
-<%--                            <p></p>--%>
-<%--&lt;%&ndash;                            <div class="w3-col" style="width: 20%">&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                <p>&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                    <label class="w3-right label-filter"><fmt:message key="user.filter.sort-by"/></label>&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                </p>&ndash;%&gt;--%>
-<%--&lt;%&ndash;                            </div>&ndash;%&gt;--%>
-<%--                            <div class="w3-col" style="width: 80%">--%>
-<%--                                <p>--%>
-<%--                                    <label class="w3-right label-filter"><fmt:message key="user.filter.sort-by"/></label>--%>
-<%--                                    <select id="single-sort" type="text" name="sort">--%>
-<%--                                        <option value="last_name ASC" ${requestScope.last_name_ASC}><fmt:message key="user.filter.sort.last-name.a-z"/></option>--%>
-<%--                                        <option value="last_name DESC" ${requestScope.last_name_DESC}><fmt:message key="user.filter.sort.last-name.z-a"/></option>--%>
-<%--                                        <option value="count_days_debts ASC, last_name ASC" ${requestScope.count_days_debts_ASC__last_name_ASC}><fmt:message key="user.filter.sort.days-debts.a-z"/></option>--%>
-<%--                                        <option value="count_days_debts DESC, last_name ASC" ${requestScope.count_days_debts_DESC__last_name_ASC}><fmt:message key="user.filter.sort.days-debts.z-a"/></option>--%>
-<%--                                        <option value="min_date_reservation ASC, last_name ASC" ${requestScope.min_date_reservation_ASC__last_name_ASC}><fmt:message key="user.filter.sort.reserv-date.a-z"/></option>--%>
-<%--                                        <option value="min_date_reservation DESC, last_name ASC" ${requestScope.min_date_reservation_DESC__last_name_ASC}><fmt:message key="user.filter.sort.reserv-date.z-a"/></option>--%>
-<%--                                    </select>--%>
-<%--                                    <script>--%>
-<%--                                        new SlimSelect({--%>
-<%--                                            select: '#single-sort'--%>
-<%--                                        })--%>
-<%--                                    </script>--%>
-<%--                                </p>--%>
-<%--                            </div>--%>
                             <p>
                                 <label class="w3-left"><fmt:message key="user.filter.sort-by"/></label>
                                 <select id="single-sort" type="text" name="sort">
@@ -109,11 +85,9 @@
                         <c:forEach var="reader" items="${requestScope.reader_list}">
                             <tr>
                                 <td>
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-reader-page">
-                                        <input type="hidden" name="reader_id" value="${reader.id}">
-                                        <button class="link" type="submit"><span>${reader.lastName} ${reader.firstName} ${reader.fatherName}</span></button>
-                                    </form>
+                                    <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-reader-page&reader_id=${reader.id}">
+                                        ${reader.lastName} ${reader.firstName} ${reader.fatherName}
+                                    </a>
                                 </td>
                                 <td>${reader.address}</td>
                                 <td>${reader.phone}</td>
@@ -129,16 +103,12 @@
                                     </c:if>
                                 </td>
                                 <td class="
-                                    <c:if test="${reader.reservationDebts}">
-                                        w3-text-red
-                                    </c:if>
+                                    ${reader.reservationDebts ? 'w3-text-red' : ''}
                                 ">
                                     ${reader.minDateReservation}
                                 </td>
                                 <td class="
-                                    <c:if test="${reader.countReservation == reader.countReservationReady}">
-                                        w3-text-green
-                                    </c:if>
+                                    ${reader.countReservation == reader.countReservationReady ? 'w3-text-green' : ''}
                                 ">
                                     <c:if test="${reader.countReservation > 0}">
                                         ${reader.countReservationReady}/${reader.countReservation}

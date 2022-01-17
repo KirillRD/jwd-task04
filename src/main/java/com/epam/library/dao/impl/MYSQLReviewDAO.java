@@ -14,7 +14,6 @@ import java.util.List;
 public class MYSQLReviewDAO implements ReviewDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
-    private static final String COUNT_REVIEWS = "count_reviews";
     private static final String MAX_ID_REVIEW = "MAX(id)";
     private static final String ID = "id";
     private static final String BOOKS_ID = "books_id";
@@ -23,7 +22,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
     private static final String COMMENT = "comment";
     private static final String DATE = "date";
 
-    private static final String GET_REVIEW_BY_BOOK_READER = "SELECT COUNT(1) AS count_reviews FROM reviews WHERE books_id=? AND reader_id=?";
+    private static final String GET_REVIEW_BY_BOOK_READER = "SELECT * FROM reviews WHERE books_id=? AND reader_id=?";
     private static final String GET_MAX_ID_REVIEW = "SELECT MAX(id) FROM reviews";
     private static final String INSERT_REVIEW = "INSERT INTO reviews (id, books_id, reader_id, rating, comment, date) VALUES (?,?,?,?,?,CURDATE())";
     private static final String SELECT_REVIEW = "SELECT * FROM reviews WHERE id=?";
@@ -33,7 +32,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
     public MYSQLReviewDAO() {}
 
     @Override
-    public void addReview(Review review) throws DAOException {
+    public boolean addReview(Review review) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -46,24 +45,22 @@ public class MYSQLReviewDAO implements ReviewDAO {
             preparedStatement.setInt(2, review.getReaderID());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_REVIEWS) == 0) {
-                    preparedStatement = connection.prepareStatement(GET_MAX_ID_REVIEW);
-                    resultSet = preparedStatement.executeQuery();
-                    if (resultSet.next()) {
-                        review.setId(resultSet.getInt(MAX_ID_REVIEW) + 1);
-                    }
-
-                    preparedStatement = connection.prepareStatement(INSERT_REVIEW);
-                    preparedStatement.setInt(1, review.getId());
-                    preparedStatement.setInt(2, review.getBookID());
-                    preparedStatement.setInt(3, review.getReaderID());
-                    preparedStatement.setInt(4, review.getRating());
-                    preparedStatement.setString(5, review.getComment());
-                    preparedStatement.executeUpdate();
-                } else {
-                    //TODO logger
-                }
+                return false;
             }
+            preparedStatement = connection.prepareStatement(GET_MAX_ID_REVIEW);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                review.setId(resultSet.getInt(MAX_ID_REVIEW) + 1);
+            }
+
+            preparedStatement = connection.prepareStatement(INSERT_REVIEW);
+            preparedStatement.setInt(1, review.getId());
+            preparedStatement.setInt(2, review.getBookID());
+            preparedStatement.setInt(3, review.getReaderID());
+            preparedStatement.setInt(4, review.getRating());
+            preparedStatement.setString(5, review.getComment());
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
@@ -93,13 +90,13 @@ public class MYSQLReviewDAO implements ReviewDAO {
                 review.setComment(resultSet.getString(COMMENT));
                 review.setDate(resultSet.getDate(DATE));
             }
+            return review;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return review;
     }
 
     @Override

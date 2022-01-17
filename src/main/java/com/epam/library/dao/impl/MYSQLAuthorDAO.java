@@ -76,7 +76,7 @@ public class MYSQLAuthorDAO implements AuthorDAO {
 
     @Override
     public Author getAuthor(int authorID) throws DAOException {
-        Author author = new Author();
+        Author author = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -88,18 +88,19 @@ public class MYSQLAuthorDAO implements AuthorDAO {
             preparedStatement.setInt(1, authorID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                author = new Author();
                 author.setId(authorID);
                 author.setLastName(resultSet.getString(LAST_NAME));
                 author.setFirstName(resultSet.getString(FIRST_NAME));
                 author.setFatherName(resultSet.getString(FATHER_NAME));
             }
+            return author;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return author;
     }
 
     @Override
@@ -173,12 +174,12 @@ public class MYSQLAuthorDAO implements AuthorDAO {
                 author.setFatherName(resultSet.getString(FATHER_NAME));
                 authors.add(author);
             }
+            return authors;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return authors;
     }
 }

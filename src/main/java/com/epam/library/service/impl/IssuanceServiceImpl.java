@@ -7,6 +7,8 @@ import com.epam.library.entity.Issuance;
 import com.epam.library.service.IssuanceService;
 import com.epam.library.service.exception.ServiceException;
 
+import java.util.List;
+
 public class IssuanceServiceImpl implements IssuanceService {
 
     private final IssuanceDAO issuanceDAO;
@@ -16,9 +18,9 @@ public class IssuanceServiceImpl implements IssuanceService {
     }
 
     @Override
-    public void addIssuance(Issuance issuance) throws ServiceException {
+    public String addIssuance(List<Issuance> issuances) throws ServiceException {
         try {
-            issuanceDAO.addIssuance(issuance);
+            return issuanceDAO.addIssuance(issuances);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

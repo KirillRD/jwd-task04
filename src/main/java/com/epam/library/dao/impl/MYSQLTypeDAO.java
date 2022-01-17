@@ -70,7 +70,7 @@ public class MYSQLTypeDAO implements TypeDAO {
 
     @Override
     public Type getType(int typeID) throws DAOException {
-        Type type = new Type();
+        Type type = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -82,16 +82,17 @@ public class MYSQLTypeDAO implements TypeDAO {
             preparedStatement.setInt(1, typeID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                type = new Type();
                 type.setId(typeID);
                 type.setName(resultSet.getString(NAME));
             }
+            return type;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return type;
     }
 
     @Override
@@ -161,12 +162,12 @@ public class MYSQLTypeDAO implements TypeDAO {
                 type.setName(resultSet.getString(NAME));
                 types.add(type);
             }
+            return types;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return types;
     }
 }

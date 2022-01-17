@@ -147,7 +147,7 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
 
     @Override
     public BookCatalog getBookCatalog(int bookID) throws DAOException {
-        BookCatalog bookInfo = new BookCatalog();
+        BookCatalog bookInfo = null;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -160,6 +160,7 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
+                bookInfo = new BookCatalog();
                 bookInfo.setId(resultSet.getInt(ID));
                 bookInfo.setName(resultSet.getString(NAME));
                 bookInfo.setPublisher(resultSet.getString(PUBLISHER));
@@ -201,13 +202,13 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                     bookInfo.getHallFreeInstanceCatalogList().add(hallInstanceCatalog);
                 }
             }
+            return bookInfo;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookInfo;
     }
 
     @Override
@@ -300,13 +301,13 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 resultSetList.close();
                 bookCatalog.add(bookInfo);
             }
+            return bookCatalog;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookCatalog;
     }
 
     @Override
@@ -399,13 +400,13 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 resultSetList.close();
                 bookCatalog.add(bookInfo);
             }
+            return bookCatalog;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookCatalog;
     }
 
     @Override
@@ -468,6 +469,9 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                         for (int j = 0; j < values.length; j++, n++) {
                             preparedStatement.setInt(n, Integer.parseInt(values[j]));
                         }
+                        break;
+                    case BookCatalogFilterName.FREE_INSTANCES:
+                        n--;
                         break;
                 }
             }
@@ -551,13 +555,13 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 resultSetList.close();
                 bookCatalog.add(bookInfo);
             }
+            return bookCatalog;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return bookCatalog;
     }
 
     private void buildQueryByFilter(StringBuilder query, String filterName) {

@@ -32,27 +32,21 @@
                             <c:forEach var="reservation" items="${requestScope.reader_reservation}">
                                 <tr>
                                     <td>
-                                        <form action="controller" method="get">
-                                            <input type="hidden" name="command" value="go-to-book-page">
-                                            <input type="hidden" name="book_id" value="${reservation.bookID}">
-                                            <button class="link" type="submit"><span>${reservation.bookName}</span></button>
-                                        </form>
+                                        <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${reservation.bookID}">
+                                            ${reservation.bookName}
+                                        </a>
                                     </td>
                                     <td>${reservation.authors}</td>
                                     <td>${reservation.instanceNumber}</td>
                                     <td>${reservation.hallName}</td>
                                     <td>${reservation.dateReservation}</td>
                                     <td class="
-                                                <c:if test="${reservation.status == 'READY'}">
-                                                    w3-text-green
-                                                </c:if>
+                                                ${reservation.status == 'READY' ? 'w3-text-green' : ''}
                                             ">
                                             ${reservation.status}
                                     </td>
                                     <td class="
-                                                <c:if test="${reservation.reservationDebts}">
-                                                    w3-text-red
-                                                </c:if>
+                                                ${reservation.reservationDebts ? 'w3-text-red' : ''}
                                             ">
                                         <c:if test="${reservation.countDaysReservation == 0}">
                                             Today
@@ -77,9 +71,7 @@
                         <b>${requestScope.book_info.name}</b>
                         <br>
                         <c:forEach var="author" varStatus="loop" items="${requestScope.book_info.authors}">
-                            <c:if test="${loop.index != 0}">
-                                ,
-                            </c:if>
+                            ${loop.index != 0 ? ',' : ''}
                             ${author}
                         </c:forEach>
                         <br>
@@ -93,9 +85,7 @@
                         <br><fmt:message key="book.type"/>: ${requestScope.book_info.type}
                         <br><fmt:message key="book.genres"/>:
                         <c:forEach var="genre" varStatus="loop" items="${requestScope.book_info.genres}">
-                            <c:if test="${loop.index != 0}">
-                                ,
-                            </c:if>
+                            ${loop.index != 0 ? ',' : ''}
                             ${genre}
                         </c:forEach>
                         <br>
@@ -138,7 +128,7 @@
                 <div class="w3-row w3-padding-64">
                     <div class="w3-third w3-container"></div>
                     <div class="w3-third w3-container w3-round-large w3-card">
-                        <p class="w3-center w3-large w3-text-blue-gray"><fmt:message key="reservation.${param.reservation_message}"/></p>
+                        <p class="w3-center w3-large w3-text-dark-gray"><fmt:message key="reservation.${param.reservation_message}"/></p>
                         <form action="controller" method="get">
                             <input type="hidden" name="command" value="go-to-book-page">
                             <input type="hidden" name="book_id" value="${param.book_id}">

@@ -29,9 +29,7 @@
                                 </c:if>
                                 <c:if test="${requestScope.reader.countReservation != 0}">
                                     <br><span class="
-                                        <c:if test="${requestScope.reader.countReservation == requestScope.reader.countReservationReady}">
-                                            w3-text-green
-                                        </c:if>
+                                        ${requestScope.reader.countReservation == requestScope.reader.countReservationReady ? 'w3-text-green' : ''}
                                     ">
                                         <fmt:message key="user.ready-reserved"/>: ${requestScope.reader.countReservationReady}/${requestScope.reader.countReservation}
                                     </span>
@@ -95,11 +93,9 @@
                                 <c:forEach var="issuance" items="${requestScope.reader_issuance}">
                                     <tr>
                                         <td>
-                                            <form action="controller" method="get">
-                                                <input type="hidden" name="command" value="go-to-book-page">
-                                                <input type="hidden" name="book_id" value="${issuance.bookID}">
-                                                <button class="link" type="submit"><span>${issuance.bookName}</span></button>
-                                            </form>
+                                            <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${issuance.bookID}">
+                                                ${issuance.bookName}
+                                            </a>
                                         </td>
                                         <td>${issuance.authors}</td>
                                         <td>${issuance.instanceNumber}</td>
@@ -126,6 +122,16 @@
                     <c:if test="${requestScope.reader_reservation.size() != 0 && requestScope.reader_reservation != null}">
                         <div class="w3-container">
                             <h3><b><fmt:message key="reader.reserved-books"/></b></h3>
+
+                            <c:if test="${sessionScope.message != null}">
+                                <div class="w3-row">
+                                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                        <p><fmt:message key="message.${sessionScope.message}"/></p>
+                                    </div>
+                                </div>
+                                <c:remove var="message" scope="session"/>
+                            </c:if>
+
                             <table class="w3-table w3-striped w3-border w3-hoverable">
                                 <tr>
                                     <th><fmt:message key="reader.book"/></th>
@@ -142,27 +148,24 @@
                                 <c:forEach var="reservation" items="${requestScope.reader_reservation}">
                                     <tr>
                                         <td>
-                                            <form action="controller" method="get">
-                                                <input type="hidden" name="command" value="go-to-book-page">
-                                                <input type="hidden" name="book_id" value="${reservation.bookID}">
-                                                <button class="link" type="submit"><span>${reservation.bookName}</span></button>
-                                            </form>
+                                            <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${reservation.bookID}">
+                                                ${reservation.bookName}
+                                            </a>
                                         </td>
                                         <td>${reservation.authors}</td>
                                         <td>${reservation.instanceNumber}</td>
                                         <td>${reservation.hallName}</td>
                                         <td>${reservation.dateReservation}</td>
                                         <td class="
-                                                <c:if test="${reservation.status == 'READY'}">
-                                                    w3-text-green
-                                                </c:if>
+                                                ${reservation.status == 'READY' ? 'w3-text-green' : ''}
                                             ">
-                                                ${reservation.status}
+                                            <c:choose>
+                                                <c:when test="${reservation.status == 'RESERVED'}"><fmt:message key="status.reservation.reserved"/></c:when>
+                                                <c:when test="${reservation.status == 'READY'}"><fmt:message key="status.reservation.ready"/></c:when>
+                                            </c:choose>
                                         </td>
                                         <td class="
-                                                <c:if test="${reservation.reservationDebts}">
-                                                    w3-text-red
-                                                </c:if>
+                                                ${reservation.reservationDebts ? 'w3-text-red' : ''}
                                             ">
                                             <c:if test="${reservation.countDaysReservation == 0}">
                                                 Today
@@ -173,7 +176,7 @@
                                         </td>
                                         <c:if test="${requestScope.user.id == sessionScope.session_user.id}">
                                             <td>
-                                                <form action="controller" method="post" onsubmit="return confirm('Do you really want this?');">
+                                                <form action="controller" method="post" onsubmit="return confirm('<fmt:message key="message.confirm-delete.reservation"/>');">
                                                     <input type="hidden" name="command" value="delete-reservation">
                                                     <input type="hidden" name="reservation_id" value="${reservation.reservationID}">
                                                     <button class="link" type="submit"
@@ -210,11 +213,9 @@
                                 <c:forEach var="issuance" items="${requestScope.reader_issuance_history}">
                                     <tr>
                                         <td>
-                                            <form action="controller" method="get">
-                                                <input type="hidden" name="command" value="go-to-book-page">
-                                                <input type="hidden" name="book_id" value="${issuance.bookID}">
-                                                <button class="link" type="submit"><span>${issuance.bookName}</span></button>
-                                            </form>
+                                            <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${issuance.bookID}">
+                                                ${issuance.bookName}
+                                            </a>
                                         </td>
                                         <td>${issuance.authors}</td>
                                         <td>${issuance.instanceNumber}</td>
@@ -253,22 +254,23 @@
                                 <c:forEach var="reservation" items="${requestScope.reader_reservation_history}">
                                     <tr>
                                         <td>
-                                            <form action="controller" method="get">
-                                                <input type="hidden" name="command" value="go-to-book-page">
-                                                <input type="hidden" name="book_id" value="${reservation.bookID}">
-                                                <button class="link" type="submit"><span>${reservation.bookName}</span></button>
-                                            </form>
+                                            <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${reservation.bookID}">
+                                                ${reservation.bookName}
+                                            </a>
                                         </td>
                                         <td>${reservation.authors}</td>
                                         <td>${reservation.instanceNumber}</td>
                                         <td>${reservation.hallName}</td>
                                         <td>${reservation.dateReservation}</td>
                                         <td class="
-                                            <c:if test="${reservation.status != 'ISSUED'}">
-                                                w3-text-red
-                                            </c:if>
+                                            ${reservation.status != 'ISSUED' ? 'w3-text-red' : ''}
                                         ">
-                                                ${reservation.status}
+                                            <c:choose>
+                                                <c:when test="${reservation.status == 'ISSUED'}"><fmt:message key="status.reservation.issued"/></c:when>
+                                                <c:when test="${reservation.status == 'CANCELLED'}"><fmt:message key="status.reservation.canceled"/></c:when>
+                                                <c:when test="${reservation.status == 'EXPIRED'}"><fmt:message key="status.reservation.expired"/></c:when>
+                                                <c:when test="${reservation.status == 'REJECTED'}"><fmt:message key="status.reservation.rejected"/></c:when>
+                                            </c:choose>
                                         </td>
                                     </tr>
                                 </c:forEach>

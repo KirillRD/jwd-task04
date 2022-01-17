@@ -18,21 +18,27 @@
                 <div class="w3-third w3-container"></div>
                 <div class="w3-third w3-container w3-text-blue-grey">
                     <p class="w3-center"><b class="w3-xlarge"><fmt:message key="authentication.label"/></b></p>
+
+                    <c:if test="${sessionScope.message != null}">
+                        <div class="w3-row">
+                            <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                <p><fmt:message key="message.${sessionScope.message}"/></p>
+                            </div>
+                        </div>
+                        <c:remove var="message" scope="session"/>
+                    </c:if>
+
                     <form class="w3-container w3-card w3-round-large" action="controller" method="post">
                         <input type="hidden" name="command" value="authentication">
                         <p>
                             <label><fmt:message key="user.email"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="email">
+                            <input class="input-padding w3-input w3-round" type="text" name="email" value="${sessionScope.email}" required>
+                            <c:remove var="email" scope="session"/>
                         </p>
                         <p>
                             <label><fmt:message key="user.password"/></label>
-                            <input class="input-padding w3-input w3-round" type="password" name="password">
+                            <input class="input-padding w3-input w3-round" type="password" name="password" required>
                         </p>
-<%--                        <c:if test="error != null">--%>
-<%--                            <p class="w3-text-red">--%>
-<%--                                    ${error}--%>
-<%--                            </p>--%>
-<%--                        </c:if>--%>
                         <button class="w3-button w3-right w3-theme w3-margin-bottom w3-round-large" type="submit"><fmt:message key="authentication.button"/></button>
                     </form>
                 </div>

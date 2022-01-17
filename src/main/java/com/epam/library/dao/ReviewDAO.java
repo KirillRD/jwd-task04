@@ -6,7 +6,7 @@ import com.epam.library.entity.Review;
 import java.util.List;
 
 public interface ReviewDAO {
-    void addReview(Review review) throws DAOException;
+    boolean addReview(Review review) throws DAOException;
     Review getReview(int reviewID) throws DAOException;
     void updateReview(Review review) throws DAOException;
     void deleteReview(Review review) throws DAOException;

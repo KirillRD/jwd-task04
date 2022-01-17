@@ -8,7 +8,7 @@ import java.util.Map;
 
 public final class CommandProvider {
 
-    private final Map<String, Command> commands = new HashMap<>();
+    private static final Map<String, Command> commands = new HashMap<>();
 
     public CommandProvider() {
         commands.put(CommandName.GO_TO_MAIN_PAGE.getCommandName(), new GoToMainPage());
@@ -43,6 +43,7 @@ public final class CommandProvider {
         commands.put(CommandName.ADD_REVIEW.getCommandName(), new AddReview());
         commands.put(CommandName.GO_TO_NEW_BOOK_CATALOG_PAGE.getCommandName(), new GoToNewBookCatalogPage());
         commands.put(CommandName.GO_TO_POPULAR_BOOK_CATALOG_PAGE.getCommandName(), new GoToPopularBookCatalogPage());
+        commands.put(CommandName.GO_TO_ERROR_PAGE.getCommandName(), new GoToErrorPage());
     }
 
     public final Command getCommand(String command) {

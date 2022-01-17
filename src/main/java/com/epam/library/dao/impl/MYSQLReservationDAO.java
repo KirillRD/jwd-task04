@@ -42,7 +42,7 @@ public class MYSQLReservationDAO implements ReservationDAO {
     //private static final String SELECT_INSTANCE_RESERVATION = "SELECT * FROM instances_reservation WHERE reservation_id=?";
     //private static final String UPDATE_INSTANCE_RESERVATION = "UPDATE instances_reservation SET instances_id=?, status=? WHERE id=?";
     private static final String UPDATE_RESERVATION = "UPDATE reservation SET status=?, instances_id=? WHERE id=?";
-    private static final String GET_RESERVATION_RESERVED = "SELECT * FROM reservation WHERE id=? AND status='RESERVED'";
+    private static final String GET_RESERVATION_NOT_RESERVED = "SELECT * FROM reservation WHERE id=? AND status!='RESERVED'";
     private static final String DELETE_RESERVATION = "DELETE FROM reservation WHERE id=?";
     //private static final String DELETE_INSTANCE_RESERVATION = "DELETE FROM instances_reservation WHERE id=?";
 
@@ -57,12 +57,6 @@ public class MYSQLReservationDAO implements ReservationDAO {
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(GET_MAX_ID_RESERVATION);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                reservation.setId(resultSet.getInt(MAX_ID) + 1);
-            }
-
             preparedStatement = connection.prepareStatement(GET_FREE_INSTANCE);
             preparedStatement.setInt(1, bookID);
             preparedStatement.setInt(2, hallID);
@@ -71,6 +65,12 @@ public class MYSQLReservationDAO implements ReservationDAO {
                 reservation.setInstanceID(resultSet.getInt(ID));
             } else {
                 return false;
+            }
+
+            preparedStatement = connection.prepareStatement(GET_MAX_ID_RESERVATION);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                reservation.setId(resultSet.getInt(MAX_ID) + 1);
             }
 
             preparedStatement = connection.prepareStatement(INSERT_RESERVATION);
@@ -108,13 +108,13 @@ public class MYSQLReservationDAO implements ReservationDAO {
                 reservation.setDate(resultSet.getDate(DATE));
                 reservation.setStatus(ReservationStatus.valueOf(resultSet.getString(STATUS)));
             }
+            return reservation;
         } catch (SQLException e) {
             throw new DAOException(e);
         } finally {
             connectionPool.releaseConnection(connection);
             connectionPool.closeConnection(resultSet, preparedStatement);
         }
-        return reservation;
     }
 
     @Override
@@ -148,10 +148,10 @@ public class MYSQLReservationDAO implements ReservationDAO {
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(GET_RESERVATION_RESERVED);
+            preparedStatement = connection.prepareStatement(GET_RESERVATION_NOT_RESERVED);
             preparedStatement.setInt(1, reservationID);
             resultSet = preparedStatement.executeQuery();
-            if (!resultSet.next()) {
+            if (resultSet.next()) {
                 return false;
             }
 

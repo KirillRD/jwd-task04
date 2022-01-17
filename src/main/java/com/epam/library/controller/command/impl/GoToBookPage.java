@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.book.catalog.BookReview;
 import com.epam.library.service.BookCatalogService;
@@ -29,18 +31,25 @@ public class GoToBookPage implements Command {
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         BookReviewService bookReviewService = ServiceProvider.getInstance().getBookReviewService();
 
-        int id = Integer.parseInt(request.getParameter(BOOK_ID));
-
         try {
-            bookInfo = bookCatalogService.getBookCatalog(id);
+            if (request.getParameter(BOOK_ID) == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
+            int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+            bookInfo = bookCatalogService.getBookCatalog(bookID);
+            if (bookInfo == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             request.setAttribute(BOOK_INFO, bookInfo);
 
-            bookReviews = bookReviewService.getBookReviews(id);
+            bookReviews = bookReviewService.getBookReviews(bookID);
             request.setAttribute(BOOK_REVIEW, bookReviews);
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
 
-        RequestProvider.forward(PagePath.BOOK_PAGE, request, response);
+            RequestProvider.forward(PagePath.BOOK_PAGE, request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

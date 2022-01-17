@@ -32,7 +32,8 @@ public enum CommandName {
     DELETE_RESERVATION("delete-reservation"),
     ADD_REVIEW("add-review"),
     GO_TO_NEW_BOOK_CATALOG_PAGE("go-to-new-book-catalog-page"),
-    GO_TO_POPULAR_BOOK_CATALOG_PAGE("go-to-popular-book-catalog-page");
+    GO_TO_POPULAR_BOOK_CATALOG_PAGE("go-to-popular-book-catalog-page"),
+    GO_TO_ERROR_PAGE("go-to-error-page");
 
     private final String commandName;
 
@@ -42,5 +43,14 @@ public enum CommandName {
 
     public String getCommandName() {
         return commandName;
+    }
+
+    public static boolean containsCommandName(String commandName) {
+        for (CommandName command : CommandName.values()) {
+            if (command.commandName.equals(commandName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

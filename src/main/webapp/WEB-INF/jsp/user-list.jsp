@@ -81,18 +81,14 @@
                                     </c:if>
                                 </td>
                                 <td>
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-user-page">
-                                        <input type="hidden" name="user_id" value="${user.id}">
-                                        <button class="link" type="submit"><span><img class="book-catalog-image" src="${user.imageURL}"></span></button>
-                                    </form>
+                                    <a href="controller?command=go-to-user-page&user_id=${user.id}">
+                                        <img class="book-catalog-image" src="${user.imageURL}">
+                                    </a>
                                 </td>
                                 <td>
-                                    <form action="controller" method="get">
-                                        <input type="hidden" name="command" value="go-to-user-page">
-                                        <input type="hidden" name="user_id" value="${user.id}">
-                                        <button class="link" type="submit"><span>${user.lastName} ${user.firstName} ${user.fatherName}</span></button>
-                                    </form>
+                                    <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-user-page&user_id=${user.id}">
+                                        ${user.lastName} ${user.firstName} ${user.fatherName}
+                                    </a>
                                 </td>
                                 <td>${user.email}</td>
                                 <td>${user.nickname}</td>

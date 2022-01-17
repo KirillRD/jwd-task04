@@ -18,120 +18,81 @@
                 <div class="w3-quarter w3-container"></div>
                 <div class="w3-half w3-container w3-text-blue-grey">
                     <p class="w3-center"><b class="w3-xlarge"><fmt:message key="registration.label"/></b></p>
+
+                    <c:if test="${sessionScope.message != null}">
+                        <div class="w3-row">
+                            <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                <p><fmt:message key="message.${sessionScope.message}"/></p>
+                            </div>
+                        </div>
+                        <c:remove var="message" scope="session"/>
+                    </c:if>
+
                     <form class="w3-container w3-card w3-round-large" action="controller" method="post">
                         <input type="hidden" name="command" value="registration">
                         <p>
                             <label><fmt:message key="user.email"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="email">
+                            <input class="input-padding w3-input w3-round" type="text" name="email" value="${sessionScope.user.email}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.password"/></label>
-                            <input class="input-padding w3-input w3-round" type="password" name="password">
+                            <input class="input-padding w3-input w3-round" type="password" name="password" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.repeated-password"/></label>
-                            <input class="input-padding w3-input w3-round" type="password" name="repeated_password">
+                            <input class="input-padding w3-input w3-round" type="password" name="repeated_password" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.nickname"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="nickname">
+                            <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${sessionScope.user.nickname}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.last-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="last_name">
+                            <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${sessionScope.user.lastName}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.first-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="first_name">
+                            <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${sessionScope.user.firstName}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.father-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="father_name">
+                            <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${sessionScope.user.fatherName}">
                         </p>
                         <p>
                             <label><fmt:message key="user.birthday"/></label>
-                            <input class="input-padding w3-input w3-round" type="date" name="birthday">
+                            <input class="input-padding w3-input w3-round" type="date" name="birthday" value="${sessionScope.user.birthday}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.gender"/></label>
                             <br>
-                            <input class="w3-radio" type="radio" name="gender" value="M" checked>
+                            <input class="w3-radio" type="radio" name="gender" value="M"
+                                   ${sessionScope.user.gender == 'M' ? 'checked' : ''}
+                            required>
                             <label><fmt:message key="user.male"/></label>
-                            <input class="w3-radio" type="radio" name="gender" value="F">
+                            <input class="w3-radio" type="radio" name="gender" value="F"
+                                   ${sessionScope.user.gender == 'F' ? 'checked' : ''}
+                            required>
                             <label><fmt:message key="user.female"/></label>
                         </p>
                         <p>
                             <label><fmt:message key="user.passport"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="passport">
+                            <input class="input-padding w3-input w3-round" type="text" name="passport" value="${sessionScope.user.passport}">
                         </p>
                         <p>
                             <label><fmt:message key="user.address"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="address">
+                            <input class="input-padding w3-input w3-round" type="text" name="address" value="${sessionScope.user.address}">
                         </p>
                         <p>
                             <label><fmt:message key="user.phone"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="phone">
+                            <input class="input-padding w3-input w3-round" type="text" name="phone" value="${sessionScope.user.phone}">
                         </p>
                         <button class="w3-button w3-right w3-theme w3-margin-bottom w3-round-large" type="submit"><fmt:message key="registration.button"/></button>
                     </form>
+                    <c:remove var="user" scope="session"/>
                 </div>
                 <div class="w3-quarter w3-container"></div>
             </div>
         </main>
         <jsp:include page="tempalte/footer.jsp" />
-<%--        <h2>Hello World!</h2>--%>
-<%--        <form class="w3-container w3-card" action=addUser method="post">--%>
-<%--            <p>--%>
-<%--                <label>Login</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="login">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Password</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="password">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Repeated password</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="repeatedPassword">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Email</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="email">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Last name</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="lastName">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>First name</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="firstName">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Father name</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="fatherName">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Birthdate</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="birthdate">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Gender</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="gender">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Passport</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="passport">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Address</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="address">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <label>Phone</label>--%>
-<%--                <input class="w3-input w3-border" type="text" name="phone">--%>
-<%--            </p>--%>
-<%--            <p>--%>
-<%--                <button class="w3-btn" type="submit">Registration</button>--%>
-<%--            </p>--%>
-<%--        </form>--%>
     </body>
 </html>

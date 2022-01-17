@@ -1,5 +1,7 @@
 package com.epam.library.entity.user;
 
+import java.util.Set;
+
 public final class ReaderListFilterName {
 
     private ReaderListFilterName() {}
@@ -16,4 +18,22 @@ public final class ReaderListFilterName {
     public static final String DAYS_DEBT_DESCENDING = "days_debt_descending";
     public static final String RESERVATION_DATE_ASCENDING = "reservation_date_ascending";
     public static final String RESERVATION_DATE_DESCENDING = "reservation_date_descending";
+
+    public static final Set<String> readerListFilterName = Set.of(
+            LAST_NAME,
+            DEBTORS,
+            RESERVATION_DATE_FROM,
+            RESERVATION_DATE_TO,
+            RESERVATION,
+            SORT
+    );
+
+    public static final Set<String> readerListFilterSortValues = Set.of(
+            LAST_NAME_ASCENDING,
+            LAST_NAME_DESCENDING,
+            DAYS_DEBT_ASCENDING,
+            DAYS_DEBT_DESCENDING,
+            RESERVATION_DATE_ASCENDING,
+            RESERVATION_DATE_DESCENDING
+    );
 }

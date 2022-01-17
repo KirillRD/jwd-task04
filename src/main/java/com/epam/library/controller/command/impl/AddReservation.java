@@ -2,7 +2,7 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.Reservation;
@@ -28,7 +28,7 @@ public class AddReservation implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
-        String message = null;
+        String message;
         int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         try {
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
@@ -44,10 +44,10 @@ public class AddReservation implements Command {
             } else {
                 message = RESERVATION_UNSUCCESSFUL;
             }
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
 
-        RequestProvider.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID, message), request, response);
+            RequestProvider.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID, message), request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

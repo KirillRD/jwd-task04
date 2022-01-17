@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.Book;
 import com.epam.library.entity.book.Author;
 import com.epam.library.entity.book.Genre;
@@ -13,6 +15,7 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,44 +39,47 @@ public class GoToAddEditBookPage implements Command {
         AuthorService authorService = ServiceProvider.getInstance().getAuthorService();
         GenreService genreService = ServiceProvider.getInstance().getGenreService();
 
-        List<Publisher> publishers = null;
-        List<Type> types = null;
-        List<Author> authors = null;
-        List<Genre> genres = null;
+        List<Publisher> publishers;
+        List<Type> types;
+        List<Author> authors;
+        List<Genre> genres;
 
+        BookService bookService = ServiceProvider.getInstance().getBookService();
         try {
+
             publishers = publisherService.getPublishersList();
             types = typeService.getTypesList();
             authors = authorService.getAuthorsList();
             genres = genreService.getGenresList();
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
 
-        for (Author author : authors) {
-            author.setFirstName(SPACE + author.getFirstName().charAt(0) + POINT);
-            if (!"".equals(author.getFatherName())) {
-                author.setFatherName(author.getFatherName().charAt(0) + POINT);
+            for (Author author : authors) {
+                author.setFirstName(SPACE + author.getFirstName().charAt(0) + POINT);
+                if (!author.getFatherName().isEmpty()) {
+                    author.setFatherName(author.getFatherName().charAt(0) + POINT);
+                }
             }
-        }
 
-        request.setAttribute(PUBLISHERS, publishers.toArray());
-        request.setAttribute(TYPES, types.toArray());
-        request.setAttribute(AUTHORS, authors.toArray());
-        request.setAttribute(GENRES, genres.toArray());
+            request.setAttribute(PUBLISHERS, publishers);
+            request.setAttribute(TYPES, types);
+            request.setAttribute(AUTHORS, authors);
+            request.setAttribute(GENRES, genres);
 
-        BookService bookService = ServiceProvider.getInstance().getBookService();
-
-        if (request.getParameter(BOOK_ID) != null) {
-            try {
+            if (request.getParameter(BOOK_ID) != null   ) {
                 int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
                 Book book = bookService.getBook(bookID);
-                request.setAttribute(BOOK, book);
-            } catch (ServiceException e) {
-                RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
+                if (book == null) {
+                    RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                    return;
+                }
+                HttpSession session = request.getSession();
+                if (session.getAttribute(BOOK) == null) {
+                    session.setAttribute(BOOK, book);
+                }
             }
-        }
 
-        RequestProvider.forward(PagePath.ADD_EDIT_BOOK_PAGE, request, response);
+            RequestProvider.forward(PagePath.ADD_EDIT_BOOK_PAGE, request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
 import com.epam.library.entity.user.Reader;
@@ -35,8 +37,16 @@ public class GoToReaderPage implements Command {
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();
 
         try {
+            if (request.getParameter(READER_ID) == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             int readerID = Integer.parseInt(request.getParameter(READER_ID));
             reader = readerService.getReader(readerID);
+            if (reader == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             request.setAttribute(READER, reader);
 
             readerIssuanceList = readerService.getReaderIssuanceList(readerID);
@@ -50,10 +60,10 @@ public class GoToReaderPage implements Command {
 
             readerReservationHistoryList = readerService.getReaderReservationHistoryList(readerID);
             request.setAttribute(READER_RESERVATION_HISTORY, readerReservationHistoryList);
-        } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
-        }
 
-        RequestProvider.forward(PagePath.READER_PAGE, request, response);
+            RequestProvider.forward(PagePath.READER_PAGE, request, response);
+        } catch (ServiceException e) {
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+        }
     }
 }

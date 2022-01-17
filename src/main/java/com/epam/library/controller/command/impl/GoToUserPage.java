@@ -2,7 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
+import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
+import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
 import com.epam.library.entity.issuance.ReaderIssuance;
@@ -34,23 +36,27 @@ public class GoToUserPage implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserService userService = ServiceProvider.getInstance().getUserService();
         try {
-            int id;
+            int userID;
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
             if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                id = Integer.parseInt(request.getParameter(USER_ID));
+                userID = Integer.parseInt(request.getParameter(USER_ID));
             } else {
-                id = sessionUser.getId();
+                userID = sessionUser.getId();
             }
-            User user = userService.getUser(id);
+            User user = userService.getUser(userID);
+            if (user == null) {
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             request.setAttribute(USER, user);
 
             if (Role.READER == user.getRole()) {
                 ReaderService readerService = ServiceProvider.getInstance().getReaderService();
-                Reader reader = readerService.getReader(id);
-                List<ReaderIssuance> readerIssuanceList = readerService.getReaderIssuanceList(id);
-                List<ReaderIssuance> readerIssuanceHistoryList = readerService.getReaderIssuanceHistoryList(id);
-                List<ReaderReservation> readerReservationList = readerService.getReaderReservationList(id);
-                List<ReaderReservation> readerReservationHistoryList = readerService.getReaderReservationHistoryList(id);
+                Reader reader = readerService.getReader(userID);
+                List<ReaderIssuance> readerIssuanceList = readerService.getReaderIssuanceList(userID);
+                List<ReaderIssuance> readerIssuanceHistoryList = readerService.getReaderIssuanceHistoryList(userID);
+                List<ReaderReservation> readerReservationList = readerService.getReaderReservationList(userID);
+                List<ReaderReservation> readerReservationHistoryList = readerService.getReaderReservationHistoryList(userID);
                 request.setAttribute(READER, reader);
                 request.setAttribute(READER_ISSUANCE, readerIssuanceList);
                 request.setAttribute(READER_ISSUANCE_HISTORY, readerIssuanceHistoryList);
@@ -58,10 +64,9 @@ public class GoToUserPage implements Command {
                 request.setAttribute(READER_RESERVATION_HISTORY, readerReservationHistoryList);
             }
 
+            RequestProvider.forward(PagePath.USER_PAGE, request, response);
         } catch (ServiceException e) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
-
-        RequestProvider.forward(PagePath.USER_PAGE, request, response);
     }
 }
