@@ -3,8 +3,8 @@ package com.epam.library.dao.connection_pool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public final class ConnectionPool {
     private static final ConnectionPool instance = new ConnectionPool();
@@ -13,10 +13,9 @@ public final class ConnectionPool {
     private final String url;
     private final String user;
     private final String password;
-    private final List<Connection> connectionPool;
-    private final List<Connection> usedConnections;
+    private final BlockingQueue<Connection> connectionPool;
+    private final BlockingQueue<Connection> usedConnections;
     private int POOL_SIZE;
-//    private static final int TIMEOUT = 5;
 
     public static ConnectionPool getInstance() {
         return instance;
@@ -34,8 +33,8 @@ public final class ConnectionPool {
         } catch (NumberFormatException e) {
             POOL_SIZE = 10;
         } finally {
-            connectionPool = new ArrayList<>(POOL_SIZE);
-            usedConnections = new ArrayList<>(POOL_SIZE);
+            connectionPool = new ArrayBlockingQueue<>(POOL_SIZE);
+            usedConnections = new ArrayBlockingQueue<>(POOL_SIZE);
         }
     }
 
@@ -45,62 +44,73 @@ public final class ConnectionPool {
             for (int i = 0; i < POOL_SIZE; i++) {
                 connectionPool.add(DriverManager.getConnection(url, user, password));
             }
-        } catch (SQLException e) {
-            throw new ConnectionPoolException("SQLException in ConnectionPool in create().", e);
-        } catch (ClassNotFoundException e) {
-            throw new ConnectionPoolException("Can't find database driver class in create().", e);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new ConnectionPoolException(e);
         }
     }
 
-    public synchronized Connection getConnection() {
-        Connection connection = connectionPool.remove(connectionPool.size() - 1);
-        usedConnections.add(connection);
-        return connection;
+    public Connection getConnection() throws ConnectionPoolException {
+        try {
+            Connection connection = connectionPool.take();
+            usedConnections.put(connection);
+            return connection;
+        } catch (InterruptedException e) {
+            throw new ConnectionPoolException(e);
+        }
     }
 
-    public synchronized void releaseConnection(Connection connection) {
-        connectionPool.add(connection);
-        usedConnections.remove(connection);
+    public void releaseConnection(Connection connection) {
+        if (connection != null) {
+            usedConnections.remove(connection);
+            connectionPool.add(connection);
+        }
     }
 
-    public void closeConnection(ResultSet resultSet, PreparedStatement preparedStatement) {
-        if (resultSet != null) {
-            try {
+    public void closeConnection(ResultSet resultSet, PreparedStatement preparedStatement) throws ConnectionPoolException {
+        try {
+            if (resultSet != null) {
                 resultSet.close();
-            } catch (SQLException e) {
-                //TODO logger
             }
-        }
-        if (preparedStatement != null) {
+        } catch (SQLException e) {
+            throw new ConnectionPoolException(e);
+        } finally {
             try {
-                preparedStatement.close();
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
             } catch (SQLException e) {
-                //TODO logger
+                throw new ConnectionPoolException(e);
             }
         }
     }
 
-    public void closeConnection(PreparedStatement preparedStatement) {
-        if (preparedStatement != null) {
-            try {
+    public void closeConnection(PreparedStatement preparedStatement) throws ConnectionPoolException {
+        try {
+            if (preparedStatement != null) {
                 preparedStatement.close();
-            } catch (SQLException e) {
-                //TODO logger
             }
+        } catch (SQLException e) {
+            throw new ConnectionPoolException(e);
         }
     }
 
     public void shutdown() throws ConnectionPoolException {
         try {
-            for (Connection connection : usedConnections) {
-                releaseConnection(connection);
-            }
-            for (Connection connection : connectionPool) {
+            Connection connection;
+            while ((connection = usedConnections.poll()) != null) {
+                if (!connection.getAutoCommit()) {
+                    connection.commit();
+                }
                 connection.close();
             }
-            connectionPool.clear();
+            while ((connection = connectionPool.poll()) != null) {
+                if (!connection.getAutoCommit()) {
+                    connection.commit();
+                }
+                connection.close();
+            }
         } catch (SQLException e) {
-            throw new ConnectionPoolException("SQLException in ConnectionPool in shutdown().", e);
+            throw new ConnectionPoolException(e);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.AuthorDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.Author;
 
@@ -66,11 +67,15 @@ public class MYSQLAuthorDAO implements AuthorDAO {
                     //TODO logger
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -95,11 +100,15 @@ public class MYSQLAuthorDAO implements AuthorDAO {
                 author.setFatherName(resultSet.getString(FATHER_NAME));
             }
             return author;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -117,11 +126,15 @@ public class MYSQLAuthorDAO implements AuthorDAO {
             preparedStatement.setString(3, author.getFatherName());
             preparedStatement.setInt(4, author.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -146,11 +159,15 @@ public class MYSQLAuthorDAO implements AuthorDAO {
                     //TODO logger
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -175,11 +192,15 @@ public class MYSQLAuthorDAO implements AuthorDAO {
                 authors.add(author);
             }
             return authors;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 }

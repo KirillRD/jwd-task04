@@ -6,19 +6,19 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
 import com.epam.library.entity.user.Reader;
+import com.epam.library.entity.user.ReaderListFilterName;
 import com.epam.library.service.ReaderService;
 import com.epam.library.service.exception.ServiceException;
+import com.epam.library.service.validation.Validator;
 
 import java.util.List;
 import java.util.Map;
 
 public class ReaderServiceImpl implements ReaderService {
+    private static final ReaderDAO readerDAO = DAOProvider.getInstance().getReaderDAO();
+    private static final Validator validator = Validator.getInstance();
 
-    private final ReaderDAO readerDAO;
-
-    public ReaderServiceImpl() {
-        readerDAO = DAOProvider.getInstance().getReaderDAO();
-    }
+    public ReaderServiceImpl() {}
 
     @Override
     public Reader getReader(int readerID) throws ServiceException {
@@ -32,6 +32,18 @@ public class ReaderServiceImpl implements ReaderService {
     @Override
     public List<Reader> getReadersByFilter(Map<String, Object> filters) throws ServiceException {
         try {
+            if (filters.get(ReaderListFilterName.RESERVATION_DATE_FROM) != null) {
+                if (!validator.isDate(filters.get(ReaderListFilterName.RESERVATION_DATE_FROM).toString())) {
+                    filters.remove(ReaderListFilterName.RESERVATION_DATE_FROM);
+                }
+            }
+
+            if (filters.get(ReaderListFilterName.RESERVATION_DATE_TO) != null) {
+                if (!validator.isDate(filters.get(ReaderListFilterName.RESERVATION_DATE_TO).toString())) {
+                    filters.remove(ReaderListFilterName.RESERVATION_DATE_TO);
+                }
+            }
+
             return readerDAO.getReadersByFilter(filters);
         } catch (DAOException e) {
             throw new ServiceException(e);

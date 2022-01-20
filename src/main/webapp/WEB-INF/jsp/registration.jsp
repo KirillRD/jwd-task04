@@ -19,20 +19,22 @@
                 <div class="w3-half w3-container w3-text-blue-grey">
                     <p class="w3-center"><b class="w3-xlarge"><fmt:message key="registration.label"/></b></p>
 
-                    <c:if test="${sessionScope.message != null}">
+                    <c:if test="${sessionScope.messages != null}">
                         <div class="w3-row">
                             <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
-                                <p><fmt:message key="message.${sessionScope.message}"/></p>
+                                <c:forEach var="message" items="${sessionScope.messages}">
+                                    <p><fmt:message key="message.${message}"/></p>
+                                </c:forEach>
                             </div>
                         </div>
-                        <c:remove var="message" scope="session"/>
+                        <c:remove var="messages" scope="session"/>
                     </c:if>
 
                     <form class="w3-container w3-card w3-round-large" action="controller" method="post">
                         <input type="hidden" name="command" value="registration">
                         <p>
                             <label><fmt:message key="user.email"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="email" value="${sessionScope.user.email}" required>
+                            <input class="input-padding w3-input w3-round" type="email" name="email" value="${sessionScope.user.email}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.password"/></label>
@@ -60,7 +62,7 @@
                         </p>
                         <p>
                             <label><fmt:message key="user.birthday"/></label>
-                            <input class="input-padding w3-input w3-round" type="date" name="birthday" value="${sessionScope.user.birthday}" required>
+                            <input class="input-padding w3-input w3-round" type="date" name="birthday" value="${sessionScope.user.birthday}" required min="1900-01-01" max="2099-12-31">
                         </p>
                         <p>
                             <label><fmt:message key="user.gender"/></label>
@@ -84,7 +86,7 @@
                         </p>
                         <p>
                             <label><fmt:message key="user.phone"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="phone" value="${sessionScope.user.phone}">
+                            <input class="input-padding w3-input w3-round" type="text" name="phone" value="${sessionScope.user.phone}" placeholder="+______________">
                         </p>
                         <button class="w3-button w3-right w3-theme w3-margin-bottom w3-round-large" type="submit"><fmt:message key="registration.button"/></button>
                     </form>

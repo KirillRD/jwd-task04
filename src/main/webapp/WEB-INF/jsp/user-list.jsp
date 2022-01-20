@@ -63,7 +63,7 @@
                         <tr>
                             <th></th>
                             <th></th>
-                            <th><fmt:message key="user.name"/></th>
+                            <th style="width: 270px;"><fmt:message key="user.name"/></th>
                             <th><fmt:message key="user.email"/></th>
                             <th><fmt:message key="user.nickname"/></th>
                             <th><fmt:message key="user.address"/></th>

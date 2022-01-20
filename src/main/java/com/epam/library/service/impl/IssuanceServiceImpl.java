@@ -10,12 +10,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public class IssuanceServiceImpl implements IssuanceService {
+    private static final IssuanceDAO issuanceDAO = DAOProvider.getInstance().getIssuanceDAO();
 
-    private final IssuanceDAO issuanceDAO;
-
-    public IssuanceServiceImpl() {
-        issuanceDAO = DAOProvider.getInstance().getIssuanceDAO();
-    }
+    public IssuanceServiceImpl() {}
 
     @Override
     public String addIssuance(List<Issuance> issuances) throws ServiceException {

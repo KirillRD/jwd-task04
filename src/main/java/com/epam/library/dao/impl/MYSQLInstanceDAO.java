@@ -2,14 +2,13 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.InstanceDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Instance;
 import com.epam.library.entity.instance.BookInstance;
+import com.epam.library.entity.instance.InstanceInfo;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     private static final String STATUS = "status";
 
     private static final String GET_INSTANCE_BY_NUMBER = "SELECT * FROM instances WHERE number=?";
-    private static final String GET_INSTANCE_BY_NUMBER_ID = "SELECT * FROM instances WHERE number=? AND id!=?";
     private static final String GET_MAX_ID_INSTANCE = "SELECT MAX(id) FROM instances";
     private static final String INSERT_INSTANCE = "INSERT INTO instances (id, books_id, number, halls_id, date_received, date_write_off) VALUES (?,?,?,?,?,?)";
     private static final String SELECT_INSTANCE = "SELECT * FROM instances WHERE id=?";
@@ -37,7 +35,6 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     private static final String GET_ISSUANCE = "SELECT COUNT(1) AS count_issuance FROM issuance WHERE instances_id=?";
     private static final String GET_RESERVATIONS = "SELECT COUNT(1) AS count_reservations FROM reservation WHERE instances_id=?";
     private static final String DELETE_INSTANCE = "DELETE FROM instances WHERE id=?";
-    private static final String SELECT_INSTANCES = "SELECT * FROM instances";
     private static final String BOOK_INSTANCES =
             "SELECT instances.id, instances.number, instances.halls_id, halls.name AS hall_name, instances.date_received, instances.date_write_off, " +
             "  CASE WHEN date_write_off IS NOT NULL THEN 'WRITE OFF' " +
@@ -58,7 +55,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     public MYSQLInstanceDAO() {}
 
     @Override
-    public boolean addInstance(Instance instance) throws DAOException {
+    public boolean checkInstanceNumber(int instanceID, String number) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -67,11 +64,34 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_INSTANCE_BY_NUMBER);
-            preparedStatement.setString(1, instance.getNumber());
+            preparedStatement.setString(1, number);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return false;
+                if (instanceID == 0 || instanceID != resultSet.getInt(ID)) {
+                    return false;
+                }
             }
+            return true;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
+            connectionPool.releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public void addInstance(InstanceInfo instance) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_MAX_ID_INSTANCE);
             resultSet = preparedStatement.executeQuery();
@@ -83,16 +103,19 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             preparedStatement.setInt(1, instance.getId());
             preparedStatement.setInt(2, instance.getBookID());
             preparedStatement.setString(3, instance.getNumber());
-            preparedStatement.setInt(4, instance.getHallID());
-            preparedStatement.setDate(5, instance.getReceivedDate());
-            preparedStatement.setDate(6, instance.getWriteOffDate());
+            preparedStatement.setInt(4, Integer.parseInt(instance.getHallID()));
+            preparedStatement.setDate(5, Date.valueOf(instance.getReceivedDate()));
+            preparedStatement.setDate(6, instance.getWriteOffDate().isEmpty() ? null : Date.valueOf(instance.getWriteOffDate()));
             preparedStatement.executeUpdate();
-            return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -119,45 +142,43 @@ public class MYSQLInstanceDAO implements InstanceDAO {
                 instance.setWriteOffDate(resultSet.getDate(DATE_WRITE_OFF));
             }
             return instance;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
     @Override
-    public boolean updateInstance(Instance instance) throws DAOException {
+    public void updateInstance(InstanceInfo instance) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
 
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(GET_INSTANCE_BY_NUMBER_ID);
-            preparedStatement.setString(1, instance.getNumber());
-            preparedStatement.setInt(2, instance.getId());
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return false;
-            }
-
             preparedStatement = connection.prepareStatement(UPDATE_INSTANCE);
             preparedStatement.setInt(1, instance.getBookID());
             preparedStatement.setString(2, instance.getNumber());
-            preparedStatement.setInt(3, instance.getHallID());
-            preparedStatement.setDate(4, instance.getReceivedDate());
-            preparedStatement.setDate(5, instance.getWriteOffDate());
+            preparedStatement.setInt(3, Integer.parseInt(instance.getHallID()));
+            preparedStatement.setDate(4, Date.valueOf(instance.getReceivedDate()));
+            preparedStatement.setDate(5, instance.getWriteOffDate().isEmpty() ? null : Date.valueOf(instance.getWriteOffDate()));
             preparedStatement.setInt(6, instance.getId());
             preparedStatement.executeUpdate();
-            return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -188,11 +209,15 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             preparedStatement.setInt(1, instanceID);
             preparedStatement.executeUpdate();
             return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -218,11 +243,15 @@ public class MYSQLInstanceDAO implements InstanceDAO {
                 bookInstance.setWriteOffDate(resultSet.getDate(DATE_WRITE_OFF));
             }
             return bookInstance;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -266,16 +295,15 @@ public class MYSQLInstanceDAO implements InstanceDAO {
                 bookInstances.add(bookInstance);
             }
             return bookInstances;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
-            connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
-        }
-    }
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
 
-    @Override
-    public List<Instance> getInstancesByCriteria() throws DAOException {
-        return null;
+            }
+            connectionPool.releaseConnection(connection);
+        }
     }
 }

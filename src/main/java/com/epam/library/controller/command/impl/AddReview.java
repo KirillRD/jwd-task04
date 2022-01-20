@@ -9,13 +9,20 @@ import com.epam.library.entity.Review;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.service.ReviewService;
 import com.epam.library.service.ServiceProvider;
+import com.epam.library.service.exception.ReviewException;
 import com.epam.library.service.exception.ServiceException;
+import com.epam.library.service.exception.review.EmptyRatingException;
+import com.epam.library.service.exception.review.InvalidLengthCommentException;
+import com.epam.library.service.exception.review.InvalidRatingFormatException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class AddReview implements Command {
 
@@ -25,6 +32,13 @@ public class AddReview implements Command {
     private static final String MESSAGE = "message";
     private static final String ERROR_ADD_REVIEW = "error-add-review";
 
+    private static final String MESSAGES = "messages";
+    private static final Map<String, String> exceptionMessages = Map.ofEntries(
+            Map.entry(EmptyRatingException.class.getSimpleName(), "error-empty-rating"),
+            Map.entry(InvalidLengthCommentException.class.getSimpleName(), "error-length-comment"),
+            Map.entry(InvalidRatingFormatException.class.getSimpleName(), "error-rating-format")
+    );
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReviewService reviewService = ServiceProvider.getInstance().getReviewService();
@@ -32,22 +46,34 @@ public class AddReview implements Command {
         SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
         int userID = sessionUser.getId();
         int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        Review review = new Review();
+        review.setReaderID(userID);
+        review.setBookID(bookID);
+        String rating = request.getParameter(RATING);
+        String comment = request.getParameter(COMMENT).trim();
+        review.setComment(comment);
         try {
-            Review review = new Review();
-            review.setReaderID(userID);
-            review.setBookID(bookID);
-            int rating = Integer.parseInt(request.getParameter(RATING));
-            review.setRating(rating);
-            String comment = request.getParameter(COMMENT).trim();
-            review.setComment(comment);
-
-            if (!reviewService.addReview(review)) {
+            if (!reviewService.addReview(review, rating)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_ADD_REVIEW);
             }
             RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
+        } catch (ReviewException e) {
+            HttpSession session = request.getSession();
+            session.setAttribute(RATING, rating);
+            session.setAttribute(COMMENT, comment);
+            session.setAttribute(MESSAGES, errorMessageBuilder(e));
+            RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
         } catch (ServiceException e) {
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
+    }
+
+    private List<String> errorMessageBuilder(ReviewException exception) {
+        List<String> messages = new ArrayList<>();
+        for (ReviewException e : exception.getExceptions()) {
+            messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
+        }
+        return messages;
     }
 }

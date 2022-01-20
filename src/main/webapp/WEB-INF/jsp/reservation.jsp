@@ -14,7 +14,7 @@
         <jsp:include page="tempalte/header.jsp" />
         <jsp:include page="tempalte/nav.jsp" />
         <main class="w3-auto w3-container">
-            <c:if test="${param.reservation_message == null}">
+            <c:if test="${sessionScope.reservation_message == null}">
                 <p class="w3-center w3-text-blue-gray"><b class="w3-xlarge"><fmt:message key="reservation.label"/></b></p>
                 <c:if test="${requestScope.reader_reservation.size() != 0 && requestScope.reader_reservation != null}">
                     <div class="w3-container w3-margin-bottom w3-text-blue-gray">
@@ -59,6 +59,17 @@
                             </c:forEach>
                         </table>
                     </div>
+                </c:if>
+
+                <c:if test="${sessionScope.messages != null}">
+                    <div class="w3-row">
+                        <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                            <c:forEach var="message" items="${sessionScope.messages}">
+                                <p><fmt:message key="message.${message}"/></p>
+                            </c:forEach>
+                        </div>
+                    </div>
+                    <c:remove var="messages" scope="session"/>
                 </c:if>
 
                 <div class="w3-quarter w3-container">
@@ -106,14 +117,17 @@
                             <label><fmt:message key="reservation.halls"/></label>
                             <br>
                             <c:forEach var="instance" items="${requestScope.book_info.hallFreeInstanceCatalogList}">
-                                <input class="w3-radio" type="radio" name="hall_id" value="${instance.id}" required>
+                                <input class="w3-radio" type="radio" name="hall_id" value="${instance.id}" required
+                                <c:set var="id" value="${instance.id}" scope="page"/>
+
+                                ${sessionScope.reservation.hallID == id ? 'checked' : ''}>
                                 <label>${instance.hallFreeInstances}</label>
                                 <br>
                             </c:forEach>
                         </p>
                         <p>
                             <label><fmt:message key="reservation.reservation-date"/></label>
-                            <input class="input-padding w3-input w3-round" type="date" name="reservation_date" required>
+                            <input class="input-padding w3-input w3-round" type="date" name="reservation_date" required min="1900-01-01" max="2099-12-31" value="${sessionScope.reservation.date}">
                         </p>
                     </div>
 
@@ -121,22 +135,24 @@
                         <button class="w3-button w3-green w3-margin-top w3-round-large w3-block" type="submit"><fmt:message key="reservation.confirm-reservation"/></button>
                     </div>
                 </form>
+                <c:remove var="reservation" scope="session"/>
             </c:if>
 
 
-            <c:if test="${param.reservation_message != null}">
+            <c:if test="${sessionScope.reservation_message != null}">
                 <div class="w3-row w3-padding-64">
                     <div class="w3-third w3-container"></div>
                     <div class="w3-third w3-container w3-round-large w3-card">
-                        <p class="w3-center w3-large w3-text-dark-gray"><fmt:message key="reservation.${param.reservation_message}"/></p>
+                        <p class="w3-center w3-large w3-text-dark-gray"><fmt:message key="reservation.${sessionScope.reservation_message}"/></p>
                         <form action="controller" method="get">
                             <input type="hidden" name="command" value="go-to-book-page">
-                            <input type="hidden" name="book_id" value="${param.book_id}">
+                            <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
                             <button class="w3-button w3-right w3-theme w3-margin-bottom w3-round-large" type="submit">OK</button>
                         </form>
                     </div>
                     <div class="w3-third w3-container"></div>
                 </div>
+                <c:remove var="reservation_message" scope="session"/>
             </c:if>
         </main>
         <jsp:include page="tempalte/footer.jsp" />

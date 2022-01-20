@@ -51,8 +51,8 @@ public class GoToReservationPage implements Command {
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
-            if (bookInfo.getHallFreeInstanceCatalogList().isEmpty() && request.getParameter(RESERVATION_MESSAGE) == null) {
-                HttpSession session = request.getSession();
+            HttpSession session = request.getSession();
+            if (bookInfo.getHallFreeInstanceCatalogList().isEmpty() && session.getAttribute(RESERVATION_MESSAGE) == null) {
                 session.setAttribute(MESSAGE, ERROR_RESERVATION);
                 RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
                 return;

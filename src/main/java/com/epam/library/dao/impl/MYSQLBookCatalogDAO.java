@@ -2,6 +2,7 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.BookCatalogDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.book.catalog.BookCatalogFilterName;
@@ -203,11 +204,15 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 }
             }
             return bookInfo;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -302,11 +307,15 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 bookCatalog.add(bookInfo);
             }
             return bookCatalog;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -401,11 +410,15 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 bookCatalog.add(bookInfo);
             }
             return bookCatalog;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -425,7 +438,7 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 for (String filterName : filters.keySet()) {
                     if (filterName.equals(BookCatalogFilterName.AUTHORS) || filterName.equals(BookCatalogFilterName.GENRES)) {
                         query.append(BRACKET_LEFT);
-                        for (int i = 0; i < ((String[]) filters.get(filterName)).length - 1; i++) {
+                        for (int i = 0; i < ((List<?>) filters.get(filterName)).size() - 1; i++) {
                             buildQueryByFilter(query, filterName);
                         }
                         if (filterName.equals(BookCatalogFilterName.AUTHORS)) {
@@ -465,9 +478,9 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
 
                     case BookCatalogFilterName.AUTHORS:
                     case BookCatalogFilterName.GENRES:
-                        String[] values = (String[]) filters.get(filterNames.get(i));
-                        for (int j = 0; j < values.length; j++, n++) {
-                            preparedStatement.setInt(n, Integer.parseInt(values[j]));
+                        List<?> values = (List<?>) filters.get(filterNames.get(i));
+                        for (int j = 0; j < values.size(); j++, n++) {
+                            preparedStatement.setInt(n, Integer.parseInt((String) values.get(j)));
                         }
                         break;
                     case BookCatalogFilterName.FREE_INSTANCES:
@@ -556,11 +569,15 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                 bookCatalog.add(bookInfo);
             }
             return bookCatalog;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 

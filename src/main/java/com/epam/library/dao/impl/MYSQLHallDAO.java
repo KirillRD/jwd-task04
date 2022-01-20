@@ -2,6 +2,7 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.HallDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.instance.Hall;
 
@@ -62,11 +63,15 @@ public class MYSQLHallDAO implements HallDAO {
                     //TODO logger
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -90,11 +95,15 @@ public class MYSQLHallDAO implements HallDAO {
                 hall.setShortName(resultSet.getString(SHORT_NAME));
             }
             return hall;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -111,11 +120,15 @@ public class MYSQLHallDAO implements HallDAO {
             preparedStatement.setString(2, hall.getShortName());
             preparedStatement.setInt(3, hall.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -140,11 +153,15 @@ public class MYSQLHallDAO implements HallDAO {
                     //TODO logger
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -168,11 +185,15 @@ public class MYSQLHallDAO implements HallDAO {
                 halls.add(hall);
             }
             return halls;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 }

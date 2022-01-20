@@ -10,12 +10,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public class PublisherServiceImpl implements PublisherService {
+    private final PublisherDAO publisherDAO = DAOProvider.getInstance().getPublisherDAO();
 
-    private final PublisherDAO publisherDAO;
-
-    public PublisherServiceImpl() {
-        publisherDAO = DAOProvider.getInstance().getPublisherDAO();
-    }
+    public PublisherServiceImpl() {}
 
     @Override
     public List<Publisher> getPublishersList() throws ServiceException {

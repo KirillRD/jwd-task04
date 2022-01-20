@@ -11,12 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 public class BookCatalogServiceImpl implements BookCatalogService {
+    private static final BookCatalogDAO bookCatalogDAO = DAOProvider.getInstance().getBookCatalogDAO();
 
-    private final BookCatalogDAO bookCatalogDAO;
-
-    public BookCatalogServiceImpl() {
-        bookCatalogDAO = DAOProvider.getInstance().getBookCatalogDAO();
-    }
+    public BookCatalogServiceImpl() {}
 
     @Override
     public BookCatalog getBookCatalog(int bookID) throws ServiceException {

@@ -1,6 +1,6 @@
 package com.epam.library.dao.connection_pool;
 
-public class DBParameter {
+public final class DBParameter {
     private DBParameter() {}
 
     public static final String DB_PROPERTIES = "db";

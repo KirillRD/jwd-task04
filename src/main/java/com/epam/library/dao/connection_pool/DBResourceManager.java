@@ -2,7 +2,7 @@ package com.epam.library.dao.connection_pool;
 
 import java.util.ResourceBundle;
 
-public class DBResourceManager {
+public final class DBResourceManager {
     private final static DBResourceManager instance = new DBResourceManager();
 
     private final ResourceBundle bundle = ResourceBundle.getBundle(DBParameter.DB_PROPERTIES);

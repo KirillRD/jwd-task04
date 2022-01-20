@@ -26,13 +26,15 @@
                         <p class="w3-center"><b class="w3-xlarge"><fmt:message key="add-edit-book.add-book"/></b></p>
                     </c:if>
 
-                    <c:if test="${sessionScope.message != null}">
+                    <c:if test="${sessionScope.messages != null}">
                         <div class="w3-row">
                             <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
-                                <p><fmt:message key="message.${sessionScope.message}"/></p>
+                                <c:forEach var="message" items="${sessionScope.messages}">
+                                    <p><fmt:message key="message.${message}"/></p>
+                                </c:forEach>
                             </div>
                         </div>
-                        <c:remove var="message" scope="session"/>
+                        <c:remove var="messages" scope="session"/>
                     </c:if>
 
                     <form class="w3-container w3-card w3-round-large" action="controller" method="post">
@@ -46,7 +48,7 @@
                         <div class="w3-half w3-container">
                             <p>
                                 <label><fmt:message key="book.book-name"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="name" value="${sessionScope.book.name}" required>
+                                <input class="input-padding w3-input w3-round" type="text" name="name" value="${sessionScope.book.name}" required maxlength="100">
                             </p>
                             <p>
                                 <label><fmt:message key="book.authors"/></label>
@@ -84,15 +86,15 @@
                             </p>
                             <p>
                                 <label><fmt:message key="book.publication-year"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="publication_year" value="${sessionScope.book.publicationYear}" required>
+                                <input class="input-padding w3-input w3-round" type="number" name="publication_year" value="${sessionScope.book.publicationYear}" required min="1900" max="2100">
                             </p>
                             <p>
                                 <label><fmt:message key="book.part"/></label>
-                                <input class="input-padding w3-input w3-round" type="number" name="part" value="${sessionScope.book.part}">
+                                <input class="input-padding w3-input w3-round" type="number" name="part" value="${sessionScope.book.part != 0 ? sessionScope.book.part : ''}" min="0">
                             </p>
                             <p>
                                 <label><fmt:message key="book.pages"/></label>
-                                <input class="input-padding w3-input w3-round" type="number" name="pages" value="${sessionScope.book.pages}" required>
+                                <input class="input-padding w3-input w3-round" type="number" name="pages" value="${sessionScope.book.pages}" required min="1">
                             </p>
                             <p>
                                 <label><fmt:message key="book.genres"/></label>
@@ -130,7 +132,7 @@
                             </p>
                             <p>
                                 <label><fmt:message key="book.price"/></label>
-                                <input class="input-padding w3-input w3-round" type="number" name="price" value="${sessionScope.book.price}" required>
+                                <input class="input-padding w3-input w3-round" name="price" value="${sessionScope.book.price}" required>
                             </p>
                         </div>
                         <div class="w3-half w3-container">

@@ -45,7 +45,9 @@ public class GoToEditUserPage implements Command {
                 return;
             }
             HttpSession session = request.getSession();
-            session.setAttribute(USER, user);
+            if (session.getAttribute(USER) == null) {
+                session.setAttribute(USER, user);
+            }
 
             RequestProvider.forward(PagePath.EDIT_USER_PAGE, request, response);
         } catch (ServiceException e) {

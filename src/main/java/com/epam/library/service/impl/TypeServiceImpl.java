@@ -10,12 +10,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public class TypeServiceImpl implements TypeService {
+    private static final TypeDAO typeDAO = DAOProvider.getInstance().getTypeDAO();
 
-    private final TypeDAO typeDAO;
-
-    public TypeServiceImpl() {
-        typeDAO = DAOProvider.getInstance().getTypeDAO();
-    }
+    public TypeServiceImpl() {}
 
     @Override
     public List<Type> getTypesList() throws ServiceException {

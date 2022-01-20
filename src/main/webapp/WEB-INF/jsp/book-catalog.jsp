@@ -83,20 +83,20 @@
                         <label><fmt:message key="book.filter.publication-year"/></label>
                         <div class="w3-row">
                             <div class="half-from w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="text" name="publication_year_from" value="${requestScope.publication_year_from}">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="number" name="publication_year_from" value="${requestScope.publication_year_from}" min="1900" max="2100">
                             </div>
                             <div class="half-to w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="text" name="publication_year_to" value="${requestScope.publication_year_to}">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="number" name="publication_year_to" value="${requestScope.publication_year_to}" min="1900" max="2100">
                             </div>
                         </div>
                         <p></p>
                         <label><fmt:message key="book.filter.pages"/></label>
                         <div class="w3-row w3-margin-bottom">
                             <div class="half-from w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="text" name="pages_from" value="${requestScope.pages_from}">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="number" name="pages_from" value="${requestScope.pages_from}" min="1">
                             </div>
                             <div class="half-to w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="text" name="pages_to" value="${requestScope.pages_to}">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="number" name="pages_to" value="${requestScope.pages_to}" min="1">
                             </div>
                         </div>
                         <div class="w3-half">

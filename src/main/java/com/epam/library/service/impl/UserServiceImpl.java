@@ -3,44 +3,116 @@ package com.epam.library.service.impl;
 import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.UserDAO;
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.dao.exception.ExistEmailDAOException;
-import com.epam.library.dao.exception.InvalidCurrentPasswordDAOException;
-import com.epam.library.dao.exception.UpdateUserDAOException;
 import com.epam.library.entity.User;
+import com.epam.library.entity.user.Gender;
 import com.epam.library.entity.user.SessionUser;
+import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.UserService;
-import com.epam.library.service.exception.ExistEmailException;
-import com.epam.library.service.exception.InvalidCurrentPasswordException;
-import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.UpdateUserException;
-import com.epam.library.service.exception.password.EmptyCurrentPasswordException;
-import com.epam.library.service.exception.password.EmptyNewPasswordException;
-import com.epam.library.service.exception.password.EmptyRepeatedNewPasswordException;
-import com.epam.library.service.exception.password.NotEqualNewPasswordException;
-import org.mindrot.jbcrypt.BCrypt;
+import com.epam.library.service.exception.*;
+import com.epam.library.service.exception.user.length.*;
+import com.epam.library.service.exception.user.password.*;
+import com.epam.library.service.exception.user.*;
+import com.epam.library.service.validation.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class UserServiceImpl implements UserService {
-    private final UserDAO userDAO;
+    private static final UserDAO userDAO = DAOProvider.getInstance().getUserDAO();
+    private static final Validator validator = Validator.getInstance();
 
-    public UserServiceImpl() {
-        userDAO = DAOProvider.getInstance().getUserDAO();
-    }
+    private static final int LAST_NAME_LENGTH = 30;
+    private static final int FIRST_NAME_LENGTH = 30;
+    private static final int FATHER_NAME_LENGTH = 30;
+    private static final int NICKNAME_LENGTH = 20;
+    private static final int PASSPORT_LENGTH = 20;
+    private static final int ADDRESS_LENGTH = 100;
+
+    public UserServiceImpl() {}
 
     @Override
-    public boolean registration(User user, String password, String repeatedPassword) throws ServiceException {
-        if (password.equals(repeatedPassword)) {
-            try {
-                String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
-                return userDAO.registration(user, hashed);
-            } catch (DAOException e) {
-                throw new ServiceException(e);
+    public int registration(UserInfo user, String password, String repeatedPassword) throws ServiceException {
+
+        List<UserException> exceptions = new ArrayList<>();
+        try {
+            if (validator.isEmail(user.getEmail())) {
+                if (!userDAO.checkEmail(user.getId(), user.getEmail())) {
+                    exceptions.add(new ExistEmailException());
+                }
+            } else {
+                if (validator.isEmpty(user.getEmail())) {
+                    exceptions.add(new EmptyEmailException());
+                } else {
+                    exceptions.add(new InvalidEmailFormatException());
+                }
             }
-        } else {
-            return false;
+
+            if (validator.isEmpty(password)) {
+                exceptions.add(new EmptyPasswordException());
+            }
+
+            if (validator.isEmpty(repeatedPassword)) {
+                exceptions.add(new EmptyRepeatedPasswordException());
+            }
+
+            if (!validator.isEmpty(password) && !validator.isEmpty(repeatedPassword) && !password.equals(repeatedPassword)) {
+                exceptions.add(new NotEqualPasswordException());
+            }
+
+            if (validator.isEmpty(user.getNickname())) {
+                exceptions.add(new EmptyNicknameException());
+            } else if (user.getNickname().length() > NICKNAME_LENGTH) {
+                exceptions.add(new InvalidLengthNicknameException());
+            }
+
+            if (validator.isEmpty(user.getLastName())) {
+                exceptions.add(new EmptyLastNameException());
+            } else if (user.getFatherName().length() > LAST_NAME_LENGTH) {
+                exceptions.add(new InvalidLengthLastNameException());
+            }
+
+            if (validator.isEmpty(user.getFirstName())) {
+                exceptions.add(new EmptyFirstNameException());
+            } else if (user.getFirstName().length() > FIRST_NAME_LENGTH) {
+                exceptions.add(new InvalidLengthFirstNameException());
+            }
+
+            if (user.getFatherName().length() > FATHER_NAME_LENGTH) {
+                exceptions.add(new InvalidLengthFatherNameException());
+            }
+
+            if (validator.isEmpty(user.getBirthday())) {
+                exceptions.add(new EmptyBirthdayException());
+            } else if (!validator.isDate(user.getBirthday())) {
+                exceptions.add(new InvalidBirthdayFormatException());
+            }
+
+            if (validator.isEmpty(user.getGender())) {
+                exceptions.add(new EmptyGenderException());
+            } else if (!Gender.containsGender(user.getGender())) {
+                exceptions.add(new InvalidGenderFormatException());
+            }
+
+            if (user.getPassport().length() > PASSPORT_LENGTH) {
+                exceptions.add(new InvalidPassportFormatException());
+            }
+
+            if (user.getAddress().length() > ADDRESS_LENGTH) {
+                exceptions.add(new InvalidLengthAddressException());
+            }
+
+            if (!validator.isPhone(user.getPhone())) {
+                exceptions.add(new InvalidPhoneFormatException());
+            }
+
+            if (exceptions.isEmpty()) {
+                return userDAO.registration(user, password);
+            } else {
+                throw new UserException(exceptions);
+            }
+        } catch (DAOException e) {
+            throw new ServiceException(e);
         }
     }
 
@@ -54,48 +126,95 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(User user, String currentPassword, String newPassword, String repeatedNewPassword) throws ServiceException {
+    public void updateUser(UserInfo user, String currentPassword, String newPassword, String repeatedNewPassword) throws ServiceException {
 
-        List<UpdateUserException> exceptions = new ArrayList<>();
+        List<UserException> exceptions = new ArrayList<>();
         try {
+            if (validator.isEmpty(user.getLastName())) {
+                exceptions.add(new EmptyLastNameException());
+            } else if (user.getFatherName().length() > LAST_NAME_LENGTH) {
+                exceptions.add(new InvalidLengthLastNameException());
+            }
 
-            if (currentPassword != null || newPassword != null || repeatedNewPassword != null) {
-                if (newPassword == null) {
-                    exceptions.add(new EmptyCurrentPasswordException());
+            if (validator.isEmpty(user.getFirstName())) {
+                exceptions.add(new EmptyFirstNameException());
+            } else if (user.getFirstName().length() > FIRST_NAME_LENGTH) {
+                exceptions.add(new InvalidLengthFirstNameException());
+            }
+
+            if (user.getFatherName().length() > FATHER_NAME_LENGTH) {
+                exceptions.add(new InvalidLengthFatherNameException());
+            }
+
+            if (validator.isEmpty(user.getBirthday())) {
+                exceptions.add(new EmptyBirthdayException());
+            } else if (!validator.isDate(user.getBirthday())) {
+                exceptions.add(new InvalidBirthdayFormatException());
+            }
+
+            if (validator.isEmpty(user.getGender())) {
+                exceptions.add(new EmptyGenderException());
+            } else if (!Gender.containsGender(user.getGender())) {
+                exceptions.add(new InvalidGenderFormatException());
+            }
+
+            if (user.getPassport().length() > PASSPORT_LENGTH) {
+                exceptions.add(new InvalidPassportFormatException());
+            }
+
+
+            if (user.getAddress().length() > ADDRESS_LENGTH) {
+                exceptions.add(new InvalidLengthAddressException());
+            }
+
+            if (!validator.isPhone(user.getPhone())) {
+                exceptions.add(new InvalidPhoneFormatException());
+            }
+
+            if (validator.isEmail(user.getEmail())) {
+                if (!userDAO.checkEmail(user.getId(), user.getEmail())) {
+                    exceptions.add(new ExistEmailException());
                 }
-                if (repeatedNewPassword == null) {
+            } else {
+                if (validator.isEmpty(user.getEmail())) {
+                    exceptions.add(new EmptyEmailException());
+                } else {
+                    exceptions.add(new InvalidEmailFormatException());
+                }
+            }
+
+            if (validator.isEmpty(user.getNickname())) {
+                exceptions.add(new EmptyNicknameException());
+            } else if (user.getNickname().length() > NICKNAME_LENGTH) {
+                exceptions.add(new InvalidLengthNicknameException());
+            }
+
+
+            if (!validator.isEmpty(currentPassword) || !validator.isEmpty(newPassword) || !validator.isEmpty(repeatedNewPassword)) {
+                if (validator.isEmpty(currentPassword)) {
+                    exceptions.add(new EmptyCurrentPasswordException());
+                } else if (!userDAO.checkPassword(user.getId(), currentPassword)) {
+                    exceptions.add(new InvalidCurrentPasswordException());
+                }
+                if (validator.isEmpty(newPassword)) {
                     exceptions.add(new EmptyNewPasswordException());
                 }
-                if (currentPassword == null) {
+                if (validator.isEmpty(repeatedNewPassword)) {
                     exceptions.add(new EmptyRepeatedNewPasswordException());
                 }
-                if (newPassword != null && !newPassword.equals(repeatedNewPassword)) {
-                    exceptions.add(new NotEqualNewPasswordException());
-                } else if (repeatedNewPassword != null && !repeatedNewPassword.equals(newPassword)) {
+                if (!validator.isEmpty(newPassword) && !validator.isEmpty(repeatedNewPassword) && !newPassword.equals(repeatedNewPassword)) {
                     exceptions.add(new NotEqualNewPasswordException());
                 }
             }
 
-            if (currentPassword == null && newPassword == null && repeatedNewPassword == null) {
-                try {
+            if (exceptions.isEmpty()) {
+                if (validator.isEmpty(currentPassword) && validator.isEmpty(newPassword) && validator.isEmpty(repeatedNewPassword)) {
                     userDAO.updateUser(user);
-                } catch (InvalidCurrentPasswordDAOException e) {
-                    exceptions.add(new InvalidCurrentPasswordException(e));
-                }
-            } else if (currentPassword != null && newPassword != null && newPassword.equals(repeatedNewPassword)) {
-                try {
+                } else {
                     userDAO.updateUser(user, currentPassword, newPassword);
-                } catch (UpdateUserDAOException e) {
-                    exceptions.add(new UpdateUserException());
-                } catch (InvalidCurrentPasswordDAOException e) {
-                    exceptions.add(new InvalidCurrentPasswordException(e));
-                } catch (ExistEmailDAOException e) {
-                    exceptions.add(new ExistEmailException(e));
                 }
-            }
-
-            if (!exceptions.isEmpty()) {
-                throw new UpdateUserException(exceptions);
+            } else {
+                throw new UserException(exceptions);
             }
 
         } catch (DAOException e) {

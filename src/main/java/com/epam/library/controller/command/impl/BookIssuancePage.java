@@ -41,6 +41,7 @@ public class BookIssuancePage implements Command {
     private static final String SAVED_TYPE = "saved_type";
     private static final String SAVED_AUTHORS = "saved_authors";
     private static final String SAVED_GENRES = "saved_genres";
+    private static final int PUBLICATION_YEAR_LENGTH = 4;
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -71,20 +72,44 @@ public class BookIssuancePage implements Command {
                                 }
                                 break;
                             case BookCatalogFilterName.AUTHORS:
-                                authorsID.add(filterValue);
+                                if (isInteger(filterValue)) {
+                                    authorsID.add(filterValue);
+                                }
                                 break;
                             case BookCatalogFilterName.GENRES:
-                                genresID.add(filterValue);
+                                if (isInteger(filterValue)) {
+                                    genresID.add(filterValue);
+                                }
                                 break;
                             case BookCatalogFilterName.PUBLISHER:
-                                filters.put(filterName, filterValue);
-                                request.setAttribute(SAVED_PUBLISHER, filterValue);
-                                filterNames.remove(filterName);
+                                if (isInteger(filterValue)) {
+                                    filters.put(filterName, filterValue);
+                                    request.setAttribute(SAVED_PUBLISHER, filterValue);
+                                    filterNames.remove(filterName);
+                                }
                                 break;
                             case BookCatalogFilterName.TYPE:
-                                filters.put(filterName, filterValue);
-                                request.setAttribute(SAVED_TYPE, filterValue);
-                                filterNames.remove(filterName);
+                                if (isInteger(filterValue)) {
+                                    filters.put(filterName, filterValue);
+                                    request.setAttribute(SAVED_TYPE, filterValue);
+                                    filterNames.remove(filterName);
+                                }
+                                break;
+                            case BookCatalogFilterName.PAGES_FROM:
+                            case BookCatalogFilterName.PAGES_TO:
+                                if (isInteger(filterValue)) {
+                                    filters.put(filterName, filterValue);
+                                    request.setAttribute(filterName, filterValue);
+                                    filterNames.remove(filterName);
+                                }
+                                break;
+                            case BookCatalogFilterName.PUBLICATION_YEAR_FROM:
+                            case BookCatalogFilterName.PUBLICATION_YEAR_TO:
+                                if (isInteger(filterValue) && filterValue.length() == PUBLICATION_YEAR_LENGTH) {
+                                    filters.put(filterName, filterValue);
+                                    request.setAttribute(filterName, filterValue);
+                                    filterNames.remove(filterName);
+                                }
                                 break;
                             default:
                                 filters.put(filterName, filterValue);
@@ -97,12 +122,12 @@ public class BookIssuancePage implements Command {
         }
         if (!authorsID.isEmpty()) {
             request.setAttribute(SAVED_AUTHORS, authorsID);
-            filters.put(BookCatalogFilterName.AUTHORS, authorsID.toArray(String[]::new));
+            filters.put(BookCatalogFilterName.AUTHORS, authorsID);
         }
 
         if (!genresID.isEmpty()) {
             request.setAttribute(SAVED_GENRES, genresID);
-            filters.put(BookCatalogFilterName.GENRES, genresID.toArray(String[]::new));
+            filters.put(BookCatalogFilterName.GENRES, genresID);
         }
 
         if (sortValue != null) {
@@ -162,5 +187,18 @@ public class BookIssuancePage implements Command {
         } catch (ServiceException e) {
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
+    }
+
+    public boolean isInteger(CharSequence cs) {
+        if (cs == null || cs.length() == 0 || (cs.length() == 1 && cs.charAt(0) == '0')) {
+            return false;
+        }
+        int sz = cs.length();
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isDigit(cs.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

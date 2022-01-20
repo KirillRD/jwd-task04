@@ -32,7 +32,7 @@
                         <input type="hidden" name="command" value="authentication">
                         <p>
                             <label><fmt:message key="user.email"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="email" value="${sessionScope.email}" required>
+                            <input class="input-padding w3-input w3-round" type="email" name="email" value="${sessionScope.email}" required>
                             <c:remove var="email" scope="session"/>
                         </p>
                         <p>

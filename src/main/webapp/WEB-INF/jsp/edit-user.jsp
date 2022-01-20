@@ -19,13 +19,15 @@
                 <div class="w3-col w3-container w3-text-blue-grey" style="width: 70%">
                     <p class="w3-center"><b class="w3-xlarge"><fmt:message key="edit-user.label"/></b></p>
 
-                    <c:if test="${sessionScope.message != null}">
+                    <c:if test="${sessionScope.messages != null}">
                         <div class="w3-row">
                             <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
-                                <p><fmt:message key="message.${sessionScope.message}"/></p>
+                                <c:forEach var="message" items="${sessionScope.messages}">
+                                    <p><fmt:message key="message.${message}"/></p>
+                                </c:forEach>
                             </div>
                         </div>
-                        <c:remove var="message" scope="session"/>
+                        <c:remove var="messages" scope="session"/>
                     </c:if>
 
                     <form class="w3-container w3-card w3-round-large" action="controller" method="post">
@@ -36,18 +38,13 @@
                         <c:if test="${param.reader_id != null}">
                             <input type="hidden" name="reader_id" value="${sessionScope.user.id}">
                         </c:if>
-                        <c:if test="${sessionScope.session_user.role != 'ADMIN'}">
-                            <input type="hidden" name="role" value="${sessionScope.user.role}">
-                        </c:if>
 
                         <div class="w3-half w3-container">
                             <p>
                                 <label><fmt:message key="user.last-name"/></label>
                                 <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${sessionScope.user.lastName}"
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
-                                required>
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
+                                    required maxlength="30">
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="last_name" value="${sessionScope.user.lastName}">
                                 </c:if>
@@ -55,10 +52,8 @@
                             <p>
                                 <label><fmt:message key="user.first-name"/></label>
                                 <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${sessionScope.user.firstName}"
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
-                                required>
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
+                                required maxlength="30">
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="first_name" value="${sessionScope.user.firstName}">
                                 </c:if>
@@ -66,29 +61,25 @@
                             <p>
                                 <label><fmt:message key="user.father-name"/></label>
                                 <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${sessionScope.user.fatherName}"
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
-                                >
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
+                                       maxlength="30">
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="father_name" value="${sessionScope.user.fatherName}">
                                 </c:if>
                             </p>
                             <p>
                                 <label><fmt:message key="user.address"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="address" value="${sessionScope.user.address}">
+                                <input class="input-padding w3-input w3-round" type="text" name="address" value="${sessionScope.user.address}" maxlength="100">
                             </p>
                             <p>
                                 <label><fmt:message key="user.phone"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="phone" value="${sessionScope.user.phone}">
+                                <input class="input-padding w3-input w3-round" type="text" name="phone" value="${sessionScope.user.phone}" maxlength="20" placeholder="+______________">
                             </p>
                             <p>
                                 <label><fmt:message key="user.email"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="email" value="${sessionScope.user.email}"
-                                    <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
-                                       disabled
-                                    </c:if>
-                                required>
+                                <input class="input-padding w3-input w3-round" type="email" name="email" value="${sessionScope.user.email}"
+                                    ${sessionScope.session_user.id != sessionScope.user.id ? 'disabled' : ''}
+                                required maxlength="45">
                                 <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
                                     <input type="hidden" name="email" value="${sessionScope.user.email}">
                                 </c:if>
@@ -96,10 +87,8 @@
                             <p>
                                 <label><fmt:message key="user.nickname"/></label>
                                 <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${sessionScope.user.nickname}"
-                                    <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
-                                       disabled
-                                    </c:if>
-                                required>
+                                    ${sessionScope.session_user.id != sessionScope.user.id ? 'disabled' : ''}
+                                required maxlength="20">
                                 <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
                                     <input type="hidden" name="nickname" value="${sessionScope.user.nickname}">
                                 </c:if>
@@ -144,10 +133,8 @@
                             <p>
                                 <label><fmt:message key="user.birthday"/></label>
                                 <input class="input-padding w3-input w3-round" type="date" name="birthday" value="${sessionScope.user.birthday}"
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
-                                required>
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
+                                required min="1900-01-01" max="2099-12-31">
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="birthday" value="${sessionScope.user.birthday}">
                                 </c:if>
@@ -156,24 +143,16 @@
                                 <label><fmt:message key="user.gender"/></label>
                                 <br>
                                 <input class="w3-radio" type="radio" name="gender" value="M"
-                                    <c:if test="${sessionScope.user.gender == 'M'}">
-                                        checked
-                                    </c:if>
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
+                                    ${sessionScope.user.gender == 'M' ? 'checked' : ''}
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
                                 required>
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="gender" value="M">
                                 </c:if>
                                 <label><fmt:message key="user.male"/></label>
                                 <input class="w3-radio" type="radio" name="gender" value="F"
-                                    <c:if test="${sessionScope.user.gender == 'F'}">
-                                        checked
-                                    </c:if>
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
+                                    ${sessionScope.user.gender == 'F' ? 'checked' : ''}
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
                                 required>
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="gender" value="F">
@@ -183,10 +162,8 @@
                             <p>
                                 <label><fmt:message key="user.passport"/></label>
                                 <input class="input-padding w3-input w3-round" type="text" name="passport" value="${sessionScope.user.passport}"
-                                    <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                       disabled
-                                    </c:if>
-                                >
+                                    ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
+                                       maxlength="20">
                                 <c:if test="${sessionScope.session_user.role == 'READER'}">
                                     <input type="hidden" name="passport" value="${sessionScope.user.passport}">
                                 </c:if>
@@ -196,9 +173,7 @@
                                 <span class="w3-display-middle image-preview__default-text"></span>
                             </div>
                             <input type="file" name="inpFile" id="inpFile"
-                                <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
-                                   disabled
-                                </c:if>
+                                ${sessionScope.session_user.id != sessionScope.user.id ? 'disabled' : ''}
                             >
                             <script>uploadImageUser("${sessionScope.user.imageURL}")</script>
 

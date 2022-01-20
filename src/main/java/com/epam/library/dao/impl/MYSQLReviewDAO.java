@@ -2,6 +2,7 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.ReviewDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Review;
 
@@ -15,7 +16,6 @@ public class MYSQLReviewDAO implements ReviewDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String MAX_ID_REVIEW = "MAX(id)";
-    private static final String ID = "id";
     private static final String BOOKS_ID = "books_id";
     private static final String READER_ID = "reader_id";
     private static final String RATING = "rating";
@@ -32,7 +32,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
     public MYSQLReviewDAO() {}
 
     @Override
-    public boolean addReview(Review review) throws DAOException {
+    public boolean checkReview(int bookID, int readerID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -41,12 +41,34 @@ public class MYSQLReviewDAO implements ReviewDAO {
             connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_REVIEW_BY_BOOK_READER);
-            preparedStatement.setInt(1, review.getBookID());
-            preparedStatement.setInt(2, review.getReaderID());
+            preparedStatement.setInt(1, bookID);
+            preparedStatement.setInt(2, readerID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return false;
             }
+            return true;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
+            connectionPool.releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public void addReview(Review review) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
             preparedStatement = connection.prepareStatement(GET_MAX_ID_REVIEW);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -60,12 +82,15 @@ public class MYSQLReviewDAO implements ReviewDAO {
             preparedStatement.setInt(4, review.getRating());
             preparedStatement.setString(5, review.getComment());
             preparedStatement.executeUpdate();
-            return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -91,11 +116,15 @@ public class MYSQLReviewDAO implements ReviewDAO {
                 review.setDate(resultSet.getDate(DATE));
             }
             return review;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -115,11 +144,15 @@ public class MYSQLReviewDAO implements ReviewDAO {
             preparedStatement.setDate(5, review.getDate());
             preparedStatement.setInt(6, review.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -134,16 +167,15 @@ public class MYSQLReviewDAO implements ReviewDAO {
             preparedStatement = connection.prepareStatement(DELETE_REVIEW);
             preparedStatement.setInt(1, review.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
-            connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
-        }
-    }
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
 
-    @Override
-    public List<Review> getReviewsByBook(int bookID) throws DAOException {
-        return null;
+            }
+            connectionPool.releaseConnection(connection);
+        }
     }
 }

@@ -34,10 +34,10 @@
                             <label><fmt:message key="user.filter.reservation-date"/></label>
                             <div class="w3-row w3-margin-bottom">
                                 <div class="half-from w3-half w3-container">
-                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.form"/>" type="text" name="reservation_date_from" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${requestScope.reservation_date_from}">
+                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.form"/>" type="text" name="reservation_date_from" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${requestScope.reservation_date_from}" min="1900-01-01" max="2099-12-31">
                                 </div>
                                 <div class="half-to w3-half w3-container">
-                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.to"/>" type="text" name="reservation_date_to" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${requestScope.reservation_date_to}">
+                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.to"/>" type="text" name="reservation_date_to" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${requestScope.reservation_date_to}" min="1900-01-01" max="2099-12-31">
                                 </div>
                             </div>
                             <div class="w3-row">

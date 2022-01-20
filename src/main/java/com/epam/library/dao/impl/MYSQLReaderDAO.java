@@ -2,6 +2,7 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.ReaderDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
@@ -19,7 +20,6 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String ID = "id";
-    private static final String ROLES_ID = "roles_id";
     private static final String NICKNAME = "nickname";
     private static final String EMAIL = "email";
     private static final String LAST_NAME = "last_name";
@@ -166,11 +166,15 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 reader.setCountReservationReady(resultSet.getInt(COUNT_RESERVATION_READY));
             }
             return reader;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -237,11 +241,15 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readers.add(reader);
             }
             return readers;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -309,11 +317,15 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readerIssuanceList.add(readerIssuance);
             }
             return readerIssuanceList;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -360,11 +372,15 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readerIssuanceHistoryList.add(readerIssuance);
             }
             return readerIssuanceHistoryList;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -409,11 +425,15 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readerReservationList.add(readerReservation);
             }
             return readerReservationList;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -458,11 +478,15 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readerReservationHistoryList.add(readerReservation);
             }
             return readerReservationHistoryList;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 }

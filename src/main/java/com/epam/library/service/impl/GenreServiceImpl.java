@@ -10,12 +10,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public class GenreServiceImpl implements GenreService {
+    private static final GenreDAO genreDAO = DAOProvider.getInstance().getGenreDAO();
 
-    private final GenreDAO genreDAO;
-
-    public GenreServiceImpl() {
-        genreDAO = DAOProvider.getInstance().getGenreDAO();
-    }
+    public GenreServiceImpl() {}
 
     @Override
     public List<Genre> getGenresList() throws ServiceException {

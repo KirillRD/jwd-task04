@@ -10,12 +10,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public class AuthorServiceImpl implements AuthorService {
+    private static final AuthorDAO authorDAO = DAOProvider.getInstance().getAuthorDAO();
 
-    private final AuthorDAO authorDAO;
-
-    public AuthorServiceImpl() {
-        authorDAO = DAOProvider.getInstance().getAuthorDAO();
-    }
+    public AuthorServiceImpl() {}
 
     @Override
     public List<Author> getAuthorsList() throws ServiceException {

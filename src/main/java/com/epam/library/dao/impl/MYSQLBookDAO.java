@@ -2,8 +2,10 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.BookDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Book;
+import com.epam.library.entity.book.BookInfo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +16,7 @@ import java.util.List;
 public class MYSQLBookDAO implements BookDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
-    private static final String COUNT_INSTANCES = "count_instances";
+    private static final String ID = "id";
     private static final String MAX_ID_BOOK = "MAX(id)";
     private static final String NAME = "name";
     private static final String PUBLISHER_ID = "publishers_id";
@@ -50,7 +52,7 @@ public class MYSQLBookDAO implements BookDAO {
     public MYSQLBookDAO() {}
 
     @Override
-    public boolean addBook(Book book) throws DAOException {
+    public boolean checkStandardNumber(int bookId, String isbn, String issn) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -59,12 +61,35 @@ public class MYSQLBookDAO implements BookDAO {
             connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_BOOK_BY_ISBN_ISSN);
-            preparedStatement.setString(1, book.getIsbn());
-            preparedStatement.setString(2, book.getIssn());
+            preparedStatement.setString(1, isbn);
+            preparedStatement.setString(2, issn);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return false;
+                if (bookId == 0 || bookId != resultSet.getInt(ID)) {
+                    return false;
+                }
             }
+            return true;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
+            connectionPool.releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public void addBook(BookInfo book) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_MAX_ID_BOOK);
             resultSet = preparedStatement.executeQuery();
@@ -77,45 +102,50 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement = connection.prepareStatement(INSERT_BOOK);
             preparedStatement.setInt(1, book.getId());
             preparedStatement.setString(2, book.getName());
-            preparedStatement.setInt(3, book.getPublisherID());
-            preparedStatement.setInt(4, book.getTypeID());
-            preparedStatement.setInt(5, book.getPublicationYear());
-            preparedStatement.setInt(6, book.getPages());
-            preparedStatement.setInt(7, book.getPart());
+            preparedStatement.setInt(3, Integer.parseInt(book.getPublisherID()));
+            preparedStatement.setInt(4, Integer.parseInt(book.getTypeID()));
+            preparedStatement.setInt(5, Integer.parseInt(book.getPublicationYear()));
+            preparedStatement.setInt(6, Integer.parseInt(book.getPages()));
+            preparedStatement.setInt(7, Integer.parseInt(book.getPart()));
             preparedStatement.setString(8, book.getIsbn());
             preparedStatement.setString(9, book.getIssn());
             preparedStatement.setString(10, book.getAnnotation());
-            preparedStatement.setDouble(11, book.getPrice());
+            preparedStatement.setDouble(11, Double.parseDouble(book.getPrice()));
             preparedStatement.setString(12, DEFAULT_IMAGE_BOOK);//TODO загрузка картинки книги
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(INSERT_BOOK_GENRE);
-            for (int genreID : book.getGenresID()) {
+            for (String genreID : book.getGenresID()) {
                 preparedStatement.setInt(1, book.getId());
-                preparedStatement.setInt(2, genreID);
+                preparedStatement.setInt(2, Integer.parseInt(genreID));
                 preparedStatement.executeUpdate();
             }
 
             preparedStatement = connection.prepareStatement(INSERT_BOOK_AUTHOR);
-            for (int authorID : book.getAuthorsID()) {
+            for (String authorID : book.getAuthorsID()) {
                 preparedStatement.setInt(1, book.getId());
-                preparedStatement.setInt(2, authorID);
+                preparedStatement.setInt(2, Integer.parseInt(authorID));
                 preparedStatement.executeUpdate();
             }
 
             connection.commit();
             connection.setAutoCommit(true);
-            return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException ignored) {
                 //TODO logger
             }
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -162,45 +192,39 @@ public class MYSQLBookDAO implements BookDAO {
                 book.getAuthorsID().add(resultSet.getInt(AUTHOR_ID));
             }
             return book;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
     @Override
-    public boolean updateBook(Book book) throws DAOException {
+    public void updateBook(BookInfo book) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
 
         try {
             connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(GET_BOOK_BY_ISBN_ISSN_ID);
-            preparedStatement.setString(1, book.getIsbn());
-            preparedStatement.setString(2, book.getIssn());
-            preparedStatement.setInt(3, book.getId());
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return false;
-            }
 
             connection.setAutoCommit(false);
 
             preparedStatement = connection.prepareStatement(UPDATE_BOOK);
             preparedStatement.setString(1, book.getName());
-            preparedStatement.setInt(2, book.getPublisherID());
-            preparedStatement.setInt(3, book.getTypeID());
-            preparedStatement.setInt(4, book.getPublicationYear());
-            preparedStatement.setInt(5, book.getPages());
-            preparedStatement.setInt(6, book.getPart());
+            preparedStatement.setInt(2, Integer.parseInt(book.getPublisherID()));
+            preparedStatement.setInt(3, Integer.parseInt(book.getTypeID()));
+            preparedStatement.setInt(4, Integer.parseInt(book.getPublicationYear()));
+            preparedStatement.setInt(5, Integer.parseInt(book.getPages()));
+            preparedStatement.setInt(6, Integer.parseInt(book.getPart()));
             preparedStatement.setString(7, book.getIsbn());
             preparedStatement.setString(8, book.getIssn());
             preparedStatement.setString(9, book.getAnnotation());
-            preparedStatement.setDouble(10, book.getPrice());
+            preparedStatement.setDouble(10, Double.parseDouble(book.getPrice()));
             preparedStatement.setString(11, book.getImageURL());
             preparedStatement.setInt(12, book.getId());
             preparedStatement.executeUpdate();
@@ -210,9 +234,9 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(INSERT_BOOK_GENRE);
-            for (int genreID : book.getGenresID()) {
+            for (String genreID : book.getGenresID()) {
                 preparedStatement.setInt(1, book.getId());
-                preparedStatement.setInt(2, genreID);
+                preparedStatement.setInt(2, Integer.parseInt(genreID));
                 preparedStatement.executeUpdate();
             }
 
@@ -221,25 +245,30 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(INSERT_BOOK_AUTHOR);
-            for (int authorID : book.getAuthorsID()) {
+            for (String authorID : book.getAuthorsID()) {
                 preparedStatement.setInt(1, book.getId());
-                preparedStatement.setInt(2, authorID);
+                preparedStatement.setInt(2, Integer.parseInt(authorID));
                 preparedStatement.executeUpdate();
             }
 
             connection.commit();
             connection.setAutoCommit(true);
-            return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException ignored) {
                 //TODO logger
             }
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -281,21 +310,22 @@ public class MYSQLBookDAO implements BookDAO {
             connection.setAutoCommit(true);
 
             return true;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException ignored) {
                 //TODO logger
             }
             throw new DAOException(e);
         } finally {
-            connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
-        }
-    }
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
 
-    @Override
-    public List<Book> getBooksByCriteria() throws DAOException {
-        return null;
+            }
+            connectionPool.releaseConnection(connection);
+        }
     }
 }

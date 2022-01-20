@@ -10,12 +10,9 @@ import com.epam.library.service.exception.ServiceException;
 import java.util.List;
 
 public class BookReviewServiceImpl implements BookReviewService {
+    private static final BookReviewDAO bookReviewDAO = DAOProvider.getInstance().getBookReviewDAO();
 
-    private final BookReviewDAO bookReviewDAO;
-
-    public BookReviewServiceImpl() {
-        bookReviewDAO = DAOProvider.getInstance().getBookReviewDAO();
-    }
+    public BookReviewServiceImpl() {}
 
     @Override
     public List<BookReview> getBookReviews(int bookID) throws ServiceException {

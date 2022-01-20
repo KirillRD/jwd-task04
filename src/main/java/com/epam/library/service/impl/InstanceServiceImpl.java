@@ -3,34 +3,98 @@ package com.epam.library.service.impl;
 import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.InstanceDAO;
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.entity.Instance;
 import com.epam.library.entity.instance.BookInstance;
+import com.epam.library.entity.instance.InstanceInfo;
 import com.epam.library.service.InstanceService;
+import com.epam.library.service.exception.InstanceException;
 import com.epam.library.service.exception.ServiceException;
+import com.epam.library.service.exception.instance.*;
+import com.epam.library.service.validation.Validator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InstanceServiceImpl implements InstanceService {
+    private static final InstanceDAO instanceDAO = DAOProvider.getInstance().getInstanceDAO();
+    private static final Validator validator = Validator.getInstance();
 
-    private final InstanceDAO instanceDAO;
+    private static final int NUMBER_LENGTH = 10;
 
-    public InstanceServiceImpl() {
-        instanceDAO = DAOProvider.getInstance().getInstanceDAO();
-    }
+    public InstanceServiceImpl() {}
 
     @Override
-    public boolean addInstance(Instance instance) throws ServiceException {
+    public void addInstance(InstanceInfo instance) throws ServiceException {
+
+        List<InstanceException> exceptions = new ArrayList<>();
         try {
-            return instanceDAO.addInstance(instance);
+            if (validator.isEmpty(instance.getNumber())) {
+                exceptions.add(new EmptyNumberException());
+            } else if (instance.getNumber().length() > NUMBER_LENGTH) {
+                exceptions.add(new InvalidLengthNumberException());
+            } else if (!instanceDAO.checkInstanceNumber(instance.getId(), instance.getNumber())) {
+                exceptions.add(new ExistNumberException());
+            }
+
+            if (validator.isEmpty(instance.getHallID())) {
+                exceptions.add(new EmptyHallException());
+            } else if (!validator.isInteger(instance.getHallID())) {
+                exceptions.add(new InvalidHallFormatException());
+            }
+
+            if (validator.isEmpty(instance.getReceivedDate())) {
+                exceptions.add(new EmptyReceivedDateException());
+            } else if (!validator.isDate(instance.getReceivedDate())) {
+                exceptions.add(new InvalidReceivedDateFormatException());
+            }
+
+            if (!validator.isEmpty(instance.getWriteOffDate()) && !validator.isDate(instance.getWriteOffDate())) {
+                exceptions.add(new InvalidWriteOffDateFormatException());
+            }
+
+            if (exceptions.isEmpty()) {
+                instanceDAO.addInstance(instance);
+            } else {
+                throw new InstanceException(exceptions);
+            }
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public boolean updateInstance(Instance instance) throws ServiceException {
+    public void updateInstance(InstanceInfo instance) throws ServiceException {
+
+        List<InstanceException> exceptions = new ArrayList<>();
         try {
-            return instanceDAO.updateInstance(instance);
+            if (validator.isEmpty(instance.getNumber())) {
+                exceptions.add(new EmptyNumberException());
+            } else if (instance.getNumber().length() > NUMBER_LENGTH) {
+                exceptions.add(new InvalidLengthNumberException());
+            } else if (!instanceDAO.checkInstanceNumber(instance.getId(), instance.getNumber())) {
+                exceptions.add(new ExistNumberException());
+            }
+
+            if (validator.isEmpty(instance.getHallID())) {
+                exceptions.add(new EmptyHallException());
+            } else if (!validator.isInteger(instance.getHallID())) {
+                exceptions.add(new InvalidHallFormatException());
+            }
+
+            if (validator.isEmpty(instance.getReceivedDate())) {
+                exceptions.add(new EmptyReceivedDateException());
+            } else if (!validator.isDate(instance.getReceivedDate())) {
+                exceptions.add(new InvalidReceivedDateFormatException());
+            }
+
+            if (!validator.isEmpty(instance.getWriteOffDate()) && !validator.isDate(instance.getWriteOffDate())) {
+                exceptions.add(new InvalidWriteOffDateFormatException());
+            }
+
+            if (exceptions.isEmpty()) {
+                instanceDAO.updateInstance(instance);
+            } else {
+                throw new InstanceException(exceptions);
+            }
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

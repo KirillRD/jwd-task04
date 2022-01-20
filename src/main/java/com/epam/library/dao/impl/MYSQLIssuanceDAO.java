@@ -2,6 +2,7 @@ package com.epam.library.dao.impl;
 
 import com.epam.library.dao.IssuanceDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
+import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Issuance;
 
@@ -15,7 +16,6 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String MAX_ID_ISSUANCE = "MAX(id)";
-    private static final String ID = "id";
     private static final String INSTANCES_ID = "instances_id";
     private static final String READER_ID = "reader_id";
     private static final String DATE_ISSUE = "date_issue";
@@ -99,11 +99,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
                 }
             }
             return messageNotIssuedBooks.toString();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -130,11 +134,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
                 issuance.setLost(resultSet.getBoolean(LOST));
             }
             return issuance;
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(resultSet, preparedStatement);
         }
     }
 
@@ -155,11 +163,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             preparedStatement.setBoolean(6, issuance.isLost());
             preparedStatement.setInt(7, issuance.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -174,11 +186,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             preparedStatement = connection.prepareStatement(DELETE_ISSUANCE);
             preparedStatement.setInt(1, issuance.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -193,11 +209,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             preparedStatement = connection.prepareStatement(UPDATE_RETURN_ISSUANCE);
             preparedStatement.setInt(1, issuanceID);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -212,11 +232,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             preparedStatement = connection.prepareStatement(UPDATE_EXTEND_ISSUANCE);
             preparedStatement.setInt(1, issuanceID);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 
@@ -231,11 +255,15 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             preparedStatement = connection.prepareStatement(UPDATE_LOST_ISSUANCE);
             preparedStatement.setInt(1, issuanceID);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement);
+            } catch (ConnectionPoolException e) {
+
+            }
             connectionPool.releaseConnection(connection);
-            connectionPool.closeConnection(preparedStatement);
         }
     }
 }
