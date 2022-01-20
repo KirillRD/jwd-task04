@@ -54,3 +54,15 @@
 2022-01-20 17:49:52,495|INFO |controller.command.impl.AddEditBook| 
 2022-01-20 18:05:24,891|INFO |controller.session.SessionUserProvider| Put session user in session
 2022-01-20 18:05:52,687|INFO |controller.command.impl.AddEditBook| 
+2022-01-20 18:07:15,270|INFO |controller.session.SessionUserProvider| Put session user in session
+2022-01-20 18:07:38,571|INFO |controller.command.impl.AddEditBook| 
+2022-01-20 18:07:53,463|INFO |controller.command.impl.AddEditBook| 
+2022-01-20 20:01:59,115|INFO |controller.session.SessionUserProvider| Put session user in session
+2022-01-20 20:13:08,125|INFO |controller.session.SessionUserProvider| Put session user in session
+2022-01-20 20:14:22,313|INFO |controller.session.SessionUserProvider| Remove session user from session
+2022-01-20 20:14:27,251|INFO |controller.session.SessionUserProvider| Put session user in session
+2022-01-20 20:17:32,148|INFO |controller.session.SessionUserProvider| Remove session user from session
+2022-01-20 20:47:25,666|INFO |controller.session.SessionUserProvider| Put session user in session
+2022-01-20 20:48:57,093|INFO |controller.session.SessionUserProvider| Remove session user from session
+2022-01-20 20:49:04,534|INFO |controller.session.SessionUserProvider| Put session user in session
+2022-01-20 21:13:16,818|INFO |controller.session.SessionUserProvider| Put session user in session

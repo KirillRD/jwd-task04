@@ -6,11 +6,9 @@ import com.epam.library.entity.Issuance;
 import java.util.List;
 
 public interface IssuanceDAO {
-    String addIssuance(List<Issuance> issuances) throws DAOException;
+    String addIssuance(List<Issuance> issues) throws DAOException;
     Issuance getIssuance(int issuanceID) throws DAOException;
     void updateIssuance(Issuance issuance) throws DAOException;
     void deleteIssuance(Issuance issuance) throws DAOException;
-    void updateReturnIssuance(int issuanceID) throws DAOException;
-    void updateExtendIssuance(int issuanceID) throws DAOException;
-    void updateLostIssuance(int issuanceID) throws DAOException;
+    void updateConditionIssuance(List<String> issues, String operation) throws DAOException;
 }

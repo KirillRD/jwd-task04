@@ -5,12 +5,14 @@ import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Issuance;
+import com.epam.library.entity.issuance.IssuanceOperation;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class MYSQLIssuanceDAO implements IssuanceDAO {
 
@@ -46,11 +48,16 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     private static final String UPDATE_RETURN_ISSUANCE = "UPDATE issuance SET date_return=CURDATE() WHERE id=?";
     private static final String UPDATE_EXTEND_ISSUANCE = "UPDATE issuance SET date_return_planned=DATE_ADD(CURDATE(), INTERVAL 30 DAY) WHERE id=?";
     private static final String UPDATE_LOST_ISSUANCE = "UPDATE issuance SET lost= CASE WHEN IFNULL(lost,0)=0 THEN 1 ELSE 0 END WHERE id=?";
+    private static final Map<String, String> operations = Map.of(
+            IssuanceOperation.RETURN.getOperation(), UPDATE_RETURN_ISSUANCE,
+            IssuanceOperation.EXTEND.getOperation(), UPDATE_EXTEND_ISSUANCE,
+            IssuanceOperation.LOST.getOperation(), UPDATE_LOST_ISSUANCE
+    );
 
     public MYSQLIssuanceDAO() {}
 
     @Override
-    public String addIssuance(List<Issuance> issuances) throws DAOException {
+    public String addIssuance(List<Issuance> issues) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -62,7 +69,7 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             StringBuilder idNotIssuedBooks = new StringBuilder();
 
 
-            for (Issuance issuance : issuances) {
+            for (Issuance issuance : issues) {
                 preparedStatement = connection.prepareStatement(GET_FREE_INSTANCE);
                 preparedStatement.setInt(1, issuance.getInstanceID());
                 resultSet = preparedStatement.executeQuery();
@@ -199,63 +206,31 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     }
 
     @Override
-    public void updateReturnIssuance(int issuanceID) throws DAOException {
+    public void updateConditionIssuance(List<String> issues, String operation) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(UPDATE_RETURN_ISSUANCE);
-            preparedStatement.setInt(1, issuanceID);
-            preparedStatement.executeUpdate();
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
-            try {
-                connectionPool.closeConnection(preparedStatement);
-            } catch (ConnectionPoolException e) {
+            connection.setAutoCommit(false);
 
+            preparedStatement = connection.prepareStatement(operations.get(operation));
+            for (String issuanceID : issues) {
+                preparedStatement.setInt(1, Integer.parseInt(issuanceID));
+                preparedStatement.executeUpdate();
             }
-            connectionPool.releaseConnection(connection);
-        }
-    }
 
-    @Override
-    public void updateExtendIssuance(int issuanceID) throws DAOException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(UPDATE_EXTEND_ISSUANCE);
-            preparedStatement.setInt(1, issuanceID);
-            preparedStatement.executeUpdate();
+            connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
             try {
-                connectionPool.closeConnection(preparedStatement);
-            } catch (ConnectionPoolException e) {
-
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ignored) {
+                //TODO logger
             }
-            connectionPool.releaseConnection(connection);
-        }
-    }
-
-    @Override
-    public void updateLostIssuance(int issuanceID) throws DAOException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(UPDATE_LOST_ISSUANCE);
-            preparedStatement.setInt(1, issuanceID);
-            preparedStatement.executeUpdate();
-        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
             try {

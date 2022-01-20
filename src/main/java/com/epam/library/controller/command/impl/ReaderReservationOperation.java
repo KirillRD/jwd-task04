@@ -4,18 +4,17 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.entity.Issuance;
-import com.epam.library.entity.Reservation;
-import com.epam.library.entity.reservation.ReservationStatus;
-import com.epam.library.service.IssuanceService;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class ReaderReservationOperation implements Command {
 
@@ -24,27 +23,22 @@ public class ReaderReservationOperation implements Command {
     private static final String RESERVATION_OPERATION = "reservation_operation";
     private static final String CHECK_RESERVATION_OPERATION = "check_reservation_operation";
 
+    private static final String RESERVATION_MESSAGE = "reservation_message";
+    private static final String ERROR_ISSUANCE_RESERVATION = "error-issuance-reservation";
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        IssuanceService issuanceService = ServiceProvider.getInstance().getIssuanceService();
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
 
         try {
-
             if (request.getParameter(RESERVATION_OPERATION) != null && request.getParameterValues(CHECK_RESERVATION_OPERATION) != null) {
-                for (String id : request.getParameterValues(CHECK_RESERVATION_OPERATION)) {
-                    Reservation reservation = reservationService.getReservation(Integer.parseInt(id));
-                    reservation.setStatus(ReservationStatus.valueOf(request.getParameter(RESERVATION_OPERATION)));
-                    if (ReservationStatus.ISSUED == reservation.getStatus()) {
-                        Issuance issuance = new Issuance();
-                        issuance.setInstanceID(reservation.getInstanceID());
-                        issuance.setReaderID(reservation.getReaderID());
-//                        issuanceService.addIssuance(issuance);
-                    }
-                    reservationService.updateReservation(reservation);
+                List<String> reservations = Arrays.asList(request.getParameterValues(CHECK_RESERVATION_OPERATION));
+                String status = request.getParameter(RESERVATION_OPERATION);
+                if (!reservationService.updateReservation(reservations, status)) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute(RESERVATION_MESSAGE, ERROR_ISSUANCE_RESERVATION);
                 }
             }
-
             int readerID = Integer.parseInt(request.getParameter(READER_ID));
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);

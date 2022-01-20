@@ -69,6 +69,16 @@
                     <c:if test="${requestScope.reader_issuance.size() != 0}">
                         <div class="w3-container">
                             <h3><b><fmt:message key="reader.issued-books"/></b></h3>
+
+                            <c:if test="${sessionScope.issuance_message != null}">
+                                <div class="w3-row">
+                                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                        <p><fmt:message key="message.${sessionScope.issuance_message}"/></p>
+                                    </div>
+                                </div>
+                                <c:remove var="issuance_message" scope="session"/>
+                            </c:if>
+
                             <form action="controller" method="post">
                                 <input type="hidden" name="command" value="reader-issuance-operation">
                                 <input type="hidden" name="reader_id" value="${requestScope.reader.id}">
@@ -124,6 +134,16 @@
                     <c:if test="${requestScope.reader_reservation.size() != 0}">
                         <div class="w3-container">
                             <h3><b><fmt:message key="reader.reserved-books"/></b></h3>
+
+                            <c:if test="${sessionScope.reservation_message != null}">
+                                <div class="w3-row">
+                                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                        <p><fmt:message key="message.${sessionScope.reservation_message}"/></p>
+                                    </div>
+                                </div>
+                                <c:remove var="reservation_message" scope="session"/>
+                            </c:if>
+
                             <form action="controller" method="post">
                                 <input type="hidden" name="command" value="reader-reservation-operation">
                                 <input type="hidden" name="reader_id" value="${requestScope.reader.id}">

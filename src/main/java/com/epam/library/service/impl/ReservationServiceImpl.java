@@ -5,6 +5,7 @@ import com.epam.library.dao.ReservationDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
 import com.epam.library.entity.reservation.ReservationInfo;
+import com.epam.library.entity.reservation.ReservationStatus;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.exception.ReservationException;
 import com.epam.library.service.exception.ServiceException;
@@ -60,9 +61,20 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void updateReservation(Reservation reservation) throws ServiceException {
+    public boolean updateReservation(List<String> reservations, String status) throws ServiceException {
         try {
-            reservationDAO.updateReservation(reservation);
+            if (!ReservationStatus.containsReservationStatus(status)) {
+                return false;
+            }
+
+            for (String reservationID : reservations) {
+                if (!validator.isInteger(reservationID)) {
+                    return false;
+                }
+            }
+
+            reservationDAO.updateReservation(reservations, status);
+            return true;
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

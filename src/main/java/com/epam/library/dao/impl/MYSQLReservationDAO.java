@@ -9,6 +9,7 @@ import com.epam.library.entity.reservation.ReservationInfo;
 import com.epam.library.entity.reservation.ReservationStatus;
 
 import java.sql.*;
+import java.util.List;
 
 public class MYSQLReservationDAO implements ReservationDAO {
 
@@ -23,6 +24,10 @@ public class MYSQLReservationDAO implements ReservationDAO {
     private static final String GET_MAX_ID_RESERVATION = "SELECT MAX(id) FROM reservation";
     private static final String INSERT_RESERVATION =
             "INSERT INTO reservation (id, instances_id, reader_id, date, status) VALUES (?,?,?,?,'RESERVED')";
+    private static final String GET_MAX_ID_ISSUANCE = "SELECT MAX(id) FROM issuance";
+    private static final String INSERT_ISSUANCE =
+            "INSERT INTO issuance (id, instances_id, reader_id, date_issue, date_return_planned, lost) " +
+                    "SELECT ?, instances_id, reader_id, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY),0 FROM reservation WHERE id=?";
     private static final String GET_FREE_INSTANCE =
             "SELECT instances.id " +
             "FROM instances " +
@@ -30,9 +35,10 @@ public class MYSQLReservationDAO implements ReservationDAO {
             "NOT EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND (date_return IS NULL OR lost=1)) AND " +
             "NOT EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')) LIMIT 1";
     private static final String SELECT_RESERVATION = "SELECT * FROM reservation WHERE id=?";
-    private static final String UPDATE_RESERVATION = "UPDATE reservation SET status=?, instances_id=? WHERE id=?";
+    private static final String UPDATE_RESERVATION = "UPDATE reservation SET status=? WHERE id=?";
     private static final String GET_RESERVATION_NOT_RESERVED = "SELECT * FROM reservation WHERE id=? AND status!='RESERVED'";
     private static final String DELETE_RESERVATION = "DELETE FROM reservation WHERE id=?";
+
 
     public MYSQLReservationDAO() {}
 
@@ -114,20 +120,46 @@ public class MYSQLReservationDAO implements ReservationDAO {
     }
 
     @Override
-    public void updateReservation(Reservation reservation) throws DAOException {
+    public void updateReservation(List<String> reservations, String status) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(UPDATE_RESERVATION);
-            preparedStatement.setString(1, reservation.getStatus().name());
-            preparedStatement.setInt(2, reservation.getInstanceID());
-            preparedStatement.setInt(3, reservation.getId());
-            preparedStatement.executeUpdate();
+            connection.setAutoCommit(false);
 
+            preparedStatement = connection.prepareStatement(UPDATE_RESERVATION);
+            for (String reservationID : reservations) {
+                preparedStatement.setString(1, status);
+                preparedStatement.setInt(2, Integer.parseInt(reservationID));
+                preparedStatement.executeUpdate();
+            }
+            if (ReservationStatus.ISSUED.name().equals(status)) {
+                for (String reservationID : reservations) {
+                    preparedStatement = connection.prepareStatement(GET_MAX_ID_ISSUANCE);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    if (resultSet.next()) {
+                        int issuanceID = resultSet.getInt(MAX_ID) + 1;
+                        preparedStatement = connection.prepareStatement(INSERT_ISSUANCE);
+                        preparedStatement.setInt(1, issuanceID);
+                        preparedStatement.setInt(2, Integer.parseInt(reservationID));
+                        preparedStatement.executeUpdate();
+                    }
+                    resultSet.close();
+                }
+            }
+
+            connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException | ConnectionPoolException e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ignored) {
+                //TODO logger
+            }
             throw new DAOException(e);
         } finally {
             try {

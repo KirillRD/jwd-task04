@@ -10,8 +10,11 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class ReaderIssuanceOperation implements Command {
 
@@ -19,34 +22,21 @@ public class ReaderIssuanceOperation implements Command {
 
     private static final String ISSUANCE_OPERATION = "issuance_operation";
     private static final String CHECK_ISSUANCE_OPERATION = "check_issuance_operation";
-    private static final String RETURN = "return";
-    private static final String EXTEND = "extend";
-    private static final String LOST = "lost";
+
+    private static final String ISSUANCE_MESSAGE = "issuance_message";
+    private static final String ERROR_ISSUANCE_RESERVATION = "error-issuance-reservation";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         IssuanceService issuanceService = ServiceProvider.getInstance().getIssuanceService();
 
         try {
-
             if (request.getParameter(ISSUANCE_OPERATION) != null && request.getParameterValues(CHECK_ISSUANCE_OPERATION) != null) {
-                switch (request.getParameter(ISSUANCE_OPERATION)) {
-                    case RETURN:
-                        for (String id : request.getParameterValues(CHECK_ISSUANCE_OPERATION)) {
-                            issuanceService.updateReturnIssuance(Integer.parseInt(id));
-                        }
-                        break;
-                    case EXTEND:
-                        for (String id : request.getParameterValues(CHECK_ISSUANCE_OPERATION)) {
-                            issuanceService.updateExtendIssuance(Integer.parseInt(id));
-                        }
-                        break;
-                    case LOST:
-                        for (String id : request.getParameterValues(CHECK_ISSUANCE_OPERATION)) {
-                            issuanceService.updateLostIssuance(Integer.parseInt(id));
-                        }
-                        break;
-                    default:
+                List<String> issues = Arrays.asList(request.getParameterValues(CHECK_ISSUANCE_OPERATION));
+                String operation = request.getParameter(ISSUANCE_OPERATION);
+                if (!issuanceService.updateConditionIssuance(issues, operation)) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute(ISSUANCE_MESSAGE, ERROR_ISSUANCE_RESERVATION);
                 }
             }
             int readerID = Integer.parseInt(request.getParameter(READER_ID));

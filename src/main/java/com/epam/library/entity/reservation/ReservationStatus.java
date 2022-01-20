@@ -6,5 +6,14 @@ public enum ReservationStatus {
     ISSUED,
     CANCELLED,
     EXPIRED,
-    REJECTED
+    REJECTED;
+
+    public static boolean containsReservationStatus(String status) {
+        for (ReservationStatus reservationStatus : ReservationStatus.values()) {
+            if (reservationStatus.name().equals(status)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

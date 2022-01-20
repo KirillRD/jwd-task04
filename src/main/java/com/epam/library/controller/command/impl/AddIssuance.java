@@ -30,17 +30,17 @@ public class AddIssuance implements Command {
         IssuanceService issuanceService = ServiceProvider.getInstance().getIssuanceService();
         int readerID = Integer.parseInt(request.getParameter(READER_ID));
         try {
-            List<Issuance> issuances = new ArrayList<>();
+            List<Issuance> issues = new ArrayList<>();
             for (String id : request.getParameterValues(INSTANCES)) {
                 if (!id.isEmpty()) {
                     Issuance issuance = new Issuance();
                     issuance.setReaderID(readerID);
                     issuance.setInstanceID(Integer.parseInt(id));
-                    issuances.add(issuance);
+                    issues.add(issuance);
                 }
             }
-            if (!issuances.isEmpty()) {
-                String message = issuanceService.addIssuance(issuances);
+            if (!issues.isEmpty()) {
+                String message = issuanceService.addIssuance(issues);
                 if (!message.isEmpty()) {
                     HttpSession session = request.getSession();
                     session.setAttribute(MESSAGE, ERROR_ADD_ISSUANCE);
