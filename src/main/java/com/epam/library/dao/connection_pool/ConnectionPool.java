@@ -44,53 +44,79 @@ public final class ConnectionPool {
             for (int i = 0; i < POOL_SIZE; i++) {
                 connectionPool.add(DriverManager.getConnection(url, user, password));
             }
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new ConnectionPoolException(e);
+        } catch (SQLException e) {
+            throw new ConnectionPoolException("SQLException in ConnectionPool", e);
+        } catch (ClassNotFoundException e) {
+            throw new ConnectionPoolException("Can't find database driver class", e);
         }
     }
 
     public Connection getConnection() throws ConnectionPoolException {
         try {
             Connection connection = connectionPool.take();
-            usedConnections.put(connection);
+            usedConnections.add(connection);
             return connection;
         } catch (InterruptedException e) {
-            throw new ConnectionPoolException(e);
+            throw new ConnectionPoolException("Error connecting to the data source", e);
         }
     }
 
-    public void releaseConnection(Connection connection) {
-        if (connection != null) {
-            usedConnections.remove(connection);
-            connectionPool.add(connection);
+    public void releaseConnection(Connection connection) throws SQLException {
+        if (connection.isClosed()) {
+            throw new SQLException("Attempting to close closed connection");
+        }
+        if (connection.isReadOnly()) {
+            connection.setReadOnly(false);
+        }
+        if (!usedConnections.remove(connection)) {
+            throw new SQLException("Error deleting connection from the given away connections pool");
+        }
+        if (!connectionPool.offer(connection)) {
+            throw new SQLException("Error allocating connection in the pool");
         }
     }
 
-    public void closeConnection(ResultSet resultSet, PreparedStatement preparedStatement) throws ConnectionPoolException {
+    public void closeConnection(ResultSet resultSet, PreparedStatement preparedStatement, Connection connection) throws ConnectionPoolException {
         try {
             if (resultSet != null) {
                 resultSet.close();
             }
         } catch (SQLException e) {
-            throw new ConnectionPoolException(e);
+            throw new ConnectionPoolException("ResultSet isn't closed", e);
         } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
             } catch (SQLException e) {
-                throw new ConnectionPoolException(e);
+                throw new ConnectionPoolException("PreparedStatement isn't closed", e);
+            } finally {
+                try {
+                    if (connection != null) {
+                        releaseConnection(connection);
+                    }
+                } catch (SQLException e) {
+                    throw new ConnectionPoolException("Connection isn't return to the pool", e);
+                }
             }
         }
     }
 
-    public void closeConnection(PreparedStatement preparedStatement) throws ConnectionPoolException {
+    public void closeConnection(PreparedStatement preparedStatement, Connection connection) throws ConnectionPoolException {
         try {
             if (preparedStatement != null) {
                 preparedStatement.close();
             }
         } catch (SQLException e) {
-            throw new ConnectionPoolException(e);
+            throw new ConnectionPoolException("PreparedStatement isn't closed", e);
+        } finally {
+            try {
+                if (connection != null) {
+                    releaseConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new ConnectionPoolException("Connection isn't return to the pool", e);
+            }
         }
     }
 
@@ -110,7 +136,7 @@ public final class ConnectionPool {
                 connection.close();
             }
         } catch (SQLException e) {
-            throw new ConnectionPoolException(e);
+            throw new ConnectionPoolException("Error closing the connection pool", e);
         }
     }
 }

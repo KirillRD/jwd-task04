@@ -13,11 +13,13 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
 
 public class UserListPage implements Command {
+    private static final Logger logger = Logger.getLogger(UserListPage.class.getName());
 
     private static final String USER_LIST = "user_list";
     private static final String SELECTED = "selected";

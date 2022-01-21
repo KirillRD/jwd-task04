@@ -8,6 +8,7 @@ import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.book.catalog.BookCatalogFilterName;
 import com.epam.library.entity.book.catalog.HallInstanceCatalog;
 import com.epam.library.entity.book.catalog.InstanceCatalog;
+import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class MYSQLBookCatalogDAO implements BookCatalogDAO {
+    private static final Logger logger = Logger.getLogger(MYSQLBookCatalogDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String ID = "id";
@@ -139,6 +141,22 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             "NOT EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')))>0";
     private static final String SORT_FILTER = "ORDER BY books.name ";
     private static final String BOOK_INFO_BY_ID = "books.id=?";
+
+    private static final Map<String, String> filterValues = Map.ofEntries(
+            Map.entry(BookCatalogFilterName.NAME, NAME_FILTER),
+            Map.entry(BookCatalogFilterName.AUTHORS, AUTHOR_FILTER),
+            Map.entry(BookCatalogFilterName.GENRES, GENRE_FILTER),
+            Map.entry(BookCatalogFilterName.PUBLISHER, PUBLISHER_FILTER),
+            Map.entry(BookCatalogFilterName.PUBLICATION_YEAR_FROM, PUBLICATION_YEAR_FROM_FILTER),
+            Map.entry(BookCatalogFilterName.PUBLICATION_YEAR_TO, PUBLICATION_YEAR_TO_FILTER),
+            Map.entry(BookCatalogFilterName.PAGES_FROM, PAGES_FROM_FILTER),
+            Map.entry(BookCatalogFilterName.PAGES_TO, PAGES_TO_FILTER),
+            Map.entry(BookCatalogFilterName.ISBN, ISBN_FILTER),
+            Map.entry(BookCatalogFilterName.ISSN, ISSN_FILTER),
+            Map.entry(BookCatalogFilterName.TYPE, TYPE_FILTER),
+            Map.entry(BookCatalogFilterName.FREE_INSTANCES, FREE_INSTANCES_FILTER)
+    );
+
     private static final Map<String, String> sortValue = Map.of(
             BookCatalogFilterName.NAME_ASCENDING, "ASC",
             BookCatalogFilterName.NAME_DESCENDING, "DESC"
@@ -208,11 +226,10 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -311,11 +328,10 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -414,11 +430,10 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -439,7 +454,8 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                     if (filterName.equals(BookCatalogFilterName.AUTHORS) || filterName.equals(BookCatalogFilterName.GENRES)) {
                         query.append(BRACKET_LEFT);
                         for (int i = 0; i < ((List<?>) filters.get(filterName)).size() - 1; i++) {
-                            buildQueryByFilter(query, filterName);
+                            query.append(filterValues.get(filterName));
+                            query.append(OR);
                         }
                         if (filterName.equals(BookCatalogFilterName.AUTHORS)) {
                             query.append(AUTHOR_FILTER);
@@ -449,7 +465,8 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                         query.append(BRACKET_RIGHT);
                         query.append(AND);
                     } else if (!filterName.equals(BookCatalogFilterName.SORT)) {
-                        buildQueryByFilter(query, filterName);
+                        query.append(filterValues.get(filterName));
+                        query.append(AND);
                     }
                 }
                 query.setLength(query.length() - 4);
@@ -573,75 +590,10 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
-        }
-    }
-
-    private void buildQueryByFilter(StringBuilder query, String filterName) {
-        switch (filterName) {
-            case BookCatalogFilterName.NAME:
-                query.append(NAME_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.AUTHORS:
-                query.append(AUTHOR_FILTER);
-                query.append(OR);
-                break;
-
-            case BookCatalogFilterName.GENRES:
-                query.append(GENRE_FILTER);
-                query.append(OR);
-                break;
-
-            case BookCatalogFilterName.PUBLISHER:
-                query.append(PUBLISHER_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.PUBLICATION_YEAR_FROM:
-                query.append(PUBLICATION_YEAR_FROM_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.PUBLICATION_YEAR_TO:
-                query.append(PUBLICATION_YEAR_TO_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.PAGES_FROM:
-                query.append(PAGES_FROM_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.PAGES_TO:
-                query.append(PAGES_TO_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.ISBN:
-                query.append(ISBN_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.ISSN:
-                query.append(ISSN_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.TYPE:
-                query.append(TYPE_FILTER);
-                query.append(AND);
-                break;
-
-            case BookCatalogFilterName.FREE_INSTANCES:
-                query.append(FREE_INSTANCES_FILTER);
-                query.append(AND);
-                break;
         }
     }
 }

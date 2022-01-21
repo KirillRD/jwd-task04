@@ -5,6 +5,7 @@ import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.Genre;
+import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MYSQLGenreDAO implements GenreDAO {
+    private static final Logger logger = Logger.getLogger(MYSQLGenreDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String COUNT_GENRES = "count_genres";
@@ -65,11 +67,10 @@ public class MYSQLGenreDAO implements GenreDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -96,11 +97,10 @@ public class MYSQLGenreDAO implements GenreDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -120,11 +120,10 @@ public class MYSQLGenreDAO implements GenreDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(preparedStatement);
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -153,11 +152,10 @@ public class MYSQLGenreDAO implements GenreDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -184,11 +182,10 @@ public class MYSQLGenreDAO implements GenreDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 }

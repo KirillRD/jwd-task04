@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.instance.InstanceInfo;
 import com.epam.library.service.InstanceService;
 import com.epam.library.service.ServiceProvider;
@@ -14,6 +15,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AddEditInstance implements Command {
+    private static final Logger logger = Logger.getLogger(AddEditInstance.class.getName());
 
     private static final String BOOK_ID = "book_id";
     private static final String INSTANCE_ID = "instance_id";
@@ -47,12 +50,23 @@ public class AddEditInstance implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
-        int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         InstanceInfo instance = new InstanceInfo();
-
-        if (request.getParameter(INSTANCE_ID) != null) {
+        if (Util.isID(request.getParameter(INSTANCE_ID))) {
             instance.setId(Integer.parseInt(request.getParameter(INSTANCE_ID)));
+            logger.info(logMessageBuilder("Instance update starting", request));
+        } else {
+            logger.info(logMessageBuilder("Instance add starting", request));
         }
+
+        int bookID;
+        if (Util.isID(request.getParameter(BOOK_ID))) {
+            bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        } else {
+            logger.error(logMessageBuilder("Invalid page attributes. Instance was not added/updated", request));
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            return;
+        }
+
         instance.setBookID(bookID);
         instance.setNumber(request.getParameter(NUMBER));
         instance.setHallID(request.getParameter(HALL));
@@ -61,8 +75,10 @@ public class AddEditInstance implements Command {
         try {
             if (instance.getId() != 0) {
                 instanceService.updateInstance(instance);
+                logger.info(logMessageBuilder("Instance update completed", request));
             } else {
                 instanceService.addInstance(instance);
+                logger.info(logMessageBuilder("Instance add completed", request));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
@@ -71,11 +87,14 @@ public class AddEditInstance implements Command {
             session.setAttribute(INSTANCE, instance);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (instance.getId() != 0) {
+                logger.info(logMessageBuilder("The entered data is invalid. Instance was not updated", request));
                 RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID + REDIRECT_INSTANCE_ID + instance.getId()), request, response);
             } else {
+                logger.info(logMessageBuilder("The entered data is invalid. Instance was not added", request));
                 RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
             }
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error adding/updating instance data", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

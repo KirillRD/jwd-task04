@@ -14,12 +14,13 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
 
 public class GoToBookPage implements Command {
-
+    private static final Logger logger = Logger.getLogger(GoToBookPage.class.getName());
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_INFO = "book_info";
     private static final String BOOK_REVIEW = "book_review";

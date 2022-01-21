@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.Review;
 import com.epam.library.entity.user.SessionUser;
@@ -18,6 +19,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AddReview implements Command {
+    private static final Logger logger = Logger.getLogger(AddReview.class.getName());
 
     private static final String BOOK_ID = "book_id";
     private static final String RATING = "rating";
@@ -42,10 +45,18 @@ public class AddReview implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReviewService reviewService = ServiceProvider.getInstance().getReviewService();
+        logger.info(logMessageBuilder("Review add starting", request));
 
         SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
         int userID = sessionUser.getId();
-        int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        int bookID;
+        if (Util.isID(request.getParameter(BOOK_ID))) {
+            bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        } else {
+            logger.error(logMessageBuilder("Invalid page attributes. Review was not added", request));
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            return;
+        }
         Review review = new Review();
         review.setReaderID(userID);
         review.setBookID(bookID);
@@ -56,6 +67,9 @@ public class AddReview implements Command {
             if (!reviewService.addReview(review, rating)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_ADD_REVIEW);
+                logger.info(logMessageBuilder("Review was not added. Review already exists", request));
+            } else {
+                logger.info(logMessageBuilder("Review add completed", request));
             }
             RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
         } catch (ReviewException e) {
@@ -63,8 +77,10 @@ public class AddReview implements Command {
             session.setAttribute(RATING, rating);
             session.setAttribute(COMMENT, comment);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
+            logger.info(logMessageBuilder("The entered data is invalid. Review was not added", request));
             RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error adding review data", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

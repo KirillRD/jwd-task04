@@ -7,11 +7,13 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
 import com.epam.library.entity.reservation.ReservationInfo;
 import com.epam.library.entity.reservation.ReservationStatus;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.List;
 
 public class MYSQLReservationDAO implements ReservationDAO {
+    private static final Logger logger = Logger.getLogger(MYSQLReservationDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String MAX_ID = "MAX(id)";
@@ -78,11 +80,10 @@ public class MYSQLReservationDAO implements ReservationDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -111,11 +112,10 @@ public class MYSQLReservationDAO implements ReservationDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -157,17 +157,16 @@ public class MYSQLReservationDAO implements ReservationDAO {
                 if (connection != null) {
                     connection.rollback();
                 }
-            } catch (SQLException ignored) {
-                //TODO logger
+            } catch (SQLException exception) {
+                logger.error("Error when rollback transaction", exception);
             }
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(preparedStatement);
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -195,11 +194,10 @@ public class MYSQLReservationDAO implements ReservationDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 }

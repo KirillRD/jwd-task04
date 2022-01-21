@@ -4,10 +4,12 @@ import com.epam.library.controller.command.constant.CommandName;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 public class URLFilter implements Filter {
+    private static final Logger logger = Logger.getLogger(URLFilter.class.getName());
 
     private static final String GET = "GET";
     private static final String COMMAND = "command";
@@ -24,6 +26,8 @@ public class URLFilter implements Filter {
         if (session.getAttribute(LOCALE) == null) {
             session.setAttribute(LOCALE, EN);
         }
+
+        String context = request.getContextPath();
 
         String method = request.getMethod();
         String command = request.getParameter(COMMAND);

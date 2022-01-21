@@ -6,6 +6,7 @@ import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.*;
+import org.apache.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MYSQLUserDAO implements UserDAO {
+    private static final Logger logger = Logger.getLogger(MYSQLUserDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String MAX_ID_USER = "MAX(id)";
@@ -50,6 +52,13 @@ public class MYSQLUserDAO implements UserDAO {
     private static final String NICKNAME_FILTER = "nickname LIKE ?";
     private static final String PERCENT = "%";
     private static final String WHERE = " WHERE ";
+
+    private static final Map<String, String> filterValues = Map.of(
+            UserListFilterName.LAST_NAME, LAST_NAME_FILTER,
+            UserListFilterName.EMAIL, EMAIL_FILTER,
+            UserListFilterName.NICKNAME, NICKNAME_FILTER
+    );
+
     private static final Map<String, String> sortValue = Map.of(
             UserListFilterName.LAST_NAME_ASCENDING, "last_name ASC",
             UserListFilterName.LAST_NAME_DESCENDING, "last_name DESC",
@@ -96,11 +105,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -125,11 +133,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -155,11 +162,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -183,11 +189,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -220,11 +225,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(preparedStatement);
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -255,11 +259,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(preparedStatement);
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -289,11 +292,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -331,11 +333,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -354,7 +355,8 @@ public class MYSQLUserDAO implements UserDAO {
                 query.append(WHERE);
                 for (String filterName : filters.keySet()) {
                     if (!filterName.equals(UserListFilterName.SORT)) {
-                        buildQueryByFilter(query, filterName);
+                        query.append(filterValues.get(filterName));
+                        query.append(AND);
                     }
                 }
                 query.setLength(query.length() - 4);
@@ -390,27 +392,11 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
-    }
-
-    private void buildQueryByFilter(StringBuilder query, String filterName) {
-        switch (filterName) {
-            case UserListFilterName.LAST_NAME:
-                query.append(LAST_NAME_FILTER);
-                break;
-            case UserListFilterName.EMAIL:
-                query.append(EMAIL_FILTER);
-                break;
-            case UserListFilterName.NICKNAME:
-                query.append(NICKNAME_FILTER);
-                break;
-        }
-        query.append(AND);
     }
 
     @Override
@@ -437,11 +423,10 @@ public class MYSQLUserDAO implements UserDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 }

@@ -17,11 +17,13 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
 
 public class GoToUserPage implements Command {
+    private static final Logger logger = Logger.getLogger(GoToUserPage.class.getName());
 
     private static final String USER_ID = "user_id";
     private static final String USER = "user";

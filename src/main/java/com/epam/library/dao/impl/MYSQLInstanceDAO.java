@@ -7,12 +7,14 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Instance;
 import com.epam.library.entity.instance.BookInstance;
 import com.epam.library.entity.instance.InstanceInfo;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MYSQLInstanceDAO implements InstanceDAO {
+    private static final Logger logger = Logger.getLogger(MYSQLInstanceDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String COUNT_ISSUANCE = "count_issuance";
@@ -76,11 +78,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -111,11 +112,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -146,11 +146,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -174,11 +173,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(preparedStatement);
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -213,11 +211,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -247,11 +244,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -299,11 +295,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 }

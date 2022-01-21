@@ -16,12 +16,13 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
 
 public class BookCatalogPage implements Command {
-
+    private static final Logger logger = Logger.getLogger(BookCatalogPage.class.getName());
     private static final String BOOK_CATALOG = "book_catalog";
     private static final String CHECKED = "checked";
     private static final String ON = "on";
@@ -167,6 +168,7 @@ public class BookCatalogPage implements Command {
 
             RequestProvider.forward(PagePath.BOOK_CATALOG_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error getting data for book catalog", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

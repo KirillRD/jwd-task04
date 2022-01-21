@@ -8,11 +8,13 @@ import com.epam.library.controller.command.constant.RedirectCommand;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Set;
 
 public class GoToErrorPage implements Command {
+    private static final Logger logger = Logger.getLogger(GoToErrorPage.class.getName());
 
     private static final String ERROR = "error";
     private static final Set<String> errorMessages = Set.of(

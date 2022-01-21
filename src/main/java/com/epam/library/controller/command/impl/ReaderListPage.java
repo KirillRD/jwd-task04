@@ -13,11 +13,13 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
 
 public class ReaderListPage implements Command {
+    private static final Logger logger = Logger.getLogger(ReaderListPage.class.getName());
 
     private static final String READER_LIST = "reader_list";
     private static final String CHECKED = "checked";

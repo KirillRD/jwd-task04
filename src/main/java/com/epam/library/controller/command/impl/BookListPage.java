@@ -16,11 +16,13 @@ import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
 
 public class BookListPage implements Command {
+    private static final Logger logger = Logger.getLogger(BookListPage.class.getName());
 
     private static final String BOOK_CATALOG = "book_catalog";
     private static final String CHECKED = "checked";

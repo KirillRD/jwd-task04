@@ -17,11 +17,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
 
 public class InstancePage implements Command {
+    private static final Logger logger = Logger.getLogger(InstancePage.class.getName());
 
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_INFO = "book_info";

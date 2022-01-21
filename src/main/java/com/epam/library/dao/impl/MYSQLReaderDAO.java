@@ -10,6 +10,7 @@ import com.epam.library.entity.reservation.ReservationStatus;
 import com.epam.library.entity.user.Gender;
 import com.epam.library.entity.user.Reader;
 import com.epam.library.entity.user.ReaderListFilterName;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MYSQLReaderDAO implements ReaderDAO {
+    private static final Logger logger = Logger.getLogger(MYSQLReaderDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String ID = "id";
@@ -56,6 +58,14 @@ public class MYSQLReaderDAO implements ReaderDAO {
     private static final String RESERVATION_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY'))>0";
     private static final String RESERVATION_DATE_FROM_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY') AND date>=?)>0";
     private static final String RESERVATION_DATE_TO_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY') AND date<=?)>0";
+
+    private static final Map<String, String> filterValues = Map.of(
+            ReaderListFilterName.LAST_NAME, LAST_NAME_FILTER,
+            ReaderListFilterName.DEBTORS, DEBTORS_FILTER,
+            ReaderListFilterName.RESERVATION, RESERVATION_FILTER,
+            ReaderListFilterName.RESERVATION_DATE_FROM, RESERVATION_DATE_FROM_FILTER,
+            ReaderListFilterName.RESERVATION_DATE_TO, RESERVATION_DATE_TO_FILTER
+    );
 
     private static final String READER_BY_ID = "users.id=?";
 
@@ -170,11 +180,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -192,7 +201,8 @@ public class MYSQLReaderDAO implements ReaderDAO {
             if (filters.size() > 1) {
                 for (String filterName : filters.keySet()) {
                     if (!filterName.equals(ReaderListFilterName.SORT)) {
-                        buildQueryByFilter(query, filterName);
+                        query.append(AND);
+                        query.append(filterValues.get(filterName));
                     }
                 }
             }
@@ -245,32 +255,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
-        }
-    }
-
-    private void buildQueryByFilter(StringBuilder query, String filterName) {
-        query.append(AND);
-        switch (filterName) {
-            case ReaderListFilterName.LAST_NAME:
-                query.append(LAST_NAME_FILTER);
-                break;
-            case ReaderListFilterName.DEBTORS:
-                query.append(DEBTORS_FILTER);
-                break;
-            case ReaderListFilterName.RESERVATION:
-                query.append(RESERVATION_FILTER);
-                break;
-            case ReaderListFilterName.RESERVATION_DATE_FROM:
-                query.append(RESERVATION_DATE_FROM_FILTER);
-                break;
-            case ReaderListFilterName.RESERVATION_DATE_TO:
-                query.append(RESERVATION_DATE_TO_FILTER);
-                break;
         }
     }
 
@@ -321,11 +309,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -376,11 +363,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -429,11 +415,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 
@@ -482,11 +467,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement);
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
             } catch (ConnectionPoolException e) {
-
+                logger.error("Error closing resources", e);
             }
-            connectionPool.releaseConnection(connection);
         }
     }
 }
