@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface Command {
-    String LOG_MESSAGE_FORMAT = "%1$s| %2$s |%3$-4s| %4$s%5$s";
+    String LOG_MESSAGE_FORMAT = "%1$s| %2$s |%3$s|%4$s%5$s";
     String QUESTION = "?";
 
     void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;

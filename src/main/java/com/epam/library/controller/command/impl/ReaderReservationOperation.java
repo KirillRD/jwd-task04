@@ -53,6 +53,8 @@ public class ReaderReservationOperation implements Command {
                 } else {
                     logger.info(logMessageBuilder("Book reservation operation completed", request));
                 }
+            } else {
+                logger.info(logMessageBuilder("Book reservation operation was failed. Incorrect data format", request));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);

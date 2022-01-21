@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.Book;
 import com.epam.library.entity.book.Author;
 import com.epam.library.entity.book.Genre;
@@ -36,6 +37,8 @@ public class GoToAddEditBookPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Going to page for adding/updating book started", request));
+
         PublisherService publisherService = ServiceProvider.getInstance().getPublisherService();
         TypeService typeService = ServiceProvider.getInstance().getTypeService();
         AuthorService authorService = ServiceProvider.getInstance().getAuthorService();
@@ -66,10 +69,14 @@ public class GoToAddEditBookPage implements Command {
             request.setAttribute(AUTHORS, authors);
             request.setAttribute(GENRES, genres);
 
-            if (request.getParameter(BOOK_ID) != null   ) {
+
+            if (request.getParameter(BOOK_ID) == null) {
+                logger.info(logMessageBuilder("Going to page for adding book was completed", request));
+            } else if (Util.isID(request.getParameter(BOOK_ID))) {
                 int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
                 Book book = bookService.getBook(bookID);
                 if (book == null) {
+                    logger.error(logMessageBuilder("Invalid page attributes. Going to page for updating book is failed", request));
                     RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
@@ -77,10 +84,16 @@ public class GoToAddEditBookPage implements Command {
                 if (session.getAttribute(BOOK) == null) {
                     session.setAttribute(BOOK, book);
                 }
+                logger.info(logMessageBuilder("Going to page for updating book was completed", request));
+            } else {
+                logger.error(logMessageBuilder("Invalid page attributes. Going to page for adding/updating book is failed", request));
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
             }
 
             RequestProvider.forward(PagePath.ADD_EDIT_BOOK_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error in data while going to page for adding/updating book", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

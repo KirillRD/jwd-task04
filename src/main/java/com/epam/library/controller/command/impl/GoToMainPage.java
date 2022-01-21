@@ -15,6 +15,7 @@ public class GoToMainPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Go to main page", request));
         RequestProvider.forward(PagePath.MAIN_PAGE, request, response);
     }
 }

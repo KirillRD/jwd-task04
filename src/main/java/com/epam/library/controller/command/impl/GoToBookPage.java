@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.book.catalog.BookReview;
 import com.epam.library.service.BookCatalogService;
@@ -27,19 +28,24 @@ public class GoToBookPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Going to book page started", request));
         BookCatalog bookInfo;
         List<BookReview> bookReviews;
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         BookReviewService bookReviewService = ServiceProvider.getInstance().getBookReviewService();
 
         try {
-            if (request.getParameter(BOOK_ID) == null) {
+            int bookID;
+            if (Util.isID(request.getParameter(BOOK_ID))) {
+                bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+            } else {
+                logger.error(logMessageBuilder("Invalid page attributes. Going to book page is failed", request));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
-            int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
+                logger.error(logMessageBuilder("Invalid page attributes. Going to book page is failed", request));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -47,9 +53,11 @@ public class GoToBookPage implements Command {
 
             bookReviews = bookReviewService.getBookReviews(bookID);
             request.setAttribute(BOOK_REVIEW, bookReviews);
+            logger.info(logMessageBuilder("Going to book page was completed", request));
 
             RequestProvider.forward(PagePath.BOOK_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error in data while going to book page", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.Gender;
@@ -89,15 +90,19 @@ public class EditUser implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserService userService = ServiceProvider.getInstance().getUserService();
+        logger.info(logMessageBuilder("User update started", request));
 
         int userID;
         SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
-        if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+        if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
             userID = Integer.parseInt(request.getParameter(USER_ID));
-        } else if (request.getParameter(READER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+            logger.info(logMessageBuilder("Admin/Librarian update user", request));
+        } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
             userID = Integer.parseInt(request.getParameter(READER_ID));
+            logger.info(logMessageBuilder("Admin/Librarian update user", request));
         } else {
             userID = sessionUser.getId();
+            logger.info(logMessageBuilder("User update himself", request));
         }
 
         UserInfo user = new UserInfo();
@@ -145,6 +150,7 @@ public class EditUser implements Command {
             user.setImageURL(userService.getUser(userID).getImageURL());//TODO
 
             userService.updateUser(user, currentPassword, newPassword, repeatedNewPassword);
+            logger.info(logMessageBuilder("User update completed", request));
 
             if (userID == sessionUser.getId()) {
                 SessionUserProvider.removeSessionUser(request);
@@ -152,9 +158,9 @@ public class EditUser implements Command {
                 SessionUserProvider.setSessionUser(request, sessionUser);
             }
 
-            if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+            if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
                 RequestProvider.redirect(String.format(RedirectCommand.USER_PAGE, REDIRECT_USER_ID + userID), request, response);
-            } else if (request.getParameter(READER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+            } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
                 RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, userID), request, response);
             } else {
                 RequestProvider.redirect(String.format(RedirectCommand.USER_PAGE, ""), request, response);
@@ -163,6 +169,7 @@ public class EditUser implements Command {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
+            logger.info(logMessageBuilder("The entered data is invalid. User was not updated", request));
 
             if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
                 RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_USER_ID + userID), request, response);
@@ -172,6 +179,7 @@ public class EditUser implements Command {
                 RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error updating user data", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

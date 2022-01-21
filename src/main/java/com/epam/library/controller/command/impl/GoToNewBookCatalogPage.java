@@ -24,14 +24,18 @@ public class GoToNewBookCatalogPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Going to catalog page of new books started", request));
+
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         List<BookCatalog> bookCatalog;
         try {
             bookCatalog = bookCatalogService.getNewBookCatalogList();
             request.setAttribute(BOOK_CATALOG, bookCatalog);
+            logger.info(logMessageBuilder("Going to catalog page of new books was completed", request));
 
             RequestProvider.forward(PagePath.NEW_POPULAR_BOOK_CATALOG_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error in data while going to catalog page of new books", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

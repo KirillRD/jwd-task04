@@ -24,6 +24,7 @@ public class GoToErrorPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Go to error page", request));
         String error = request.getParameter(ERROR);
         if (error != null && errorMessages.contains(error)) {
             RequestProvider.forward(PagePath.ERROR_PAGE, request, response);

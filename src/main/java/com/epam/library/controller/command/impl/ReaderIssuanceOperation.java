@@ -53,6 +53,8 @@ public class ReaderIssuanceOperation implements Command {
                 } else {
                     logger.info(logMessageBuilder("Book issuance operation completed", request));
                 }
+            } else {
+                logger.info(logMessageBuilder("Book issuance operation was failed. Incorrect data format", request));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);

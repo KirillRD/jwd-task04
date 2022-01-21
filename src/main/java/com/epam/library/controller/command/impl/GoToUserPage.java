@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
 import com.epam.library.entity.issuance.ReaderIssuance;
@@ -36,17 +37,21 @@ public class GoToUserPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Going to user page started", request));
         UserService userService = ServiceProvider.getInstance().getUserService();
         try {
             int userID;
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
-            if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+            if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+                logger.info(logMessageBuilder("Admin/Librarian goes to user page", request));
                 userID = Integer.parseInt(request.getParameter(USER_ID));
             } else {
+                logger.info(logMessageBuilder("User goes to self page", request));
                 userID = sessionUser.getId();
             }
             User user = userService.getUser(userID);
             if (user == null) {
+                logger.error(logMessageBuilder("Invalid page attributes. Going to user page is failed", request));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -66,8 +71,10 @@ public class GoToUserPage implements Command {
                 request.setAttribute(READER_RESERVATION_HISTORY, readerReservationHistoryList);
             }
 
+            logger.info(logMessageBuilder("Going to user page was completed", request));
             RequestProvider.forward(PagePath.USER_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error in data while going to user page", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

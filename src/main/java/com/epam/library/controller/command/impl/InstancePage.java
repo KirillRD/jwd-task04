@@ -67,7 +67,7 @@ public class InstancePage implements Command {
             bookInstances = instanceService.getBookInstances(bookID);
             request.setAttribute(BOOK_INSTANCES, bookInstances);
 
-            if (request.getParameter(INSTANCE_ID) != null) {
+            if (Util.isID(request.getParameter(INSTANCE_ID))) {
                 int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
                 BookInstance instance = instanceService.getBookInstance(instanceID);
                 if (instance == null) {

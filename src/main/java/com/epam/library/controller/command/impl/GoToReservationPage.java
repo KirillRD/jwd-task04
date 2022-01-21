@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.reservation.ReaderReservation;
@@ -34,6 +35,8 @@ public class GoToReservationPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Going to reservation page started", request));
+
         BookCatalog bookInfo;
         List<ReaderReservation> readerReservationList;
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();
@@ -42,19 +45,24 @@ public class GoToReservationPage implements Command {
         try {
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
             int userID = sessionUser.getId();
-            if (request.getParameter(BOOK_ID) == null) {
+            int bookID;
+            if (Util.isID(request.getParameter(BOOK_ID))) {
+                bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+            } else {
+                logger.error(logMessageBuilder("Invalid page attributes. Going to reservation page is failed", request));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
-            int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
 
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
+                logger.error(logMessageBuilder("Invalid page attributes. Going to reservation page is failed", request));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             HttpSession session = request.getSession();
             if (bookInfo.getHallFreeInstanceCatalogList().isEmpty() && session.getAttribute(RESERVATION_MESSAGE) == null) {
+                logger.error(logMessageBuilder("Going to reservation page is failed. There are no free instances for this book", request));
                 session.setAttribute(MESSAGE, ERROR_RESERVATION);
                 RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
                 return;
@@ -64,8 +72,10 @@ public class GoToReservationPage implements Command {
             readerReservationList = readerService.getReaderReservationList(userID);
             request.setAttribute(READER_RESERVATION, readerReservationList);
 
+            logger.info(logMessageBuilder("Going to reservation page was completed", request));
             RequestProvider.forward(PagePath.RESERVATION_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error in data while going to reservation page", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
