@@ -71,7 +71,7 @@ public class AddReservation implements Command {
 
             if (reservationService.addReservation(reservation)) {
                 session.setAttribute(RESERVATION_MESSAGE, RESERVATION_SUCCESS);
-                logger.info(logMessageBuilder("Adding reservation was completed", request));
+                logger.info(logMessageBuilder("Adding reservation completed", request));
             } else {
                 session.setAttribute(RESERVATION_MESSAGE, RESERVATION_UNSUCCESSFUL);
                 logger.info(logMessageBuilder("Reservation was not added. There are no free instances", request));

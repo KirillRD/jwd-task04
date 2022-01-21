@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.instance.BookInstance;
 import com.epam.library.entity.instance.Hall;
@@ -40,18 +41,24 @@ public class InstancePage implements Command {
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
         HallService hallService = ServiceProvider.getInstance().getHallService();
+        logger.info(logMessageBuilder("Instance list build started", request));
+
+        int bookID;
+        if (Util.isID(request.getParameter(BOOK_ID))) {
+            bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        } else {
+            logger.error(logMessageBuilder("Invalid page attributes. Book was not found", request));
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            return;
+        }
 
         try {
             halls = hallService.getHallList();
             request.setAttribute(HALLS, halls);
-            if (request.getParameter(BOOK_ID) == null) {
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
-                return;
-            }
-            int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
 
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
+                logger.error(logMessageBuilder("Invalid page attributes. Book was not found", request));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -64,6 +71,7 @@ public class InstancePage implements Command {
                 int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
                 BookInstance instance = instanceService.getBookInstance(instanceID);
                 if (instance == null) {
+                    logger.error(logMessageBuilder("Invalid page attributes. Instance was not found", request));
                     RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
@@ -72,9 +80,11 @@ public class InstancePage implements Command {
                     session.setAttribute(INSTANCE, instance);
                 }
             }
+            logger.info(logMessageBuilder("Instance list building completed", request));
 
             RequestProvider.forward(PagePath.INSTANCE_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error getting data for instance list", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

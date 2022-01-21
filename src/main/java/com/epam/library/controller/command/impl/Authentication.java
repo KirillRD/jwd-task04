@@ -31,22 +31,26 @@ public class Authentication implements Command {
         String email = request.getParameter(EMAIL);
         String password = request.getParameter(PASSWORD);
         UserService userService = ServiceProvider.getInstance().getUserService();
+        logger.info(logMessageBuilder("Authentication started", request));
 
         try {
             Integer userID = userService.authentication(email, password);
             if (userID != null) {
                 SessionUser sessionUser = userService.getSessionUser(userID);
                 SessionUserProvider.setSessionUser(request, sessionUser);
+                logger.info(logMessageBuilder("Authentication completed", request));
             } else {
                 HttpSession session = request.getSession();
                 session.setAttribute(EMAIL, email);
                 session.setAttribute(MESSAGE, ERROR_AUTHENTICATION);
+                logger.info(logMessageBuilder("Authentication was not completed. Email or password entered incorrectly", request));
                 RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
                 return;
             }
 
             RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error data authentication", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -5,12 +5,10 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.session.SessionUserProvider;
-import com.epam.library.entity.user.Gender;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.UserService;
-import com.epam.library.service.exception.BookException;
 import com.epam.library.service.exception.ServiceException;
 import com.epam.library.service.exception.UserException;
 import com.epam.library.service.exception.user.*;
@@ -71,6 +69,7 @@ public class Registration implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info(logMessageBuilder("Registration started", request));
         UserInfo user = new UserInfo();
         user.setNickname(request.getParameter(NICKNAME).trim());
         String password = request.getParameter(PASSWORD).trim();
@@ -88,6 +87,7 @@ public class Registration implements Command {
         UserService userService = ServiceProvider.getInstance().getUserService();
         try {
             int userID = userService.registration(user, password, repeatedPassword);
+            logger.info(logMessageBuilder("Registration completed", request));
             SessionUser sessionUser = userService.getSessionUser(userID);
             SessionUserProvider.setSessionUser(request, sessionUser);
 
@@ -96,8 +96,10 @@ public class Registration implements Command {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
+            logger.info(logMessageBuilder("The entered data is invalid. Registration was not completed", request));
             RequestProvider.redirect(RedirectCommand.REGISTRATION_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error data registration", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

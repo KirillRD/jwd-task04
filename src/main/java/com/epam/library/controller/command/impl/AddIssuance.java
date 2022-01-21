@@ -57,9 +57,9 @@ public class AddIssuance implements Command {
                     HttpSession session = request.getSession();
                     session.setAttribute(MESSAGE, ERROR_ADD_ISSUANCE);
                     session.setAttribute(MESSAGE_NOT_ISSUED_BOOKS, message);
-                    logger.info(logMessageBuilder("Not all books issue was completed. Selected instances are already taken", request));
+                    logger.info(logMessageBuilder("Not all books issue completed. Selected instances are already taken", request));
                 } else {
-                    logger.info(logMessageBuilder("Books issue was completed", request));
+                    logger.info(logMessageBuilder("Books issue completed", request));
                 }
             }
 

@@ -74,10 +74,10 @@ public class AddEditBook implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         BookInfo book = new BookInfo();
         if (request.getParameter(BOOK_ID) == null) {
-            logger.info(logMessageBuilder("Book add starting", request));
+            logger.info(logMessageBuilder("Book add started", request));
         } else if (Util.isID(request.getParameter(BOOK_ID))) {
             book.setId(Integer.parseInt(request.getParameter(BOOK_ID)));
-            logger.info(logMessageBuilder("Book update starting", request));
+            logger.info(logMessageBuilder("Book update started", request));
         } else {
             logger.error(logMessageBuilder("Invalid page attributes. Book was not updated", request));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);

@@ -53,9 +53,9 @@ public class AddEditInstance implements Command {
         InstanceInfo instance = new InstanceInfo();
         if (Util.isID(request.getParameter(INSTANCE_ID))) {
             instance.setId(Integer.parseInt(request.getParameter(INSTANCE_ID)));
-            logger.info(logMessageBuilder("Instance update starting", request));
+            logger.info(logMessageBuilder("Instance update started", request));
         } else {
-            logger.info(logMessageBuilder("Instance add starting", request));
+            logger.info(logMessageBuilder("Instance add started", request));
         }
 
         int bookID;

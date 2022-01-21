@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -25,16 +26,29 @@ public class DeleteReservation implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
-        int reservationID = Integer.parseInt(request.getParameter(RESERVATION_ID));
+        logger.info(logMessageBuilder("Reservation delete started", request));
+
+        int reservationID;
+        if (Util.isID(request.getParameter(RESERVATION_ID))) {
+            reservationID = Integer.parseInt(request.getParameter(RESERVATION_ID));
+        } else {
+            logger.error(logMessageBuilder("Invalid page attributes. Reservation was not deleted", request));
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            return;
+        }
 
         try {
             if (!reservationService.deleteReservation(reservationID)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_DELETE_RESERVATION);
+                logger.info(logMessageBuilder("Reservation was not deleted. Book is no longer in the RESERVED status", request));
+            } else {
+                logger.info(logMessageBuilder("Reservation deleting completed", request));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.USER_PAGE, ""), request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error deleting reservation data", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

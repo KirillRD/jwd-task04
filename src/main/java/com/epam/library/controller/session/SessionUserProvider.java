@@ -11,7 +11,6 @@ public final class SessionUserProvider {
 
     private static final Logger logger = Logger.getLogger(SessionUserProvider.class.getName());
     private static final String PUT_SESSION_USER = "Put session user in session";
-    private static final String RETURN_SESSION_USER = "Return session user from session";
     private static final String REMOVE_SESSION_USER = "Remove session user from session";
 
     private static final String SESSION_USER = "session_user";
@@ -24,7 +23,6 @@ public final class SessionUserProvider {
 
     public static SessionUser getSessionUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
-//        logger.info(RETURN_SESSION_USER);
         return (SessionUser) session.getAttribute(SESSION_USER);
     }
 

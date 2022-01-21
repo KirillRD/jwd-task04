@@ -43,6 +43,7 @@ public class BookCatalogPage implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map<String, Object> filters = new LinkedHashMap<>();
+        logger.info(logMessageBuilder("Book catalog build started", request));
 
         Set<String> filterNames = new HashSet<>(BookCatalogFilterName.bookCatalogFilterName);
         Map<String, String[]> requestParameterMap = request.getParameterMap();
@@ -165,6 +166,7 @@ public class BookCatalogPage implements Command {
 
             bookCatalog = bookCatalogService.getBookCatalogByFilter(filters);
             request.setAttribute(BOOK_CATALOG, bookCatalog);
+            logger.info(logMessageBuilder("Book catalog building completed", request));
 
             RequestProvider.forward(PagePath.BOOK_CATALOG_PAGE, request, response);
         } catch (ServiceException e) {

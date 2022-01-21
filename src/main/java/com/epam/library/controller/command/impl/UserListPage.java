@@ -27,6 +27,7 @@ public class UserListPage implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserService userService = ServiceProvider.getInstance().getUserService();
+        logger.info(logMessageBuilder("User list build started", request));
 
         Map<String, Object> filters = new LinkedHashMap<>();
 
@@ -63,9 +64,11 @@ public class UserListPage implements Command {
         try {
             users = userService.getUsersByFilter(filters);
             request.setAttribute(USER_LIST, users);
+            logger.info(logMessageBuilder("User list building completed", request));
 
             RequestProvider.forward(PagePath.USER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error getting data for user list", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

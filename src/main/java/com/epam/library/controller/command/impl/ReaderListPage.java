@@ -29,6 +29,7 @@ public class ReaderListPage implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();
+        logger.info(logMessageBuilder("Reader list build started", request));
 
         Map<String, Object> filters = new LinkedHashMap<>();
 
@@ -71,9 +72,11 @@ public class ReaderListPage implements Command {
         try {
             readers = readerService.getReadersByFilter(filters);
             request.setAttribute(READER_LIST, readers);
+            logger.info(logMessageBuilder("Reader list building completed", request));
 
             RequestProvider.forward(PagePath.READER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error getting data for reader list", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -31,7 +32,16 @@ public class ReaderReservationOperation implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
+        logger.info(logMessageBuilder("Book reservation operation started", request));
 
+        int readerID;
+        if (Util.isID(request.getParameter(READER_ID))) {
+            readerID = Integer.parseInt(request.getParameter(READER_ID));
+        } else {
+            logger.error(logMessageBuilder("Invalid page attributes. Book reservation operation was failed", request));
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            return;
+        }
         try {
             if (request.getParameter(RESERVATION_OPERATION) != null && request.getParameterValues(CHECK_RESERVATION_OPERATION) != null) {
                 List<String> reservations = Arrays.asList(request.getParameterValues(CHECK_RESERVATION_OPERATION));
@@ -39,12 +49,15 @@ public class ReaderReservationOperation implements Command {
                 if (!reservationService.updateReservation(reservations, status)) {
                     HttpSession session = request.getSession();
                     session.setAttribute(RESERVATION_MESSAGE, ERROR_ISSUANCE_RESERVATION);
+                    logger.info(logMessageBuilder("Book reservation operation was failed. Incorrect data format", request));
+                } else {
+                    logger.info(logMessageBuilder("Book reservation operation completed", request));
                 }
             }
-            int readerID = Integer.parseInt(request.getParameter(READER_ID));
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error of the book reservation operation data", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

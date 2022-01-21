@@ -44,6 +44,7 @@ public class BookListPage implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map<String, Object> filters = new LinkedHashMap<>();
+        logger.info(logMessageBuilder("Book list build started", request));
 
         Set<String> filterNames = new HashSet<>(BookCatalogFilterName.bookCatalogFilterName);
         Map<String, String[]> requestParameterMap = request.getParameterMap();
@@ -166,9 +167,11 @@ public class BookListPage implements Command {
 
             bookCatalog = bookCatalogService.getBookCatalogByFilter(filters);
             request.setAttribute(BOOK_CATALOG, bookCatalog);
+            logger.info(logMessageBuilder("Book list building completed", request));
 
             RequestProvider.forward(PagePath.BOOK_LIST_PAGE, request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error getting data for book list", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

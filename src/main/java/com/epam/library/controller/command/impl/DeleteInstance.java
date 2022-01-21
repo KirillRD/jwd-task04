@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.service.InstanceService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -26,17 +27,30 @@ public class DeleteInstance implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
-        int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        logger.info(logMessageBuilder("Instance delete started", request));
+
+        int bookID;
+        if (Util.isID(request.getParameter(BOOK_ID))) {
+            bookID = Integer.parseInt(request.getParameter(BOOK_ID));
+        } else {
+            logger.error(logMessageBuilder("Invalid page attributes. Instance was not deleted", request));
+            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            return;
+        }
 
         try {
             int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
             if (!instanceService.deleteInstance(instanceID)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_DELETE_INSTANCE);
+                logger.info(logMessageBuilder("Instance was not deleted. Instance has an issue history or a reservation history", request));
+            } else {
+                logger.info(logMessageBuilder("Instance delete completed", request));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
         } catch (ServiceException e) {
+            logger.error(logMessageBuilder("Error deleting instance data", request), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

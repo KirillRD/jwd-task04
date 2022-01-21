@@ -45,7 +45,7 @@ public class AddReview implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ReviewService reviewService = ServiceProvider.getInstance().getReviewService();
-        logger.info(logMessageBuilder("Review add starting", request));
+        logger.info(logMessageBuilder("Review add started", request));
 
         SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
         int userID = sessionUser.getId();
