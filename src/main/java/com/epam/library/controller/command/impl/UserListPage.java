@@ -5,8 +5,9 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.entity.User;
-import com.epam.library.entity.user.UserListFilterName;
+import com.epam.library.constant.UserListFilterName;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.UserService;
 import com.epam.library.service.exception.ServiceException;
@@ -20,14 +21,17 @@ import java.util.*;
 
 public class UserListPage implements Command {
     private static final Logger logger = Logger.getLogger(UserListPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String USER_LIST = "user_list";
     private static final String SELECTED = "selected";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("User list build started"));
+
         UserService userService = ServiceProvider.getInstance().getUserService();
-        logger.info(logMessageBuilder("User list build started", request));
 
         Map<String, Object> filters = new LinkedHashMap<>();
 
@@ -64,11 +68,11 @@ public class UserListPage implements Command {
         try {
             users = userService.getUsersByFilter(filters);
             request.setAttribute(USER_LIST, users);
-            logger.info(logMessageBuilder("User list building completed", request));
+            logger.info(logMesBuilder.build("User list building completed"));
 
             RequestProvider.forward(PagePath.USER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error getting data for user list", request), e);
+            logger.error(logMesBuilder.build("Error getting data for user list"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -1,4 +1,4 @@
-package com.epam.library.entity.book.catalog;
+package com.epam.library.constant;
 
 import java.util.Set;
 

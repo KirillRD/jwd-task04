@@ -1,5 +1,7 @@
 package com.epam.library.entity.reservation;
 
+import com.epam.library.constant.ReservationStatus;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;

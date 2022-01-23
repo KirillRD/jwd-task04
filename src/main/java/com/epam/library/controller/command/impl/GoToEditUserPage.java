@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
@@ -23,6 +24,7 @@ import java.io.IOException;
 
 public class GoToEditUserPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToEditUserPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String USER_ID = "user_id";
     private static final String READER_ID = "reader_id";
@@ -30,25 +32,27 @@ public class GoToEditUserPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Going to page for updating user started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Going to page for updating user started"));
+
         UserService userService = ServiceProvider.getInstance().getUserService();
 
         try {
             int userID;
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
             if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                logger.info(logMessageBuilder("Admin/Librarian goes to page for updating user", request));
+                logger.info(logMesBuilder.build("Admin/Librarian goes to page for updating user"));
                 userID = Integer.parseInt(request.getParameter(USER_ID));
             } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                logger.info(logMessageBuilder("Admin/Librarian goes to page for updating user", request));
+                logger.info(logMesBuilder.build("Admin/Librarian goes to page for updating user"));
                 userID = Integer.parseInt(request.getParameter(READER_ID));
             } else {
-                logger.info(logMessageBuilder("User goes to page for updating self", request));
+                logger.info(logMesBuilder.build("User goes to page for updating self"));
                 userID = sessionUser.getId();
             }
             User user = userService.getUser(userID);
             if (user == null) {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to page for updating user is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to page for updating user is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -57,10 +61,10 @@ public class GoToEditUserPage implements Command {
                 session.setAttribute(USER, user);
             }
 
-            logger.info(logMessageBuilder("Going to page for updating user was completed", request));
+            logger.info(logMesBuilder.build("Going to page for updating user was completed"));
             RequestProvider.forward(PagePath.EDIT_USER_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error in data while going to page for updating user", request), e);
+            logger.error(logMesBuilder.build("Error in data while going to page for updating user"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

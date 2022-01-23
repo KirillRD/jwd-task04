@@ -6,10 +6,10 @@ import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
-import com.epam.library.entity.reservation.ReservationStatus;
+import com.epam.library.constant.ReservationStatus;
 import com.epam.library.entity.user.Gender;
 import com.epam.library.entity.user.Reader;
-import com.epam.library.entity.user.ReaderListFilterName;
+import com.epam.library.constant.ReaderListFilterName;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -212,18 +212,13 @@ public class MYSQLReaderDAO implements ReaderDAO {
             preparedStatement = connection.prepareStatement(query.toString());
             List<String> filterNames = new ArrayList<>(filters.keySet());
             for (int i = 0, n = 1; i < filterNames.size() - 1; i++, n++) {
-                switch (filterNames.get(i)) {
-                    case ReaderListFilterName.LAST_NAME:
-                        preparedStatement.setString(n, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
-                        break;
-                    case ReaderListFilterName.RESERVATION_DATE_FROM:
-                    case ReaderListFilterName.RESERVATION_DATE_TO:
-                        preparedStatement.setDate(n, Date.valueOf(filters.get(filterNames.get(i)).toString()));
-                        break;
-                    case ReaderListFilterName.DEBTORS:
-                    case ReaderListFilterName.RESERVATION:
-                        n--;
-                        break;
+                String filterName = filterNames.get(i);
+                if (filterName.equals(ReaderListFilterName.LAST_NAME)) {
+                    preparedStatement.setString(n, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
+                } else if (filterName.equals(ReaderListFilterName.RESERVATION_DATE_FROM) || filterName.equals(ReaderListFilterName.RESERVATION_DATE_TO)) {
+                    preparedStatement.setDate(n, Date.valueOf(filters.get(filterNames.get(i)).toString()));
+                } else if (filterName.equals(ReaderListFilterName.DEBTORS) || filterName.equals(ReaderListFilterName.RESERVATION)) {
+                    n--;
                 }
             }
 

@@ -5,7 +5,7 @@ import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Issuance;
-import com.epam.library.entity.issuance.IssuanceOperation;
+import com.epam.library.constant.IssuanceOperation;
 import org.apache.log4j.Logger;
 
 import java.sql.Connection;

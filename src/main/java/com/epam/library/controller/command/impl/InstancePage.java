@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.instance.BookInstance;
@@ -25,6 +26,7 @@ import java.util.List;
 
 public class InstancePage implements Command {
     private static final Logger logger = Logger.getLogger(InstancePage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_INFO = "book_info";
@@ -35,19 +37,21 @@ public class InstancePage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+
         BookCatalog bookInfo;
         List<BookInstance> bookInstances;
         List<Hall> halls;
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
         HallService hallService = ServiceProvider.getInstance().getHallService();
-        logger.info(logMessageBuilder("Instance list build started", request));
+        logger.info(logMesBuilder.build("Instance list build started"));
 
         int bookID;
         if (Util.isID(request.getParameter(BOOK_ID))) {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
-            logger.error(logMessageBuilder("Invalid page attributes. Book was not found", request));
+            logger.error(logMesBuilder.build("Invalid page attributes. Book was not found"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -58,7 +62,7 @@ public class InstancePage implements Command {
 
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
-                logger.error(logMessageBuilder("Invalid page attributes. Book was not found", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Book was not found"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -71,7 +75,7 @@ public class InstancePage implements Command {
                 int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
                 BookInstance instance = instanceService.getBookInstance(instanceID);
                 if (instance == null) {
-                    logger.error(logMessageBuilder("Invalid page attributes. Instance was not found", request));
+                    logger.error(logMesBuilder.build("Invalid page attributes. Instance was not found"));
                     RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
@@ -80,11 +84,11 @@ public class InstancePage implements Command {
                     session.setAttribute(INSTANCE, instance);
                 }
             }
-            logger.info(logMessageBuilder("Instance list building completed", request));
+            logger.info(logMesBuilder.build("Instance list building completed"));
 
             RequestProvider.forward(PagePath.INSTANCE_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error getting data for instance list", request), e);
+            logger.error(logMesBuilder.build("Error getting data for instance list"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -27,8 +27,6 @@ public class URLFilter implements Filter {
             session.setAttribute(LOCALE, EN);
         }
 
-        String context = request.getContextPath();
-
         String method = request.getMethod();
         String command = request.getParameter(COMMAND);
         if (GET.equals(method) && !CommandName.CHANGE_LOCALE.getCommandName().equals(command)) {

@@ -5,7 +5,7 @@ import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.catalog.BookCatalog;
-import com.epam.library.entity.book.catalog.BookCatalogFilterName;
+import com.epam.library.constant.BookCatalogFilterName;
 import com.epam.library.entity.book.catalog.HallInstanceCatalog;
 import com.epam.library.entity.book.catalog.InstanceCatalog;
 import org.apache.log4j.Logger;
@@ -500,6 +500,7 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                             preparedStatement.setInt(n, Integer.parseInt((String) values.get(j)));
                         }
                         break;
+
                     case BookCatalogFilterName.FREE_INSTANCES:
                         n--;
                         break;

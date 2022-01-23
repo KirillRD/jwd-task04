@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.service.BookCatalogService;
 import com.epam.library.service.ServiceProvider;
@@ -19,23 +20,25 @@ import java.util.List;
 
 public class GoToPopularBookCatalogPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToPopularBookCatalogPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_CATALOG = "book_catalog";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Going to page of catalog popular books started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Going to page of catalog popular books started"));
 
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         List<BookCatalog> bookCatalog;
         try {
             bookCatalog = bookCatalogService.getPopularBookCatalogList();
             request.setAttribute(BOOK_CATALOG, bookCatalog);
-            logger.info(logMessageBuilder("Going to catalog page of popular books was completed", request));
+            logger.info(logMesBuilder.build("Going to catalog page of popular books was completed"));
 
             RequestProvider.forward(PagePath.NEW_POPULAR_BOOK_CATALOG_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error in data while going to catalog page of popular books", request), e);
+            logger.error(logMesBuilder.build("Error in data while going to catalog page of popular books"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

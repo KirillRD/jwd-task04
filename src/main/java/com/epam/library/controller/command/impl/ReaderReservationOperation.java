@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.ServiceProvider;
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class ReaderReservationOperation implements Command {
     private static final Logger logger = Logger.getLogger(ReaderReservationOperation.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
 
@@ -31,14 +33,16 @@ public class ReaderReservationOperation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Book reservation operation started"));
+
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
-        logger.info(logMessageBuilder("Book reservation operation started", request));
 
         int readerID;
         if (Util.isID(request.getParameter(READER_ID))) {
             readerID = Integer.parseInt(request.getParameter(READER_ID));
         } else {
-            logger.error(logMessageBuilder("Invalid page attributes. Book reservation operation was failed", request));
+            logger.error(logMesBuilder.build("Invalid page attributes. Book reservation operation was failed"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -49,17 +53,17 @@ public class ReaderReservationOperation implements Command {
                 if (!reservationService.updateReservation(reservations, status)) {
                     HttpSession session = request.getSession();
                     session.setAttribute(RESERVATION_MESSAGE, ERROR_ISSUANCE_RESERVATION);
-                    logger.info(logMessageBuilder("Book reservation operation was failed. Incorrect data format", request));
+                    logger.info(logMesBuilder.build("Book reservation operation was failed. Incorrect data format"));
                 } else {
-                    logger.info(logMessageBuilder("Book reservation operation completed", request));
+                    logger.info(logMesBuilder.build("Book reservation operation completed"));
                 }
             } else {
-                logger.info(logMessageBuilder("Book reservation operation was failed. Incorrect data format", request));
+                logger.info(logMesBuilder.build("Book reservation operation was failed. Incorrect data format"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error of the book reservation operation data", request), e);
+            logger.error(logMesBuilder.build("Error of the book reservation operation data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

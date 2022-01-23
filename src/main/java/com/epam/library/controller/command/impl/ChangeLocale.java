@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 public class ChangeLocale implements Command {
     private static final Logger logger = Logger.getLogger(ChangeLocale.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String LOCALE = "locale";
     private static final String URL = "url";
@@ -22,15 +24,17 @@ public class ChangeLocale implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Locale change started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Locale change started"));
+
         if (request.getParameter(LOCALE) != null && (EN.equals(request.getParameter(LOCALE)) || RU.equals(request.getParameter(LOCALE)))) {
             HttpSession session = request.getSession();
             session.setAttribute(LOCALE, request.getParameter(LOCALE));
             String url = (String) session.getAttribute(URL);
-            logger.info(logMessageBuilder("Locale change completed", request));
+            logger.info(logMesBuilder.build("Locale change completed"));
             response.sendRedirect(url);
         } else {
-            logger.error(logMessageBuilder("Invalid page attributes. Locale was not changed", request));
+            logger.error(logMesBuilder.build("Invalid page attributes. Locale was not changed"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
         }
     }

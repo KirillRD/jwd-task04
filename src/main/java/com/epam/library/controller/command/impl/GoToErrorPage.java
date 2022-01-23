@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 public class GoToErrorPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToErrorPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String ERROR = "error";
     private static final Set<String> errorMessages = Set.of(
@@ -24,7 +26,9 @@ public class GoToErrorPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Go to error page", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Go to error page"));
+
         String error = request.getParameter(ERROR);
         if (error != null && errorMessages.contains(error)) {
             RequestProvider.forward(PagePath.ERROR_PAGE, request, response);

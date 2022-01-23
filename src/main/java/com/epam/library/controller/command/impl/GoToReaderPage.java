@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
@@ -22,6 +23,7 @@ import java.util.List;
 
 public class GoToReaderPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToReaderPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
     private static final String READER = "reader";
@@ -32,7 +34,9 @@ public class GoToReaderPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Going to reader page started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Going to reader page started"));
+
         Reader reader;
         List<ReaderIssuance> readerIssuanceList;
         List<ReaderIssuance> readerIssuanceHistoryList;
@@ -45,13 +49,13 @@ public class GoToReaderPage implements Command {
             if (Util.isID(request.getParameter(READER_ID))) {
                 readerID = Integer.parseInt(request.getParameter(READER_ID));
             } else {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to reader page is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to reader page is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             reader = readerService.getReader(readerID);
             if (reader == null) {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to reader page is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to reader page is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -68,11 +72,11 @@ public class GoToReaderPage implements Command {
 
             readerReservationHistoryList = readerService.getReaderReservationHistoryList(readerID);
             request.setAttribute(READER_RESERVATION_HISTORY, readerReservationHistoryList);
-            logger.info(logMessageBuilder("Going to reader page was completed", request));
+            logger.info(logMesBuilder.build("Going to reader page was completed"));
 
             RequestProvider.forward(PagePath.READER_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error in data while going to reader page", request), e);
+            logger.error(logMesBuilder.build("Error in data while going to reader page"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

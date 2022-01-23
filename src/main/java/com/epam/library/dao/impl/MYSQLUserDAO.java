@@ -1,5 +1,6 @@
 package com.epam.library.dao.impl;
 
+import com.epam.library.constant.UserListFilterName;
 import com.epam.library.dao.UserDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;

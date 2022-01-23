@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.book.catalog.BookReview;
@@ -22,13 +23,17 @@ import java.util.List;
 
 public class GoToBookPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToBookPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
+
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_INFO = "book_info";
     private static final String BOOK_REVIEW = "book_review";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Going to book page started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Going to book page started"));
+
         BookCatalog bookInfo;
         List<BookReview> bookReviews;
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
@@ -39,13 +44,13 @@ public class GoToBookPage implements Command {
             if (Util.isID(request.getParameter(BOOK_ID))) {
                 bookID = Integer.parseInt(request.getParameter(BOOK_ID));
             } else {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to book page is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to book page is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to book page is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to book page is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -53,11 +58,11 @@ public class GoToBookPage implements Command {
 
             bookReviews = bookReviewService.getBookReviews(bookID);
             request.setAttribute(BOOK_REVIEW, bookReviews);
-            logger.info(logMessageBuilder("Going to book page was completed", request));
+            logger.info(logMesBuilder.build("Going to book page was completed"));
 
             RequestProvider.forward(PagePath.BOOK_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error in data while going to book page", request), e);
+            logger.error(logMesBuilder.build("Error in data while going to book page"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -4,16 +4,15 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
-import com.epam.library.entity.user.Gender;
 import com.epam.library.entity.user.Role;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.UserService;
-import com.epam.library.service.exception.BookException;
 import com.epam.library.service.exception.UserException;
 import com.epam.library.service.exception.user.*;
 import com.epam.library.service.exception.ServiceException;
@@ -35,6 +34,7 @@ import java.util.Map;
 
 public class EditUser implements Command {
     private static final Logger logger = Logger.getLogger(EditUser.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String USER_ID = "user_id";
     private static final String READER_ID = "reader_id";
@@ -61,6 +61,7 @@ public class EditUser implements Command {
     private static final String REGEX_WHITESPACE_CHARACTERS = "\\s+";
 
     private static final String REDIRECT_USER_ID = "&user_id=";
+    private static final String REDIRECT_READER_ID = "&reader_id=";
     private static final String MESSAGES = "messages";
     private static final Map<String, String> exceptionMessages = Map.ofEntries(
             Map.entry(ExistEmailException.class.getSimpleName(), "error-exist-email"),
@@ -89,20 +90,22 @@ public class EditUser implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("User update started"));
+
         UserService userService = ServiceProvider.getInstance().getUserService();
-        logger.info(logMessageBuilder("User update started", request));
 
         int userID;
         SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
         if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
             userID = Integer.parseInt(request.getParameter(USER_ID));
-            logger.info(logMessageBuilder("Admin/Librarian update user", request));
+            logger.info(logMesBuilder.build("Admin/Librarian update user"));
         } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
             userID = Integer.parseInt(request.getParameter(READER_ID));
-            logger.info(logMessageBuilder("Admin/Librarian update user", request));
+            logger.info(logMesBuilder.build("Admin/Librarian update user"));
         } else {
             userID = sessionUser.getId();
-            logger.info(logMessageBuilder("User update himself", request));
+            logger.info(logMesBuilder.build("User update himself"));
         }
 
         UserInfo user = new UserInfo();
@@ -150,7 +153,7 @@ public class EditUser implements Command {
             user.setImageURL(userService.getUser(userID).getImageURL());//TODO
 
             userService.updateUser(user, currentPassword, newPassword, repeatedNewPassword);
-            logger.info(logMessageBuilder("User update completed", request));
+            logger.info(logMesBuilder.build("User update completed"));
 
             if (userID == sessionUser.getId()) {
                 SessionUserProvider.removeSessionUser(request);
@@ -169,17 +172,17 @@ public class EditUser implements Command {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
-            logger.info(logMessageBuilder("The entered data is invalid. User was not updated", request));
+            logger.info(logMesBuilder.build("The entered data is invalid. User was not updated"));
 
-            if (request.getParameter(USER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+            if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
                 RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_USER_ID + userID), request, response);
-            } else if (request.getParameter(READER_ID) != null && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, userID), request, response);
+            } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
+                RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_READER_ID + userID), request, response);
             } else {
                 RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error updating user data", request), e);
+            logger.error(logMesBuilder.build("Error updating user data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

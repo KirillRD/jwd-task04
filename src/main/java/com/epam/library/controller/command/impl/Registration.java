@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 public class Registration implements Command {
     private static final Logger logger = Logger.getLogger(Registration.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String NICKNAME = "nickname";
     private static final String PASSWORD = "password";
@@ -69,7 +71,9 @@ public class Registration implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Registration started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Registration started"));
+
         UserInfo user = new UserInfo();
         user.setNickname(request.getParameter(NICKNAME).trim());
         String password = request.getParameter(PASSWORD).trim();
@@ -87,7 +91,7 @@ public class Registration implements Command {
         UserService userService = ServiceProvider.getInstance().getUserService();
         try {
             int userID = userService.registration(user, password, repeatedPassword);
-            logger.info(logMessageBuilder("Registration completed", request));
+            logger.info(logMesBuilder.build("Registration completed"));
             SessionUser sessionUser = userService.getSessionUser(userID);
             SessionUserProvider.setSessionUser(request, sessionUser);
 
@@ -96,10 +100,10 @@ public class Registration implements Command {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
-            logger.info(logMessageBuilder("The entered data is invalid. Registration was not completed", request));
+            logger.info(logMesBuilder.build("The entered data is invalid. Registration was not completed"));
             RequestProvider.redirect(RedirectCommand.REGISTRATION_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error data registration", request), e);
+            logger.error(logMesBuilder.build("Error data registration"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

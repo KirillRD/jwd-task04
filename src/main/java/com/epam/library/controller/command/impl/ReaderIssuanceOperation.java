@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.service.IssuanceService;
 import com.epam.library.service.ServiceProvider;
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class ReaderIssuanceOperation implements Command {
     private static final Logger logger = Logger.getLogger(ReaderIssuanceOperation.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
 
@@ -31,14 +33,16 @@ public class ReaderIssuanceOperation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Book issuance operation started"));
+
         IssuanceService issuanceService = ServiceProvider.getInstance().getIssuanceService();
-        logger.info(logMessageBuilder("Book issuance operation started", request));
 
         int readerID;
         if (Util.isID(request.getParameter(READER_ID))) {
             readerID = Integer.parseInt(request.getParameter(READER_ID));
         } else {
-            logger.error(logMessageBuilder("Invalid page attributes. Book issuance operation was failed", request));
+            logger.error(logMesBuilder.build("Invalid page attributes. Book issuance operation was failed"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -49,17 +53,17 @@ public class ReaderIssuanceOperation implements Command {
                 if (!issuanceService.updateConditionIssuance(issues, operation)) {
                     HttpSession session = request.getSession();
                     session.setAttribute(ISSUANCE_MESSAGE, ERROR_ISSUANCE_RESERVATION);
-                    logger.info(logMessageBuilder("Book issuance operation was failed. Incorrect data format", request));
+                    logger.info(logMesBuilder.build("Book issuance operation was failed. Incorrect data format"));
                 } else {
-                    logger.info(logMessageBuilder("Book issuance operation completed", request));
+                    logger.info(logMesBuilder.build("Book issuance operation completed"));
                 }
             } else {
-                logger.info(logMessageBuilder("Book issuance operation was failed. Incorrect data format", request));
+                logger.info(logMesBuilder.build("Book issuance operation was failed. Incorrect data format"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error of the book issuance operation data", request), e);
+            logger.error(logMesBuilder.build("Error of the book issuance operation data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -6,7 +6,7 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
 import com.epam.library.entity.user.Reader;
-import com.epam.library.entity.user.ReaderListFilterName;
+import com.epam.library.constant.ReaderListFilterName;
 import com.epam.library.service.ReaderService;
 import com.epam.library.service.exception.ServiceException;
 import com.epam.library.service.validation.Validator;

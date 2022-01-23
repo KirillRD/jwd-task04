@@ -5,8 +5,9 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.entity.user.Reader;
-import com.epam.library.entity.user.ReaderListFilterName;
+import com.epam.library.constant.ReaderListFilterName;
 import com.epam.library.service.ReaderService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -20,6 +21,7 @@ import java.util.*;
 
 public class ReaderListPage implements Command {
     private static final Logger logger = Logger.getLogger(ReaderListPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_LIST = "reader_list";
     private static final String CHECKED = "checked";
@@ -28,8 +30,10 @@ public class ReaderListPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Reader list build started"));
+
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();
-        logger.info(logMessageBuilder("Reader list build started", request));
 
         Map<String, Object> filters = new LinkedHashMap<>();
 
@@ -72,11 +76,11 @@ public class ReaderListPage implements Command {
         try {
             readers = readerService.getReadersByFilter(filters);
             request.setAttribute(READER_LIST, readers);
-            logger.info(logMessageBuilder("Reader list building completed", request));
+            logger.info(logMesBuilder.build("Reader list building completed"));
 
             RequestProvider.forward(PagePath.READER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error getting data for reader list", request), e);
+            logger.error(logMesBuilder.build("Error getting data for reader list"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

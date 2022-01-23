@@ -6,7 +6,7 @@ import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
 import com.epam.library.entity.reservation.ReservationInfo;
-import com.epam.library.entity.reservation.ReservationStatus;
+import com.epam.library.constant.ReservationStatus;
 import org.apache.log4j.Logger;
 
 import java.sql.*;

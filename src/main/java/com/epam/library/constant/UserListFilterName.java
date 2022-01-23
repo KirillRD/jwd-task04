@@ -1,4 +1,4 @@
-package com.epam.library.entity.user;
+package com.epam.library.constant;
 
 import java.util.Set;
 

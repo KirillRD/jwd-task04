@@ -1,4 +1,4 @@
-package com.epam.library.entity.reservation;
+package com.epam.library.constant;
 
 public enum ReservationStatus {
     RESERVED,

@@ -5,7 +5,7 @@ import com.epam.library.dao.ReservationDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
 import com.epam.library.entity.reservation.ReservationInfo;
-import com.epam.library.entity.reservation.ReservationStatus;
+import com.epam.library.constant.ReservationStatus;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.exception.ReservationException;
 import com.epam.library.service.exception.ServiceException;

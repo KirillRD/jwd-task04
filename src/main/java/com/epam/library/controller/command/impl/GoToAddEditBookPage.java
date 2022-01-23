@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.Book;
 import com.epam.library.entity.book.Author;
@@ -24,6 +25,7 @@ import java.util.List;
 
 public class GoToAddEditBookPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToAddEditBookPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String BOOK = "book";
@@ -37,7 +39,8 @@ public class GoToAddEditBookPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Going to page for adding/updating book started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Going to page for adding/updating book started"));
 
         PublisherService publisherService = ServiceProvider.getInstance().getPublisherService();
         TypeService typeService = ServiceProvider.getInstance().getTypeService();
@@ -71,12 +74,12 @@ public class GoToAddEditBookPage implements Command {
 
 
             if (request.getParameter(BOOK_ID) == null) {
-                logger.info(logMessageBuilder("Going to page for adding book was completed", request));
+                logger.info(logMesBuilder.build("Going to page for adding book was completed"));
             } else if (Util.isID(request.getParameter(BOOK_ID))) {
                 int bookID = Integer.parseInt(request.getParameter(BOOK_ID));
                 Book book = bookService.getBook(bookID);
                 if (book == null) {
-                    logger.error(logMessageBuilder("Invalid page attributes. Going to page for updating book is failed", request));
+                    logger.error(logMesBuilder.build("Invalid page attributes. Going to page for updating book is failed"));
                     RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
@@ -84,16 +87,16 @@ public class GoToAddEditBookPage implements Command {
                 if (session.getAttribute(BOOK) == null) {
                     session.setAttribute(BOOK, book);
                 }
-                logger.info(logMessageBuilder("Going to page for updating book was completed", request));
+                logger.info(logMesBuilder.build("Going to page for updating book was completed"));
             } else {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to page for adding/updating book is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to page for adding/updating book is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
 
             RequestProvider.forward(PagePath.ADD_EDIT_BOOK_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error in data while going to page for adding/updating book", request), e);
+            logger.error(logMesBuilder.build("Error in data while going to page for adding/updating book"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

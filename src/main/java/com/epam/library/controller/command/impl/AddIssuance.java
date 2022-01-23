@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.Issuance;
 import com.epam.library.service.*;
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class AddIssuance implements Command {
     private static final Logger logger = Logger.getLogger(AddIssuance.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
     private static final String INSTANCES = "instances";
@@ -30,14 +32,16 @@ public class AddIssuance implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Books issuing started"));
+
         IssuanceService issuanceService = ServiceProvider.getInstance().getIssuanceService();
-        logger.info(logMessageBuilder("Books issuing started", request));
 
         int readerID;
         if (Util.isID(request.getParameter(READER_ID))) {
             readerID = Integer.parseInt(request.getParameter(READER_ID));
         } else {
-            logger.error(logMessageBuilder("Invalid page attributes. Books were not issued", request));
+            logger.error(logMesBuilder.build("Invalid page attributes. Books were not issued"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -57,15 +61,15 @@ public class AddIssuance implements Command {
                     HttpSession session = request.getSession();
                     session.setAttribute(MESSAGE, ERROR_ADD_ISSUANCE);
                     session.setAttribute(MESSAGE_NOT_ISSUED_BOOKS, message);
-                    logger.info(logMessageBuilder("Not all books issue completed. Selected instances are already taken", request));
+                    logger.info(logMesBuilder.build("Not all books issue completed. Selected instances are already taken"));
                 } else {
-                    logger.info(logMessageBuilder("Books issue completed", request));
+                    logger.info(logMesBuilder.build("Books issue completed"));
                 }
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.BOOK_ISSUANCE_PAGE, readerID), request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Data error issuing books", request), e);
+            logger.error(logMesBuilder.build("Data error issuing books"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

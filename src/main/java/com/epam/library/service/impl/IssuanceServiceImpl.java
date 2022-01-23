@@ -4,7 +4,7 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.IssuanceDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Issuance;
-import com.epam.library.entity.issuance.IssuanceOperation;
+import com.epam.library.constant.IssuanceOperation;
 import com.epam.library.service.IssuanceService;
 import com.epam.library.service.exception.ServiceException;
 import com.epam.library.service.validation.Validator;

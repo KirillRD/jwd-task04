@@ -5,6 +5,7 @@ import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.book.catalog.BookCatalog;
@@ -25,6 +26,7 @@ import java.util.List;
 
 public class GoToReservationPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToReservationPage.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_INFO = "book_info";
     private static final String READER_RESERVATION = "reader_reservation";
@@ -35,7 +37,8 @@ public class GoToReservationPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info(logMessageBuilder("Going to reservation page started", request));
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Going to reservation page started"));
 
         BookCatalog bookInfo;
         List<ReaderReservation> readerReservationList;
@@ -49,20 +52,20 @@ public class GoToReservationPage implements Command {
             if (Util.isID(request.getParameter(BOOK_ID))) {
                 bookID = Integer.parseInt(request.getParameter(BOOK_ID));
             } else {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to reservation page is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to reservation page is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
 
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
-                logger.error(logMessageBuilder("Invalid page attributes. Going to reservation page is failed", request));
+                logger.error(logMesBuilder.build("Invalid page attributes. Going to reservation page is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             HttpSession session = request.getSession();
             if (bookInfo.getHallFreeInstanceCatalogList().isEmpty() && session.getAttribute(RESERVATION_MESSAGE) == null) {
-                logger.error(logMessageBuilder("Going to reservation page is failed. There are no free instances for this book", request));
+                logger.error(logMesBuilder.build("Going to reservation page is failed. There are no free instances for this book"));
                 session.setAttribute(MESSAGE, ERROR_RESERVATION);
                 RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
                 return;
@@ -72,10 +75,10 @@ public class GoToReservationPage implements Command {
             readerReservationList = readerService.getReaderReservationList(userID);
             request.setAttribute(READER_RESERVATION, readerReservationList);
 
-            logger.info(logMessageBuilder("Going to reservation page was completed", request));
+            logger.info(logMesBuilder.build("Going to reservation page was completed"));
             RequestProvider.forward(PagePath.RESERVATION_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error in data while going to reservation page", request), e);
+            logger.error(logMesBuilder.build("Error in data while going to reservation page"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

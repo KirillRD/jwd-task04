@@ -1,4 +1,4 @@
-package com.epam.library.entity.issuance;
+package com.epam.library.constant;
 
 public enum IssuanceOperation {
     RETURN("return"),

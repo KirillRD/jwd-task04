@@ -4,6 +4,7 @@ import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.RedirectCommand;
+import com.epam.library.controller.command.util.LogMessageBuilder;
 import com.epam.library.controller.command.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.reservation.ReservationInfo;
@@ -29,6 +30,7 @@ import java.util.Map;
 
 public class AddReservation implements Command {
     private static final Logger logger = Logger.getLogger(AddReservation.class.getName());
+    private LogMessageBuilder logMesBuilder;
 
     private static final String RESERVATION_DATE = "reservation_date";
     private static final String BOOK_ID = "book_id";
@@ -47,14 +49,16 @@ public class AddReservation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Reservation adding started"));
+
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
-        logger.info(logMessageBuilder("Reservation adding started", request));
 
         int bookID;
         if (Util.isID(request.getParameter(BOOK_ID))) {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
-            logger.error(logMessageBuilder("Invalid page attributes. Reservation was not added", request));
+            logger.error(logMesBuilder.build("Invalid page attributes. Reservation was not added"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -71,20 +75,20 @@ public class AddReservation implements Command {
 
             if (reservationService.addReservation(reservation)) {
                 session.setAttribute(RESERVATION_MESSAGE, RESERVATION_SUCCESS);
-                logger.info(logMessageBuilder("Adding reservation completed", request));
+                logger.info(logMesBuilder.build("Adding reservation completed"));
             } else {
                 session.setAttribute(RESERVATION_MESSAGE, RESERVATION_UNSUCCESSFUL);
-                logger.info(logMessageBuilder("Reservation was not added. There are no free instances", request));
+                logger.info(logMesBuilder.build("Reservation was not added. There are no free instances"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID), request, response);
         } catch (ReservationException e) {
             session.setAttribute(RESERVATION, reservation);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
-            logger.info(logMessageBuilder("The entered data is invalid. Reservation was not added", request));
+            logger.info(logMesBuilder.build("The entered data is invalid. Reservation was not added"));
             RequestProvider.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID), request, response);
         } catch (ServiceException e) {
-            logger.error(logMessageBuilder("Error adding reservation data", request), e);
+            logger.error(logMesBuilder.build("Error adding reservation data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
