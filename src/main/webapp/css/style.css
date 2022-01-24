@@ -57,8 +57,9 @@ main {
 }
 
 .label-filter {
-    padding-top: 5px;
+    padding-top: 6px;
     padding-right: 5px;
+    padding-left: 5px;
 }
 
 .book-catalog-main {

@@ -66,8 +66,8 @@
                                 </script>
                             </p>
                             <div class="w3-row">
-                                <label class="w3-left label-filter"><fmt:message key="book.filter.free-instances"/></label>
                                 <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="free_instances" ${requestScope.free_instances}>
+                                <label class="w3-left label-filter"><fmt:message key="book.filter.free-instances"/></label>
                             </div>
                         </div>
                         <div class="w3-third w3-container">

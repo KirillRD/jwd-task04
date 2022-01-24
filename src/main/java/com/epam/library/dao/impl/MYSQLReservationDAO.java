@@ -27,9 +27,13 @@ public class MYSQLReservationDAO implements ReservationDAO {
     private static final String INSERT_RESERVATION =
             "INSERT INTO reservation (id, instances_id, reader_id, date, status) VALUES (?,?,?,?,'RESERVED')";
     private static final String GET_MAX_ID_ISSUANCE = "SELECT MAX(id) FROM issuance";
+
     private static final String INSERT_ISSUANCE =
             "INSERT INTO issuance (id, instances_id, reader_id, date_issue, date_return_planned, lost) " +
-                    "SELECT ?, instances_id, reader_id, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY),0 FROM reservation WHERE id=?";
+            "SELECT ?, instances_id, reader_id, CURDATE(), DATE_ADD(CURDATE(), " +
+            "INTERVAL CASE WHEN (SELECT halls_id FROM instances WHERE id=instances_id)=1 THEN " +
+            "(SELECT CAST(param_value AS UNSIGNED) FROM config WHERE param_name = 'days_of_issue') ELSE 0 END  DAY),0 FROM reservation WHERE id=?";
+
     private static final String GET_FREE_INSTANCE =
             "SELECT instances.id " +
             "FROM instances " +

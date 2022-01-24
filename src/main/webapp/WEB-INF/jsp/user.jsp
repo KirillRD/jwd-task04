@@ -73,8 +73,8 @@
 
 
             <div class="w3-row w3-text-blue-grey">
-                <div class="w3-col w3-container" style="width: 15%"></div>
-                <div class="w3-col w3-container" style="width: 70%">
+                <div class="w3-col w3-container" style="width: 10%"></div>
+                <div class="w3-col w3-container" style="width: 80%">
                     <c:if test="${requestScope.reader_issuance.size() != 0 && requestScope.reader_issuance != null}">
                         <div class="w3-container">
                             <h3><b><fmt:message key="reader.issued-books"/></b></h3>
@@ -85,6 +85,8 @@
                                     <th><fmt:message key="instance.number"/></th>
                                     <th><fmt:message key="instance.hall"/></th>
                                     <th><fmt:message key="book.price"/></th>
+                                    <th><fmt:message key="reader.rental-price-1"/><br><fmt:message key="reader.rental-price-2"/></th>
+                                    <th><fmt:message key="reader.count-rental-price-1"/><br><fmt:message key="reader.count-rental-price-2"/></th>
                                     <th><fmt:message key="reader.issue-date"/></th>
                                     <th><fmt:message key="reader.return-planned-date-1"/><br><fmt:message key="reader.return-planned-date-2"/></th>
                                     <th><fmt:message key="reader.days-debt-1"/><br><fmt:message key="reader.days-debt-2"/></th>
@@ -99,8 +101,25 @@
                                         </td>
                                         <td>${issuance.authors}</td>
                                         <td>${issuance.instanceNumber}</td>
-                                        <td>${issuance.hallName}</td>
+                                        <td>
+                                            <c:if test="${issuance.dateIssue == issuance.dateReturnPlanned && issuance.countDaysRental == 0}">
+                                                <b>${issuance.hallName}</b>
+                                            </c:if>
+                                            <c:if test="${issuance.dateIssue != issuance.dateReturnPlanned || issuance.countDaysRental != 0}">
+                                                ${issuance.hallName}
+                                            </c:if>
+                                        </td>
                                         <td>${issuance.bookPrice}</td>
+                                        <td>
+                                            <c:if test="${issuance.rentalPrice > 0}">
+                                                ${issuance.rentalPrice}
+                                            </c:if>
+                                        </td>
+                                        <td>
+                                            <c:if test="${issuance.countDaysRental > 0}">
+                                                ${issuance.countDaysRental}
+                                            </c:if>
+                                        </td>
                                         <td>${issuance.dateIssue}</td>
                                         <td>${issuance.dateReturnPlanned}</td>
                                         <td class="w3-text-red">
@@ -205,6 +224,8 @@
                                     <th><fmt:message key="instance.number"/></th>
                                     <th><fmt:message key="instance.hall"/></th>
                                     <th><fmt:message key="book.price"/></th>
+                                    <th><fmt:message key="reader.rental-price-1"/><br><fmt:message key="reader.rental-price-2"/></th>
+                                    <th><fmt:message key="reader.count-rental-price-1"/><br><fmt:message key="reader.count-rental-price-2"/></th>
                                     <th><fmt:message key="reader.issue-date"/></th>
                                     <th><fmt:message key="reader.return-date"/></th>
                                     <th><fmt:message key="reader.days-debt-1"/><br><fmt:message key="reader.days-debt-2"/></th>
@@ -220,7 +241,21 @@
                                         <td>${issuance.authors}</td>
                                         <td>${issuance.instanceNumber}</td>
                                         <td>${issuance.hallName}</td>
-                                        <td>${issuance.bookPrice}</td>
+                                        <td>
+                                            <c:if test="${issuance.bookPrice > 0}">
+                                                ${issuance.bookPrice}
+                                            </c:if>
+                                        </td>
+                                        <td>
+                                            <c:if test="${issuance.rentalPrice > 0}">
+                                                ${issuance.rentalPrice}
+                                            </c:if>
+                                        </td>
+                                        <td>
+                                            <c:if test="${issuance.countDaysRental > 0}">
+                                                ${issuance.countDaysRental}
+                                            </c:if>
+                                        </td>
                                         <td>${issuance.dateIssue}</td>
                                         <td>${issuance.dateReturn}</td>
                                         <td class="w3-text-red">
@@ -278,7 +313,7 @@
                         </div>
                     </c:if>
                 </div>
-                <div class="w3-col w3-container" style="width: 15%"></div>
+                <div class="w3-col w3-container" style="width: 10%"></div>
             </div>
         </main>
         <jsp:include page="tempalte/footer.jsp" />

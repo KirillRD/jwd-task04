@@ -17,6 +17,8 @@ public class ReaderIssuance implements Serializable {
     private Date dateReturnPlanned;
     private int countDaysDebts;
     private boolean lost;
+    private int countDaysRental;
+    private double rentalPrice;
 
     public ReaderIssuance() {}
 
@@ -116,17 +118,33 @@ public class ReaderIssuance implements Serializable {
         this.lost = lost;
     }
 
+    public int getCountDaysRental() {
+        return countDaysRental;
+    }
+
+    public void setCountDaysRental(int countDaysRental) {
+        this.countDaysRental = countDaysRental;
+    }
+
+    public double getRentalPrice() {
+        return rentalPrice;
+    }
+
+    public void setRentalPrice(double rentalPrice) {
+        this.rentalPrice = rentalPrice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReaderIssuance that = (ReaderIssuance) o;
-        return issuanceID == that.issuanceID && bookID == that.bookID && Double.compare(that.bookPrice, bookPrice) == 0 && countDaysDebts == that.countDaysDebts && lost == that.lost && Objects.equals(bookName, that.bookName) && Objects.equals(authors, that.authors) && Objects.equals(instanceNumber, that.instanceNumber) && Objects.equals(hallName, that.hallName) && Objects.equals(dateIssue, that.dateIssue) && Objects.equals(dateReturn, that.dateReturn) && Objects.equals(dateReturnPlanned, that.dateReturnPlanned);
+        return issuanceID == that.issuanceID && bookID == that.bookID && Double.compare(that.bookPrice, bookPrice) == 0 && countDaysDebts == that.countDaysDebts && lost == that.lost && countDaysRental == that.countDaysRental && Double.compare(that.rentalPrice, rentalPrice) == 0 && Objects.equals(bookName, that.bookName) && Objects.equals(authors, that.authors) && Objects.equals(instanceNumber, that.instanceNumber) && Objects.equals(hallName, that.hallName) && Objects.equals(dateIssue, that.dateIssue) && Objects.equals(dateReturn, that.dateReturn) && Objects.equals(dateReturnPlanned, that.dateReturnPlanned);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(issuanceID, bookID, bookName, authors, instanceNumber, hallName, bookPrice, dateIssue, dateReturn, dateReturnPlanned, countDaysDebts, lost);
+        return Objects.hash(issuanceID, bookID, bookName, authors, instanceNumber, hallName, bookPrice, dateIssue, dateReturn, dateReturnPlanned, countDaysDebts, lost, countDaysRental, rentalPrice);
     }
 
     @Override
@@ -144,6 +162,8 @@ public class ReaderIssuance implements Serializable {
                 ", dateReturnPlanned=" + dateReturnPlanned +
                 ", countDaysDebts=" + countDaysDebts +
                 ", lost=" + lost +
+                ", countDaysRental=" + countDaysRental +
+                ", rentalPrice=" + rentalPrice +
                 '}';
     }
 }

@@ -23,6 +23,9 @@ public class Reader implements Serializable {
     private boolean reservationDebts;
     private int countReservation;
     private int countReservationReady;
+    private int countReadingHallBooks;
+    private int countRental;
+    private int countDaysRental;
 
     public Reader() {}
 
@@ -170,17 +173,41 @@ public class Reader implements Serializable {
         this.countReservationReady = countReservationReady;
     }
 
+    public int getCountReadingHallBooks() {
+        return countReadingHallBooks;
+    }
+
+    public void setCountReadingHallBooks(int countReadingHallBooks) {
+        this.countReadingHallBooks = countReadingHallBooks;
+    }
+
+    public int getCountRental() {
+        return countRental;
+    }
+
+    public void setCountRental(int countRental) {
+        this.countRental = countRental;
+    }
+
+    public int getCountDaysRental() {
+        return countDaysRental;
+    }
+
+    public void setCountDaysRental(int countDaysRental) {
+        this.countDaysRental = countDaysRental;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Reader reader = (Reader) o;
-        return id == reader.id && countDebts == reader.countDebts && countDaysDebts == reader.countDaysDebts && reservationDebts == reader.reservationDebts && countReservation == reader.countReservation && countReservationReady == reader.countReservationReady && Objects.equals(nickname, reader.nickname) && Objects.equals(email, reader.email) && Objects.equals(lastName, reader.lastName) && Objects.equals(firstName, reader.firstName) && Objects.equals(fatherName, reader.fatherName) && Objects.equals(birthday, reader.birthday) && gender == reader.gender && Objects.equals(passport, reader.passport) && Objects.equals(address, reader.address) && Objects.equals(phone, reader.phone) && Objects.equals(imageURL, reader.imageURL) && Objects.equals(minDateReservation, reader.minDateReservation);
+        return id == reader.id && countDebts == reader.countDebts && countDaysDebts == reader.countDaysDebts && reservationDebts == reader.reservationDebts && countReservation == reader.countReservation && countReservationReady == reader.countReservationReady && countReadingHallBooks == reader.countReadingHallBooks && countRental == reader.countRental && countDaysRental == reader.countDaysRental && Objects.equals(nickname, reader.nickname) && Objects.equals(email, reader.email) && Objects.equals(lastName, reader.lastName) && Objects.equals(firstName, reader.firstName) && Objects.equals(fatherName, reader.fatherName) && Objects.equals(birthday, reader.birthday) && gender == reader.gender && Objects.equals(passport, reader.passport) && Objects.equals(address, reader.address) && Objects.equals(phone, reader.phone) && Objects.equals(imageURL, reader.imageURL) && Objects.equals(minDateReservation, reader.minDateReservation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nickname, email, lastName, firstName, fatherName, birthday, gender, passport, address, phone, imageURL, countDebts, countDaysDebts, minDateReservation, reservationDebts, countReservation, countReservationReady);
+        return Objects.hash(id, nickname, email, lastName, firstName, fatherName, birthday, gender, passport, address, phone, imageURL, countDebts, countDaysDebts, minDateReservation, reservationDebts, countReservation, countReservationReady, countReadingHallBooks, countRental, countDaysRental);
     }
 
     @Override
@@ -204,6 +231,9 @@ public class Reader implements Serializable {
                 ", reservationDebts=" + reservationDebts +
                 ", countReservation=" + countReservation +
                 ", countReservationReady=" + countReservationReady +
+                ", countReadingHallBooks=" + countReadingHallBooks +
+                ", countRental=" + countRental +
+                ", countDaysRental=" + countDaysRental +
                 '}';
     }
 }

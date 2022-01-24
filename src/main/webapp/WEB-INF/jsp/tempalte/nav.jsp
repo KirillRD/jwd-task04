@@ -9,28 +9,33 @@
         <div class="w3-auto">
             <a class="w3-bar-item w3-button" href="controller?command=go-to-main-page"><fmt:message key="nav.main"/></a>
             <a class="w3-bar-item w3-button" href="controller?command=book-catalog-page"><fmt:message key="nav.book-catalog"/></a>
-            <a class="w3-bar-item w3-button" href="controller?command=go-to-new-book-catalog-page"><fmt:message key="nav.new"/></a>
+            <a class="w3-bar-item w3-button" href="controller?command=go-to-new-book-catalog-page"><fmt:message key="nav.novelties"/></a>
             <a class="w3-bar-item w3-button" href="controller?command=go-to-popular-book-catalog-page"><fmt:message key="nav.popular"/></a>
-            <a class="w3-bar-item w3-button" href="controller?command=go-to-rule-page"><fmt:message key="nav.rules"/></a>
-            <a class="w3-bar-item w3-button" href="controller?command=go-to-contact-page"><fmt:message key="nav.contacts"/></a>
 
             <c:if test="${sessionScope.session_user.role == 'LIBRARIAN' || sessionScope.session_user.role == 'ADMIN'}">
-                <a class="w3-bar-item w3-button" href="controller?command=book-list-page"><fmt:message key="nav.book-list"/></a>
                 <a class="w3-bar-item w3-button" href="controller?command=reader-list-page"><fmt:message key="nav.reader-list"/></a>
                 <a class="w3-bar-item w3-button" href="controller?command=user-list-page"><fmt:message key="nav.user-list"/></a>
                 <div class="w3-dropdown-hover w3-left">
-                    <button class="w3-button nav-dropdown">
+                    <button class="w3-button">
                         <fmt:message key="nav.dictionaries"/>
-                        <span class="material-icons-outlined">arrow_drop_down</span>
                     </button>
-                    <div class="w3-dropdown-content w3-bar-block w3-theme-l4">
-                        <a class="w3-bar-item w3-button w3-theme" href="controller?command=author-page"><fmt:message key="nav.dictionaries.authors"/></a>
-                        <a class="w3-bar-item w3-button w3-theme" href="controller?command=genre-page"><fmt:message key="nav.dictionaries.genres"/></a>
-                        <a class="w3-bar-item w3-button w3-theme" href="controller?command=publisher-page"><fmt:message key="nav.dictionaries.publishers"/></a>
-                        <a class="w3-bar-item w3-button w3-theme" href="controller?command=type-page"><fmt:message key="nav.dictionaries.types"/></a>
+                    <div class="w3-dropdown-content w3-bar-block w3-theme">
+                        <a class="w3-bar-item w3-button" href="controller?command=book-list-page"><fmt:message key="nav.book-list"/></a>
+                        <a class="w3-bar-item w3-button" href="controller?command=author-page"><fmt:message key="nav.dictionaries.authors"/></a>
+                        <a class="w3-bar-item w3-button" href="controller?command=genre-page"><fmt:message key="nav.dictionaries.genres"/></a>
+                        <a class="w3-bar-item w3-button" href="controller?command=publisher-page"><fmt:message key="nav.dictionaries.publishers"/></a>
+                        <a class="w3-bar-item w3-button" href="controller?command=type-page"><fmt:message key="nav.dictionaries.types"/></a>
                     </div>
                 </div>
             </c:if>
+
+            <div class="w3-dropdown-hover w3-left">
+                <button class="w3-button"><fmt:message key="nav.about"/></button>
+                <div class="w3-dropdown-content w3-bar-block w3-theme">
+                    <a class="w3-bar-item w3-button" href="controller?command=go-to-rule-page"><fmt:message key="nav.rules"/></a>
+                    <a class="w3-bar-item w3-button" href="controller?command=go-to-contact-page"><fmt:message key="nav.contacts"/></a>
+                </div>
+            </div>
 
             <div class="w3-dropdown-hover w3-right">
                 <button class="w3-button nav-dropdown">

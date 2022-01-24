@@ -42,13 +42,21 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     private static final String COMMA = ", ";
     private static final String BRACKET_LEFT = " (";
     private static final String BRACKET_RIGHT = ") ";
-    private static final String INSERT_ISSUANCE = "INSERT INTO issuance (id, instances_id, reader_id, date_issue, date_return_planned, lost) VALUES (?,?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 30 DAY),0)";
+    private static final String INSERT_ISSUANCE =
+            "INSERT INTO issuance (id, instances_id, reader_id, date_issue, date_return_planned, lost) " +
+            "VALUES (?,?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL CASE WHEN (SELECT halls_id FROM instances WHERE id=?)=1 THEN (SELECT CAST(param_value AS UNSIGNED) FROM config WHERE param_name = 'days_of_issue') ELSE 0 END DAY),0)";
     private static final String SELECT_ISSUANCE = "SELECT * FROM issuance WHERE id=?";
     private static final String UPDATE_ISSUANCE = "UPDATE issuance SET instance_id=?, reader_id=?, date_issue=?, date_return=?, date_return_planed=?, lost=? WHERE id=?";
     private static final String DELETE_ISSUANCE = "DELETE FROM issuance WHERE id=?";
 
-    private static final String UPDATE_RETURN_ISSUANCE = "UPDATE issuance SET date_return=CURDATE() WHERE id=?";
-    private static final String UPDATE_EXTEND_ISSUANCE = "UPDATE issuance SET date_return_planned=DATE_ADD(CURDATE(), INTERVAL 30 DAY) WHERE id=?";
+    private static final String UPDATE_RETURN_ISSUANCE =
+            "UPDATE issuance SET date_return=CURDATE(), " +
+            "price = CASE WHEN lost=1 THEN (SELECT price FROM books INNER JOIN instances ON books.id=instances.books_id WHERE instances.id=issuance.instances_id) ELSE 0 END, " +
+            "rental_price = CASE WHEN ((SELECT halls_id FROM instances WHERE id=issuance.instances_id) = 2 AND date_return_planned<date_return) " +
+            "THEN IFNULL(DATEDIFF(date_return,date_return_planned),0) * (SELECT CAST(param_value AS decimal(4,2)) FROM config WHERE param_name = 'rental_price') ELSE 0 END " +
+            "WHERE id=?";
+    private static final String UPDATE_EXTEND_ISSUANCE =
+            "UPDATE issuance SET date_return_planned=DATE_ADD(CURDATE(), INTERVAL 30 DAY) WHERE id=? AND (SELECT halls_id FROM instances WHERE id=issuance.instances_id)=1";
     private static final String UPDATE_LOST_ISSUANCE = "UPDATE issuance SET lost= CASE WHEN IFNULL(lost,0)=0 THEN 1 ELSE 0 END WHERE id=?";
     private static final Map<String, String> operations = Map.of(
             IssuanceOperation.RETURN.getOperation(), UPDATE_RETURN_ISSUANCE,
@@ -88,6 +96,7 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
                     preparedStatement.setInt(1, issuance.getId());
                     preparedStatement.setInt(2, issuance.getInstanceID());
                     preparedStatement.setInt(3, issuance.getReaderID());
+                    preparedStatement.setInt(4, issuance.getInstanceID());
                     preparedStatement.executeUpdate();
                 } else {
                     if (idNotIssuedBooks.toString().length() != 0) {

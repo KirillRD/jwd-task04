@@ -49,7 +49,8 @@ public class ReaderListPage implements Command {
                                 request.setAttribute(filterValue, SELECTED);
                                 filterNames.remove(filterName);
                             }
-                        } else if (filterName.equals(ReaderListFilterName.DEBTORS) || filterName.equals(ReaderListFilterName.RESERVATION)) {
+                        } else if (filterName.equals(ReaderListFilterName.DEBTORS) || filterName.equals(ReaderListFilterName.RESERVATION) ||
+                                   filterName.equals(ReaderListFilterName.READING_HALL) || filterName.equals(ReaderListFilterName.RENTAL)) {
                             if (filterValue.equals(ON)) {
                                 filters.put(filterName, filterValue);
                                 request.setAttribute(filterName, CHECKED);

@@ -39,24 +39,37 @@ public class MYSQLReaderDAO implements ReaderDAO {
     private static final String RESERVATION_DEBTS = "reservation_debts";
     private static final String COUNT_RESERVATION = "count_reservation";
     private static final String COUNT_RESERVATION_READY = "count_reservation_ready";
+    private static final String COUNT_RENTAL = "count_rental";
+    private static final String COUNT_DAYS_RENTAL = "count_days_rental";
+    private static final String COUNT_READING_HALL_BOOKS = "count_reading_hall_books";
+    private static final String RENTAL_PRICE = "rental_price";
 
     private static final String READER_FILTER_QUERY =
-                    "SELECT id, nickname, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image, " +
-                    "(SELECT COUNT(*) FROM issuance WHERE reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_debts, " +
-                    "(SELECT IFNULL(DATEDIFF(CURDATE(),MIN(date_return_planned)),0) FROM issuance WHERE reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_days_debts, " +
-                    "(SELECT MIN(date) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY')) AS min_date_reservation, " +
-                    "(SELECT CASE WHEN CURDATE()<=IFNULL(MIN(date),CURDATE()) THEN 0 ELSE 1 END FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY')) AS reservation_debts, " +
-                    "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY')) AS count_reservation, " +
-                    "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND status='READY') AS count_reservation_ready " +
-                    "FROM users WHERE roles_id=3";
+            "SELECT id, nickname, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image, " +
+            "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_debts, " +
+            "(SELECT IFNULL(DATEDIFF(CURDATE(),MIN(date_return_planned)),0) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_days_debts, " +
+            "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned=CURDATE()) AS count_reading_hall_books, " +
+            "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_rental, " +
+            "(SELECT IFNULL(DATEDIFF(CURDATE(),MIN(date_return_planned)),0) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_days_rental, " +
+            "(SELECT MIN(date) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY')) AS min_date_reservation, " +
+            "(SELECT CASE WHEN CURDATE()<=IFNULL(MIN(date),CURDATE()) THEN 0 ELSE 1 END FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY')) AS reservation_debts, " +
+            "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY')) AS count_reservation, " +
+            "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND status='READY') AS count_reservation_ready " +
+            " FROM users WHERE roles_id=3";
 
     private static final String AND = " AND ";
     private static final String ORDER_BY = " ORDER BY ";
     private static final String LAST_NAME_FILTER = "users.last_name LIKE ?";
     private static final String PERCENT = "%";
-    private static final String DEBTORS_FILTER = "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE())>0";
-    private static final String RENTERS_FILTER = "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE())>0";
-    private static final String READING_ROOM_FILTER = "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned=CURDATE())>0";
+    private static final String DEBTORS_FILTER =
+            "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id " +
+            "AND date_return IS NULL AND date_return_planned<CURDATE())>0";
+    private static final String READING_HALL_FILTER =
+            "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id " +
+                    "AND date_return IS NULL AND date_return_planned=CURDATE())>0";
+    private static final String RENTAL_FILTER =
+            "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id " +
+            "AND date_return IS NULL AND date_return_planned<CURDATE())>0";
     private static final String RESERVATION_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY'))>0";
     private static final String RESERVATION_DATE_FROM_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY') AND date>=?)>0";
     private static final String RESERVATION_DATE_TO_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY') AND date<=?)>0";
@@ -64,6 +77,8 @@ public class MYSQLReaderDAO implements ReaderDAO {
     private static final Map<String, String> filterValues = Map.of(
             ReaderListFilterName.LAST_NAME, LAST_NAME_FILTER,
             ReaderListFilterName.DEBTORS, DEBTORS_FILTER,
+            ReaderListFilterName.READING_HALL, READING_HALL_FILTER,
+            ReaderListFilterName.RENTAL, RENTAL_FILTER,
             ReaderListFilterName.RESERVATION, RESERVATION_FILTER,
             ReaderListFilterName.RESERVATION_DATE_FROM, RESERVATION_DATE_FROM_FILTER,
             ReaderListFilterName.RESERVATION_DATE_TO, RESERVATION_DATE_TO_FILTER
@@ -73,22 +88,22 @@ public class MYSQLReaderDAO implements ReaderDAO {
 
     private static final String READER_ISSUANCE =
             "SELECT issuance.id AS issuance_id, books.id AS book_id, books.name AS book_name, instances.number AS instance_number, halls.short_name, books.price, date_issue, date_return, date_return_planned, lost, " +
-            "CASE WHEN date_return IS NULL THEN " +
-                "CASE WHEN IFNULL(DATEDIFF(CURDATE(),date_return_planned),0)<0 THEN 0 ELSE IFNULL(DATEDIFF(CURDATE(),date_return_planned),0) END " +
-                "ELSE IFNULL(DATEDIFF(date_return,date_return_planned),0) END AS count_days_debts " +
-            "FROM issuance LEFT JOIN instances LEFT JOIN books ON instances.books_id = books.id " +
-            "LEFT JOIN halls ON instances.halls_id = halls.id " +
-            "ON issuance.instances_id = instances.id " +
-            "WHERE reader_id=? AND date_return IS NULL ORDER BY issuance.date_issue DESC, books.name";
+            " CASE WHEN halls_id=1 THEN CASE WHEN IFNULL(DATEDIFF(CURDATE(),date_return_planned),0)<0 THEN 0 ELSE IFNULL(DATEDIFF(CURDATE(),date_return_planned),0) END ELSE 0 END AS count_days_debts, " +
+            " CASE WHEN date_return_planned<CURDATE() AND halls_id=2 THEN IFNULL(DATEDIFF(CURDATE(),date_return_planned),0) ELSE 0 END AS count_days_rental, " +
+            " CASE WHEN date_return_planned<CURDATE() AND halls_id=2 THEN IFNULL(DATEDIFF(CURDATE(),date_return_planned),0)*(SELECT CAST(param_value AS decimal(4,2)) FROM config WHERE param_name = 'rental_price') ELSE 0 END AS rental_price " +
+            " FROM issuance LEFT JOIN instances LEFT JOIN books ON instances.books_id = books.id  " +
+            " LEFT JOIN halls ON instances.halls_id = halls.id " +
+            " ON issuance.instances_id = instances.id " +
+            " WHERE reader_id=? AND date_return IS NULL ORDER BY issuance.date_issue DESC, books.name";
+
     private static final String READER_ISSUANCE_HISTORY =
-            "SELECT issuance.id AS issuance_id, books.id AS book_id, books.name AS book_name, instances.number AS instance_number, halls.short_name, books.price, date_issue, date_return, date_return_planned, lost, " +
-            "CASE WHEN date_return IS NULL THEN " +
-                "CASE WHEN IFNULL(DATEDIFF(CURDATE(),date_return_planned),0)<0 THEN 0 ELSE IFNULL(DATEDIFF(CURDATE(),date_return_planned),0) END " +
-                "ELSE IFNULL(DATEDIFF(date_return,date_return_planned),0) END AS count_days_debts " +
-            "FROM issuance LEFT JOIN instances LEFT JOIN books ON instances.books_id = books.id " +
-            "LEFT JOIN halls ON instances.halls_id = halls.id " +
-            "ON issuance.instances_id = instances.id " +
-            "WHERE reader_id=? AND date_return IS NOT NULL ORDER BY issuance.date_issue DESC, books.name";
+            "SELECT issuance.id AS issuance_id, books.id AS book_id, books.name AS book_name, instances.number AS instance_number, halls.short_name, issuance.price, rental_price, date_issue, date_return, date_return_planned, lost, " +
+            " CASE WHEN halls_id=1 THEN IFNULL(DATEDIFF(date_return,date_return_planned),0) ELSE 0 END AS count_days_debts, " +
+            " CASE WHEN halls_id=2 THEN IFNULL(DATEDIFF(date_return,date_return_planned),0) ELSE 0 END AS count_days_rental " +
+            " FROM issuance LEFT JOIN instances LEFT JOIN books ON instances.books_id = books.id " +
+            " LEFT JOIN halls ON instances.halls_id = halls.id ON issuance.instances_id = instances.id " +
+            " WHERE reader_id=? AND date_return IS NOT NULL ORDER BY issuance.date_issue DESC, books.name";
+
     private static final String ISSUANCE_ID = "issuance_id";
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_NAME = "book_name";
@@ -135,6 +150,8 @@ public class MYSQLReaderDAO implements ReaderDAO {
             ReaderListFilterName.LAST_NAME_DESCENDING, "last_name DESC",
             ReaderListFilterName.DAYS_DEBT_ASCENDING, "IF(count_days_debts>0,count_days_debts,999) ASC, last_name ASC",
             ReaderListFilterName.DAYS_DEBT_DESCENDING, "count_days_debts DESC, last_name ASC",
+            ReaderListFilterName.DAYS_RENTAL_ASCENDING, "IF(count_days_rental>0,count_days_rental,999) ASC, last_name ASC",
+            ReaderListFilterName.DAYS_RENTAL_DESCENDING, "count_days_rental DESC, last_name ASC",
             ReaderListFilterName.RESERVATION_DATE_ASCENDING, "IF(min_date_reservation IS NOT NULL,min_date_reservation,'9999-09-09')  ASC, last_name ASC",
             ReaderListFilterName.RESERVATION_DATE_DESCENDING, "min_date_reservation DESC, last_name ASC"
     );
@@ -176,6 +193,9 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 reader.setReservationDebts(resultSet.getBoolean(RESERVATION_DEBTS));
                 reader.setCountReservation(resultSet.getInt(COUNT_RESERVATION));
                 reader.setCountReservationReady(resultSet.getInt(COUNT_RESERVATION_READY));
+                reader.setCountReadingHallBooks(resultSet.getInt(COUNT_READING_HALL_BOOKS));
+                reader.setCountRental(resultSet.getInt(COUNT_RENTAL));
+                reader.setCountDaysRental(resultSet.getInt(COUNT_DAYS_RENTAL));
             }
             return reader;
         } catch (SQLException | ConnectionPoolException e) {
@@ -245,6 +265,9 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 reader.setReservationDebts(resultSet.getBoolean(RESERVATION_DEBTS));
                 reader.setCountReservation(resultSet.getInt(COUNT_RESERVATION));
                 reader.setCountReservationReady(resultSet.getInt(COUNT_RESERVATION_READY));
+                reader.setCountReadingHallBooks(resultSet.getInt(COUNT_READING_HALL_BOOKS));
+                reader.setCountRental(resultSet.getInt(COUNT_RENTAL));
+                reader.setCountDaysRental(resultSet.getInt(COUNT_DAYS_RENTAL));
                 readers.add(reader);
             }
             return readers;
@@ -285,6 +308,8 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readerIssuance.setDateReturnPlanned(resultSet.getDate(DATE_RETURN_PLANNED));
                 readerIssuance.setLost(resultSet.getBoolean(LOST));
                 readerIssuance.setCountDaysDebts(resultSet.getInt(COUNT_DAYS_DEBTS));
+                readerIssuance.setCountDaysRental(resultSet.getInt(COUNT_DAYS_RENTAL));
+                readerIssuance.setRentalPrice(resultSet.getDouble(RENTAL_PRICE));
 
                 preparedStatement = connection.prepareStatement(BOOK_AUTHORS);
                 preparedStatement.setInt(1, readerIssuance.getBookID());
@@ -339,6 +364,8 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 readerIssuance.setDateReturnPlanned(resultSet.getDate(DATE_RETURN_PLANNED));
                 readerIssuance.setLost(resultSet.getBoolean(LOST));
                 readerIssuance.setCountDaysDebts(resultSet.getInt(COUNT_DAYS_DEBTS));
+                readerIssuance.setCountDaysRental(resultSet.getInt(COUNT_DAYS_RENTAL));
+                readerIssuance.setRentalPrice(resultSet.getDouble(RENTAL_PRICE));
 
                 preparedStatement = connection.prepareStatement(BOOK_AUTHORS);
                 preparedStatement.setInt(1, readerIssuance.getBookID());

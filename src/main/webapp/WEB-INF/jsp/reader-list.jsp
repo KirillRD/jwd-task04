@@ -25,8 +25,14 @@
                                 <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${requestScope.last_name}">
                             </p>
                             <div class="w3-row">
-                                <label class="w3-left label-filter"><fmt:message key="user.filter.debtors"/></label>
-                                <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="debtors" ${requestScope.debtors}>
+                                <div class="w3-half">
+                                    <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="reading_hall" ${requestScope.reading_hall}>
+                                    <label class="w3-left label-filter"><fmt:message key="user.filter.reading-hall"/></label>
+                                </div>
+                                <div class="w3-half">
+                                    <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="rental" ${requestScope.rental}>
+                                    <label class="w3-left label-filter"><fmt:message key="user.filter.rental"/></label>
+                                </div>
                             </div>
                         </div>
                         <div class="w3-third w3-container">
@@ -41,8 +47,14 @@
                                 </div>
                             </div>
                             <div class="w3-row">
-                                <label class="w3-left label-filter"><fmt:message key="user.filter.reservation"/></label>
-                                <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="reservation" ${requestScope.reservation}>
+                                <div class="w3-half">
+                                    <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="debtors" ${requestScope.debtors}>
+                                    <label class="w3-left label-filter"><fmt:message key="user.filter.debtors"/></label>
+                                </div>
+                                <div class="w3-half">
+                                    <input class="input-padding w3-input w3-round w3-left w3-check" type="checkbox" name="reservation" ${requestScope.reservation}>
+                                    <label class="w3-left label-filter"><fmt:message key="user.filter.reservation"/></label>
+                                </div>
                             </div>
                         </div>
                         <div class="w3-third w3-container">
@@ -53,6 +65,8 @@
                                     <option value="last_name_descending" ${requestScope.last_name_descending}><fmt:message key="user.filter.sort.last-name-descending"/></option>
                                     <option value="days_debt_ascending" ${requestScope.days_debt_ascending}><fmt:message key="user.filter.sort.days-debt-ascending"/></option>
                                     <option value="days_debt_descending" ${requestScope.days_debt_descending}><fmt:message key="user.filter.sort.days-debt-descending"/></option>
+                                    <option value="days_rental_ascending" ${requestScope.days_rental_ascending}><fmt:message key="user.filter.sort.days-rental-ascending"/></option>
+                                    <option value="days_rental_descending" ${requestScope.days_rental_descending}><fmt:message key="user.filter.sort.days-rental-descending"/></option>
                                     <option value="reservation_date_ascending" ${requestScope.reservation_date_ascending}><fmt:message key="user.filter.sort.reserv-date-ascending"/></option>
                                     <option value="reservation_date_descending" ${requestScope.reservation_date_descending}><fmt:message key="user.filter.sort.reserv-date-descending"/></option>
                                 </select>
@@ -69,14 +83,17 @@
             </div>
 
             <div class="w3-row w3-padding-top-24">
-                <div class="w3-col w3-container" style="width: 15%;"></div>
-                <div class="w3-col w3-container" style="width: 70%;">
+                <div class="w3-col w3-container" style="width: 10%;"></div>
+                <div class="w3-col w3-container" style="width: 80%;">
                     <table class="w3-table w3-striped w3-border w3-hoverable">
                         <tr>
                             <th><fmt:message key="user.name"/></th>
                             <th><fmt:message key="user.address"/></th>
                             <th><fmt:message key="user.phone"/></th>
                             <th><fmt:message key="user.birthday"/>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                            <th><fmt:message key="reader-list.reading-hall-1"/><br><fmt:message key="reader-list.reading-hall-2"/></th>
+                            <th><fmt:message key="reader-list.rental"/></th>
+                            <th><fmt:message key="reader-list.rental-days-1"/><br><fmt:message key="reader-list.rental-days-2"/></th>
                             <th><fmt:message key="user.debts"/></th>
                             <th><fmt:message key="reader-list.days"/><br><fmt:message key="reader-list.debt"/></th>
                             <th><fmt:message key="reader-list.reserv-date"/></th>
@@ -92,6 +109,21 @@
                                 <td>${reader.address}</td>
                                 <td>${reader.phone}</td>
                                 <td>${reader.birthday}</td>
+                                <td>
+                                    <c:if test="${reader.countReadingHallBooks > 0}">
+                                        ${reader.countReadingHallBooks}
+                                    </c:if>
+                                </td>
+                                <td>
+                                    <c:if test="${reader.countRental > 0}">
+                                        ${reader.countRental}
+                                    </c:if>
+                                </td>
+                                <td>
+                                    <c:if test="${reader.countDaysRental > 0}">
+                                        ${reader.countDaysRental}
+                                    </c:if>
+                                </td>
                                 <td class="w3-text-red">
                                     <c:if test="${reader.countDebts > 0}">
                                         ${reader.countDebts}
@@ -118,7 +150,7 @@
                         </c:forEach>
                     </table>
                 </div>
-                <div class="w3-col w3-container" style="width: 15%;"></div>
+                <div class="w3-col w3-container" style="width: 10%;"></div>
             </div>
         </main>
         <jsp:include page="tempalte/footer.jsp" />
