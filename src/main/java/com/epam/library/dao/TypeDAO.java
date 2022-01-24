@@ -6,9 +6,10 @@ import com.epam.library.entity.book.Type;
 import java.util.List;
 
 public interface TypeDAO {
+    boolean checkType(Type type) throws DAOException;
     void addType(Type type) throws DAOException;
     Type getType(int typeID) throws DAOException;
     void updateType(Type type) throws DAOException;
-    void deleteType(Type type) throws DAOException;
+    boolean deleteType(int typeID) throws DAOException;
     List<Type> getTypesList() throws DAOException;
 }

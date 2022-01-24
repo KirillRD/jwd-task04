@@ -25,7 +25,6 @@ import java.util.Map;
 
 public class AddEditInstance implements Command {
     private static final Logger logger = Logger.getLogger(AddEditInstance.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String INSTANCE_ID = "instance_id";
@@ -51,7 +50,7 @@ public class AddEditInstance implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
 
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
         InstanceInfo instance = new InstanceInfo();

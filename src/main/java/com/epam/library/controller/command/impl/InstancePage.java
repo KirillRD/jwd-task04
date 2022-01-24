@@ -26,7 +26,6 @@ import java.util.List;
 
 public class InstancePage implements Command {
     private static final Logger logger = Logger.getLogger(InstancePage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_INFO = "book_info";
@@ -37,7 +36,8 @@ public class InstancePage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        logger.info(logMesBuilder.build("Instance list build started"));
 
         BookCatalog bookInfo;
         List<BookInstance> bookInstances;
@@ -45,7 +45,6 @@ public class InstancePage implements Command {
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
         HallService hallService = ServiceProvider.getInstance().getHallService();
-        logger.info(logMesBuilder.build("Instance list build started"));
 
         int bookID;
         if (Util.isID(request.getParameter(BOOK_ID))) {

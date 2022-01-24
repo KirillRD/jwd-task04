@@ -33,7 +33,21 @@ public enum CommandName {
     ADD_REVIEW("add-review"),
     GO_TO_NEW_BOOK_CATALOG_PAGE("go-to-new-book-catalog-page"),
     GO_TO_POPULAR_BOOK_CATALOG_PAGE("go-to-popular-book-catalog-page"),
-    GO_TO_ERROR_PAGE("go-to-error-page");
+    GO_TO_ERROR_PAGE("go-to-error-page"),
+    AUTHOR_PAGE("author-page"),
+    GENRE_PAGE("genre-page"),
+    PUBLISHER_PAGE("publisher-page"),
+    TYPE_PAGE("type-page"),
+    ADD_EDIT_AUTHOR("add-edit-author"),
+    ADD_EDIT_GENRE("add-edit-genre"),
+    ADD_EDIT_PUBLISHER("add-edit-publisher"),
+    ADD_EDIT_TYPE("add-edit-type"),
+    DELETE_AUTHOR("delete-author"),
+    DELETE_GENRE("delete-genre"),
+    DELETE_PUBLISHER("delete-publisher"),
+    DELETE_TYPE("delete-type"),
+    GO_TO_RULE_PAGE("go-to-rule-page"),
+    GO_TO_CONTACT_PAGE("go-to-contact-page");
 
     private final String commandName;
 

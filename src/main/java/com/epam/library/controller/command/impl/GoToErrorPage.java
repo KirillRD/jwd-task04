@@ -16,7 +16,6 @@ import java.util.Set;
 
 public class GoToErrorPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToErrorPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String ERROR = "error";
     private static final Set<String> errorMessages = Set.of(
@@ -26,7 +25,7 @@ public class GoToErrorPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Go to error page"));
 
         String error = request.getParameter(ERROR);

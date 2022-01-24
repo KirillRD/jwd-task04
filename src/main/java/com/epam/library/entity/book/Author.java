@@ -8,6 +8,7 @@ public class Author implements Serializable {
     private String lastName;
     private String firstName;
     private String fatherName;
+    private boolean authorIsUsed;
 
     public Author() {}
 
@@ -43,17 +44,25 @@ public class Author implements Serializable {
         this.fatherName = fatherName;
     }
 
+    public boolean isAuthorIsUsed() {
+        return authorIsUsed;
+    }
+
+    public void setAuthorIsUsed(boolean authorIsUsed) {
+        this.authorIsUsed = authorIsUsed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Author author = (Author) o;
-        return id == author.id && Objects.equals(lastName, author.lastName) && Objects.equals(firstName, author.firstName) && Objects.equals(fatherName, author.fatherName);
+        return id == author.id && authorIsUsed == author.authorIsUsed && Objects.equals(lastName, author.lastName) && Objects.equals(firstName, author.firstName) && Objects.equals(fatherName, author.fatherName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lastName, firstName, fatherName);
+        return Objects.hash(id, lastName, firstName, fatherName, authorIsUsed);
     }
 
     @Override
@@ -63,6 +72,7 @@ public class Author implements Serializable {
                 ", lastName='" + lastName + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", fatherName='" + fatherName + '\'' +
+                ", authorIsUsed=" + authorIsUsed +
                 '}';
     }
 }

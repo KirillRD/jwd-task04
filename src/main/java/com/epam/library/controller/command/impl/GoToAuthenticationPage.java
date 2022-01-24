@@ -13,11 +13,10 @@ import java.io.IOException;
 
 public class GoToAuthenticationPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToAuthenticationPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Go to authentication page"));
 
         RequestProvider.forward(PagePath.AUTHENTICATION_PAGE, request, response);

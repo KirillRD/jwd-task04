@@ -25,7 +25,6 @@ import java.util.List;
 
 public class GoToAddEditBookPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToAddEditBookPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String BOOK = "book";
@@ -39,7 +38,7 @@ public class GoToAddEditBookPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Going to page for adding/updating book started"));
 
         PublisherService publisherService = ServiceProvider.getInstance().getPublisherService();

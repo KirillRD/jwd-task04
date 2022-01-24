@@ -17,4 +17,8 @@ public final class RedirectCommand {
     public static final String ADD_EDIT_BOOK_PAGE = "?command=go-to-add-edit-book-page%s";
     public static final String REGISTRATION_PAGE = "?command=go-to-registration-page";
     public static final String EDIT_USER_PAGE = "?command=go-to-edit-user-page%s";
+    public static final String AUTHOR_PAGE = "?command=author-page%s";
+    public static final String GENRE_PAGE = "?command=genre-page%s";
+    public static final String PUBLISHER_PAGE = "?command=publisher-page%s";
+    public static final String TYPE_PAGE = "?command=type-page%s";
 }

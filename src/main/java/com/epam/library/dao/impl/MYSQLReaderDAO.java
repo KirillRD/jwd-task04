@@ -54,7 +54,9 @@ public class MYSQLReaderDAO implements ReaderDAO {
     private static final String ORDER_BY = " ORDER BY ";
     private static final String LAST_NAME_FILTER = "users.last_name LIKE ?";
     private static final String PERCENT = "%";
-    private static final String DEBTORS_FILTER = "(SELECT COUNT(*) FROM issuance WHERE reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE())>0";
+    private static final String DEBTORS_FILTER = "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE())>0";
+    private static final String RENTERS_FILTER = "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE())>0";
+    private static final String READING_ROOM_FILTER = "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned=CURDATE())>0";
     private static final String RESERVATION_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY'))>0";
     private static final String RESERVATION_DATE_FROM_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY') AND date>=?)>0";
     private static final String RESERVATION_DATE_TO_FILTER = "(SELECT COUNT(*) FROM reservation WHERE reader_id=users.id AND (status='RESERVED' OR status='READY') AND date<=?)>0";

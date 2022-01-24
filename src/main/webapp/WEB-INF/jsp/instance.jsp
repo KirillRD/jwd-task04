@@ -25,9 +25,6 @@
                     <br>
                     <c:forEach var="author" varStatus="loop" items="${requestScope.book_info.authors}">
                         ${loop.index != 0 ? ',' : ''}
-<%--                        <c:if test="${loop.index != 0}">--%>
-<%--                            ,--%>
-<%--                        </c:if>--%>
                         ${author}
                     </c:forEach>
                     <br>
@@ -42,9 +39,6 @@
                     <br><fmt:message key="book.genres"/>:
                     <c:forEach var="genre" varStatus="loop" items="${requestScope.book_info.genres}">
                         ${loop.index != 0 ? ',' : ''}
-<%--                        <c:if test="${loop.index != 0}">--%>
-<%--                            ,--%>
-<%--                        </c:if>--%>
                         ${genre}
                     </c:forEach>
                     <br>
@@ -62,6 +56,15 @@
                     <div class="w3-col w3-container" style="width: 10%"></div>
                     <div class="w3-col w3-container" style="width: 80%">
                         <h3 class="w3-center"><fmt:message key="instance.instances"/></h3>
+
+                        <c:if test="${sessionScope.message != null}">
+                            <div class="w3-row">
+                                <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-container">
+                                    <p><fmt:message key="message.${sessionScope.message}"/></p>
+                                </div>
+                            </div>
+                            <c:remove var="message" scope="session"/>
+                        </c:if>
 
                         <c:if test="${sessionScope.messages != null}">
                             <div class="w3-row">

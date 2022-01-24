@@ -19,7 +19,6 @@ import java.io.IOException;
 
 public class DeleteReservation implements Command {
     private static final Logger logger = Logger.getLogger(DeleteReservation.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String RESERVATION_ID = "reservation_id";
     private static final String MESSAGE = "message";
@@ -27,7 +26,7 @@ public class DeleteReservation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Reservation delete started"));
 
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();

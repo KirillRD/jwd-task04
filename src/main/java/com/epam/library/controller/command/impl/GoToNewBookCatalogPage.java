@@ -20,13 +20,12 @@ import java.util.List;
 
 public class GoToNewBookCatalogPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToNewBookCatalogPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_CATALOG = "book_catalog";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Going to catalog page of new books started"));
 
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();

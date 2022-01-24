@@ -39,7 +39,9 @@ public class RoleFilter implements Filter {
             CommandName.AUTHENTICATION.getCommandName(),
             CommandName.GO_TO_NEW_BOOK_CATALOG_PAGE.getCommandName(),
             CommandName.GO_TO_POPULAR_BOOK_CATALOG_PAGE.getCommandName(),
-            CommandName.GO_TO_ERROR_PAGE.getCommandName()
+            CommandName.GO_TO_ERROR_PAGE.getCommandName(),
+            CommandName.GO_TO_RULE_PAGE.getCommandName(),
+            CommandName.GO_TO_CONTACT_PAGE.getCommandName()
     );
     private static final Set<String> readerCommands = Set.of(
             CommandName.GO_TO_RESERVATION_PAGE.getCommandName(),

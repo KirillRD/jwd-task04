@@ -14,11 +14,10 @@ import java.io.IOException;
 
 public class LogOut implements Command {
     private static final Logger logger = Logger.getLogger(LogOut.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Log out started"));
 
         SessionUserProvider.removeSessionUser(request);

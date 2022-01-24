@@ -21,4 +21,10 @@ public final class PagePath {
     public static final String EDIT_USER_PAGE = "/WEB-INF/jsp/edit-user.jsp";
     public static final String RESERVATION_PAGE = "/WEB-INF/jsp/reservation.jsp";
     public static final String NEW_POPULAR_BOOK_CATALOG_PAGE = "/WEB-INF/jsp/new-popular-book-catalog.jsp";
+    public static final String AUTHOR_PAGE = "/WEB-INF/jsp/author.jsp";
+    public static final String GENRE_PAGE = "/WEB-INF/jsp/genre.jsp";
+    public static final String PUBLISHER_PAGE = "/WEB-INF/jsp/publisher.jsp";
+    public static final String TYPE_PAGE = "/WEB-INF/jsp/type.jsp";
+    public static final String RULE_PAGE = "/WEB-INF/jsp/rule.jsp";
+    public static final String CONTACT_PAGE = "/WEB-INF/jsp/contact.jsp";
 }

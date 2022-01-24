@@ -18,26 +18,26 @@ public class MYSQLPublisherDAO implements PublisherDAO {
     private static final Logger logger = Logger.getLogger(MYSQLPublisherDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
-    private static final String COUNT_PUBLISHERS = "count_publishers";
-    private static final String COUNT_BOOKS = "count_books";
     private static final String MAX_ID_PUBLISHER = "MAX(id)";
     private static final String ID = "id";
     private static final String NAME = "name";
     private static final String CITY = "city";
+    private static final String PUBLISHER_IS_USED = "publisher_is_used";
 
-    private static final String GET_PUBLISHER_BY_NAME = "SELECT COUNT(1) AS count_publishers FROM publishers WHERE name=?";
+    private static final String GET_PUBLISHER_BY_NAME = "SELECT * FROM publishers WHERE name=?";
     private static final String GET_MAX_ID_PUBLISHER = "SELECT MAX(id) FROM publishers";
     private static final String INSERT_PUBLISHER = "INSERT INTO publishers (id, name, city) VALUES (?,?,?)";
     private static final String SELECT_PUBLISHER = "SELECT * FROM publishers WHERE id=?";
     private static final String UPDATE_PUBLISHER = "UPDATE publishers SET name=?, city=? WHERE id=?";
-    private static final String GET_BOOKS = "SELECT COUNT(1) AS count_books FROM books WHERE publishers_id=?";
+    private static final String GET_BOOKS = "SELECT * FROM books WHERE publishers_id=?";
     private static final String DELETE_PUBLISHER = "DELETE FROM publishers WHERE id=?";
-    private static final String SELECT_PUBLISHERS = "SELECT * FROM publishers ORDER BY name";
+    private static final String SELECT_PUBLISHERS =
+            "SELECT id, name, city, CASE WHEN EXISTS(SELECT * FROM books WHERE publishers_id=publishers.id) THEN 1 ELSE 0 END AS publisher_is_used FROM publishers ORDER BY name";
 
     public MYSQLPublisherDAO() {}
 
     @Override
-    public void addPublisher(Publisher publisher) throws DAOException {
+    public boolean checkPublisher(Publisher publisher) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -49,22 +49,42 @@ public class MYSQLPublisherDAO implements PublisherDAO {
             preparedStatement.setString(1, publisher.getName());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_PUBLISHERS) == 0) {
-                    preparedStatement = connection.prepareStatement(GET_MAX_ID_PUBLISHER);
-                    resultSet = preparedStatement.executeQuery();
-                    if (resultSet.next()) {
-                        publisher.setId(resultSet.getInt(MAX_ID_PUBLISHER) + 1);
-                    }
-
-                    preparedStatement = connection.prepareStatement(INSERT_PUBLISHER);
-                    preparedStatement.setInt(1, publisher.getId());
-                    preparedStatement.setString(2, publisher.getName());
-                    preparedStatement.setString(3, publisher.getCity());
-                    preparedStatement.executeUpdate();
-                } else {
-                    //TODO logger
+                if (publisher.getId() == 0 || publisher.getId() != resultSet.getInt(ID)) {
+                    return false;
                 }
             }
+            return true;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public void addPublisher(Publisher publisher) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(GET_MAX_ID_PUBLISHER);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                publisher.setId(resultSet.getInt(MAX_ID_PUBLISHER) + 1);
+            }
+
+            preparedStatement = connection.prepareStatement(INSERT_PUBLISHER);
+            preparedStatement.setInt(1, publisher.getId());
+            preparedStatement.setString(2, publisher.getName());
+            preparedStatement.setString(3, publisher.getCity());
+            preparedStatement.executeUpdate();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -132,7 +152,7 @@ public class MYSQLPublisherDAO implements PublisherDAO {
     }
 
     @Override
-    public void deletePublisher(Publisher publisher) throws DAOException {
+    public boolean deletePublisher(int publisherID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -141,17 +161,16 @@ public class MYSQLPublisherDAO implements PublisherDAO {
             connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_BOOKS);
-            preparedStatement.setInt(1, publisher.getId());
+            preparedStatement.setInt(1, publisherID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_BOOKS) == 0) {
-                    preparedStatement = connection.prepareStatement(DELETE_PUBLISHER);
-                    preparedStatement.setInt(1, publisher.getId());
-                    preparedStatement.executeUpdate();
-                } else {
-                    //TODO logger
-                }
+                return false;
             }
+
+            preparedStatement = connection.prepareStatement(DELETE_PUBLISHER);
+            preparedStatement.setInt(1, publisherID);
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -180,6 +199,7 @@ public class MYSQLPublisherDAO implements PublisherDAO {
                 publisher.setId(resultSet.getInt(ID));
                 publisher.setName(resultSet.getString(NAME));
                 publisher.setCity(resultSet.getString(CITY));
+                publisher.setPublisherIsUsed(resultSet.getBoolean(PUBLISHER_IS_USED));
                 publishers.add(publisher);
             }
             return publishers;

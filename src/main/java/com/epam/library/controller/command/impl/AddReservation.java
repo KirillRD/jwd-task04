@@ -30,7 +30,6 @@ import java.util.Map;
 
 public class AddReservation implements Command {
     private static final Logger logger = Logger.getLogger(AddReservation.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String RESERVATION_DATE = "reservation_date";
     private static final String BOOK_ID = "book_id";
@@ -49,7 +48,7 @@ public class AddReservation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Reservation adding started"));
 
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();

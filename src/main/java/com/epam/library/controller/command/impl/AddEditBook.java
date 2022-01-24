@@ -27,7 +27,6 @@ import java.util.Map;
 
 public class AddEditBook implements Command {
     private static final Logger logger = Logger.getLogger(AddEditBook.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK = "book";
     private static final String BOOK_ID = "book_id";
@@ -74,7 +73,7 @@ public class AddEditBook implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
 
         BookInfo book = new BookInfo();
         if (request.getParameter(BOOK_ID) == null) {

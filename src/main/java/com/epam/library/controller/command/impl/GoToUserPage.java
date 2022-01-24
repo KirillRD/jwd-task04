@@ -26,7 +26,6 @@ import java.util.List;
 
 public class GoToUserPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToUserPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String USER_ID = "user_id";
     private static final String USER = "user";
@@ -39,7 +38,7 @@ public class GoToUserPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Going to user page started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();

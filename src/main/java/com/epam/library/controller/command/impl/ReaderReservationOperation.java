@@ -21,7 +21,6 @@ import java.util.List;
 
 public class ReaderReservationOperation implements Command {
     private static final Logger logger = Logger.getLogger(ReaderReservationOperation.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
 
@@ -33,7 +32,7 @@ public class ReaderReservationOperation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Book reservation operation started"));
 
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();

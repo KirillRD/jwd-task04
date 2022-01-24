@@ -23,7 +23,6 @@ import java.util.List;
 
 public class GoToBookPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToBookPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String BOOK_INFO = "book_info";
@@ -31,7 +30,7 @@ public class GoToBookPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Going to book page started"));
 
         BookCatalog bookInfo;

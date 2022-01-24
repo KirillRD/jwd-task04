@@ -24,7 +24,6 @@ import java.util.*;
 
 public class BookCatalogPage implements Command {
     private static final Logger logger = Logger.getLogger(BookCatalogPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_CATALOG = "book_catalog";
     private static final String PUBLISHERS = "publishers";
@@ -36,7 +35,7 @@ public class BookCatalogPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Book catalog build started"));
 
         BookCatalogFilter bookCatalogFilter = new BookCatalogFilter();

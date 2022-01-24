@@ -44,6 +44,20 @@ public final class CommandProvider {
         commands.put(CommandName.GO_TO_NEW_BOOK_CATALOG_PAGE.getCommandName(), new GoToNewBookCatalogPage());
         commands.put(CommandName.GO_TO_POPULAR_BOOK_CATALOG_PAGE.getCommandName(), new GoToPopularBookCatalogPage());
         commands.put(CommandName.GO_TO_ERROR_PAGE.getCommandName(), new GoToErrorPage());
+        commands.put(CommandName.AUTHOR_PAGE.getCommandName(), new AuthorPage());
+        commands.put(CommandName.GENRE_PAGE.getCommandName(), new GenrePage());
+        commands.put(CommandName.PUBLISHER_PAGE.getCommandName(), new PublisherPage());
+        commands.put(CommandName.TYPE_PAGE.getCommandName(), new TypePage());
+        commands.put(CommandName.ADD_EDIT_AUTHOR.getCommandName(), new AddEditAuthor());
+        commands.put(CommandName.ADD_EDIT_GENRE.getCommandName(), new AddEditGenre());
+        commands.put(CommandName.ADD_EDIT_PUBLISHER.getCommandName(), new AddEditPublisher());
+        commands.put(CommandName.ADD_EDIT_TYPE.getCommandName(), new AddEditType());
+        commands.put(CommandName.DELETE_AUTHOR.getCommandName(), new DeleteAuthor());
+        commands.put(CommandName.DELETE_GENRE.getCommandName(), new DeleteGenre());
+        commands.put(CommandName.DELETE_PUBLISHER.getCommandName(), new DeletePublisher());
+        commands.put(CommandName.DELETE_TYPE.getCommandName(), new DeleteType());
+        commands.put(CommandName.GO_TO_RULE_PAGE.getCommandName(), new GoToRulePage());
+        commands.put(CommandName.GO_TO_CONTACT_PAGE.getCommandName(), new GoToContactPage());
     }
 
     public final Command getCommand(String command) {

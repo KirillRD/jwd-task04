@@ -28,7 +28,6 @@ import java.util.Map;
 
 public class Registration implements Command {
     private static final Logger logger = Logger.getLogger(Registration.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String NICKNAME = "nickname";
     private static final String PASSWORD = "password";
@@ -71,7 +70,7 @@ public class Registration implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Registration started"));
 
         UserInfo user = new UserInfo();

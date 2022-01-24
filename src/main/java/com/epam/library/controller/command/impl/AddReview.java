@@ -29,7 +29,6 @@ import java.util.Map;
 
 public class AddReview implements Command {
     private static final Logger logger = Logger.getLogger(AddReview.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String RATING = "rating";
@@ -46,7 +45,7 @@ public class AddReview implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Review add started"));
 
         ReviewService reviewService = ServiceProvider.getInstance().getReviewService();

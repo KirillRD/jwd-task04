@@ -13,11 +13,10 @@ import java.io.IOException;
 
 public class GoToRegistrationPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToRegistrationPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Go to registration page"));
 
         RequestProvider.forward(PagePath.REGISTRATION_PAGE, request, response);

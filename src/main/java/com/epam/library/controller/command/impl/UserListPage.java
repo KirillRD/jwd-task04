@@ -21,14 +21,13 @@ import java.util.*;
 
 public class UserListPage implements Command {
     private static final Logger logger = Logger.getLogger(UserListPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String USER_LIST = "user_list";
     private static final String SELECTED = "selected";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("User list build started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();

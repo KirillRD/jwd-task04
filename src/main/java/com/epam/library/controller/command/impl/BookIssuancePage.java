@@ -26,7 +26,6 @@ import java.util.*;
 
 public class BookIssuancePage implements Command {
     private static final Logger logger = Logger.getLogger(BookIssuancePage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
     private static final String READER = "reader";
@@ -41,7 +40,7 @@ public class BookIssuancePage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Book list for issuance build started"));
 
         BookCatalogFilter bookCatalogFilter = new BookCatalogFilter();

@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface AuthorService {
     List<Author> getAuthorsList() throws ServiceException;
+    void addAuthor(Author author) throws ServiceException;
+    void updateAuthor(Author author) throws ServiceException;
+    Author getAuthor(int authorID) throws ServiceException;
+    boolean deleteAuthor(int authorID) throws ServiceException;
 }

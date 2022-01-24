@@ -18,25 +18,25 @@ public class MYSQLTypeDAO implements TypeDAO {
     private static final Logger logger = Logger.getLogger(MYSQLTypeDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
-    private static final String COUNT_TYPES = "count_types";
-    private static final String COUNT_BOOKS = "count_books";
     private static final String MAX_ID_TYPE = "MAX(id)";
     private static final String ID = "id";
     private static final String NAME = "name";
+    private static final String TYPE_IS_USED = "type_is_used";
 
-    private static final String GET_TYPE_BY_NAME = "SELECT COUNT(1) AS count_types FROM types WHERE name=?";
+    private static final String GET_TYPE_BY_NAME = "SELECT * FROM types WHERE name=?";
     private static final String GET_MAX_ID_TYPE = "SELECT MAX(id) FROM types";
     private static final String INSERT_TYPE = "INSERT INTO types (id, name) VALUES (?,?)";
     private static final String SELECT_TYPE = "SELECT * FROM types WHERE id=?";
     private static final String UPDATE_TYPE = "UPDATE types SET name=? WHERE id=?";
-    private static final String GET_BOOKS = "SELECT COUNT(1) AS count_books FROM books WHERE types_id=?";
+    private static final String GET_BOOKS = "SELECT * FROM books WHERE types_id=?";
     private static final String DELETE_TYPE = "DELETE FROM types WHERE id=?";
-    private static final String SELECT_TYPES = "SELECT * FROM types ORDER BY name";
+    private static final String SELECT_TYPES =
+            "SELECT id, name, CASE WHEN EXISTS(SELECT * FROM books WHERE types_id=types.id) THEN 1 ELSE 0 END AS type_is_used FROM types ORDER BY name";
 
     public MYSQLTypeDAO() {}
 
     @Override
-    public void addType(Type type) throws DAOException {
+    public boolean checkType(Type type) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -48,21 +48,41 @@ public class MYSQLTypeDAO implements TypeDAO {
             preparedStatement.setString(1, type.getName());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_TYPES) == 0) {
-                    preparedStatement = connection.prepareStatement(GET_MAX_ID_TYPE);
-                    resultSet = preparedStatement.executeQuery();
-                    if (resultSet.next()) {
-                        type.setId(resultSet.getInt(MAX_ID_TYPE) + 1);
-                    }
-
-                    preparedStatement = connection.prepareStatement(INSERT_TYPE);
-                    preparedStatement.setInt(1, type.getId());
-                    preparedStatement.setString(2, type.getName());
-                    preparedStatement.executeUpdate();
-                } else {
-                    //TODO logger
+                if (type.getId() == 0 || type.getId() != resultSet.getInt(ID)) {
+                    return false;
                 }
             }
+            return true;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public void addType(Type type) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(GET_MAX_ID_TYPE);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                type.setId(resultSet.getInt(MAX_ID_TYPE) + 1);
+            }
+
+            preparedStatement = connection.prepareStatement(INSERT_TYPE);
+            preparedStatement.setInt(1, type.getId());
+            preparedStatement.setString(2, type.getName());
+            preparedStatement.executeUpdate();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -128,7 +148,7 @@ public class MYSQLTypeDAO implements TypeDAO {
     }
 
     @Override
-    public void deleteType(Type type) throws DAOException {
+    public boolean deleteType(int typeID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -137,17 +157,16 @@ public class MYSQLTypeDAO implements TypeDAO {
             connection = connectionPool.getConnection();
 
             preparedStatement = connection.prepareStatement(GET_BOOKS);
-            preparedStatement.setInt(1, type.getId());
+            preparedStatement.setInt(1, typeID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                if (resultSet.getInt(COUNT_BOOKS) == 0) {
-                    preparedStatement = connection.prepareStatement(DELETE_TYPE);
-                    preparedStatement.setInt(1, type.getId());
-                    preparedStatement.executeUpdate();
-                } else {
-                    //TODO logger
-                }
+                return false;
             }
+
+            preparedStatement = connection.prepareStatement(DELETE_TYPE);
+            preparedStatement.setInt(1, typeID);
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -175,6 +194,7 @@ public class MYSQLTypeDAO implements TypeDAO {
                 Type type = new Type();
                 type.setId(resultSet.getInt(ID));
                 type.setName(resultSet.getString(NAME));
+                type.setTypeIsUsed(resultSet.getBoolean(TYPE_IS_USED));
                 types.add(type);
             }
             return types;

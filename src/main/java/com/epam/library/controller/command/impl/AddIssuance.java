@@ -21,7 +21,6 @@ import java.util.List;
 
 public class AddIssuance implements Command {
     private static final Logger logger = Logger.getLogger(AddIssuance.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_ID = "reader_id";
     private static final String INSTANCES = "instances";
@@ -32,7 +31,7 @@ public class AddIssuance implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Books issuing started"));
 
         IssuanceService issuanceService = ServiceProvider.getInstance().getIssuanceService();

@@ -24,7 +24,6 @@ import java.io.IOException;
 
 public class GoToEditUserPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToEditUserPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String USER_ID = "user_id";
     private static final String READER_ID = "reader_id";
@@ -32,7 +31,7 @@ public class GoToEditUserPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Going to page for updating user started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();

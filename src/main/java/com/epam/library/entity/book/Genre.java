@@ -6,6 +6,7 @@ import java.util.Objects;
 public class Genre implements Serializable {
     private int id;
     private String name;
+    private boolean genreIsUsed;
 
     public Genre() {}
 
@@ -25,17 +26,25 @@ public class Genre implements Serializable {
         this.name = name;
     }
 
+    public boolean isGenreIsUsed() {
+        return genreIsUsed;
+    }
+
+    public void setGenreIsUsed(boolean genreIsUsed) {
+        this.genreIsUsed = genreIsUsed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Genre genre = (Genre) o;
-        return id == genre.id && Objects.equals(name, genre.name);
+        return id == genre.id && genreIsUsed == genre.genreIsUsed && Objects.equals(name, genre.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, genreIsUsed);
     }
 
     @Override
@@ -43,6 +52,7 @@ public class Genre implements Serializable {
         return "Genre{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", genreIsUsed=" + genreIsUsed +
                 '}';
     }
 }

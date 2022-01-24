@@ -20,7 +20,6 @@ import java.io.IOException;
 
 public class Authentication implements Command {
     private static final Logger logger = Logger.getLogger(Authentication.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String PASSWORD = "password";
     private static final String EMAIL = "email";
@@ -30,7 +29,7 @@ public class Authentication implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Authentication started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();

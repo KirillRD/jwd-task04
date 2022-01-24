@@ -15,7 +15,6 @@ import java.io.IOException;
 
 public class ChangeLocale implements Command {
     private static final Logger logger = Logger.getLogger(ChangeLocale.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String LOCALE = "locale";
     private static final String URL = "url";
@@ -24,7 +23,7 @@ public class ChangeLocale implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Locale change started"));
 
         if (request.getParameter(LOCALE) != null && (EN.equals(request.getParameter(LOCALE)) || RU.equals(request.getParameter(LOCALE)))) {

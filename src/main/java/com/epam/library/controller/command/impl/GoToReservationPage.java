@@ -26,7 +26,6 @@ import java.util.List;
 
 public class GoToReservationPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToReservationPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_INFO = "book_info";
     private static final String READER_RESERVATION = "reader_reservation";
@@ -37,7 +36,7 @@ public class GoToReservationPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Going to reservation page started"));
 
         BookCatalog bookInfo;

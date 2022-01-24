@@ -7,6 +7,7 @@ public class Publisher implements Serializable {
     private int id;
     private String name;
     private String city;
+    private boolean publisherIsUsed;
 
     public Publisher() {}
 
@@ -34,17 +35,25 @@ public class Publisher implements Serializable {
         this.city = city;
     }
 
+    public boolean isPublisherIsUsed() {
+        return publisherIsUsed;
+    }
+
+    public void setPublisherIsUsed(boolean publisherIsUsed) {
+        this.publisherIsUsed = publisherIsUsed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Publisher publisher = (Publisher) o;
-        return id == publisher.id && Objects.equals(name, publisher.name) && Objects.equals(city, publisher.city);
+        return id == publisher.id && publisherIsUsed == publisher.publisherIsUsed && Objects.equals(name, publisher.name) && Objects.equals(city, publisher.city);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, city);
+        return Objects.hash(id, name, city, publisherIsUsed);
     }
 
     @Override
@@ -53,6 +62,7 @@ public class Publisher implements Serializable {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", city='" + city + '\'' +
+                ", publisherIsUsed=" + publisherIsUsed +
                 '}';
     }
 }

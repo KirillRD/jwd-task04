@@ -13,11 +13,10 @@ import java.io.IOException;
 
 public class GoToMainPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToMainPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Go to main page"));
 
         RequestProvider.forward(PagePath.MAIN_PAGE, request, response);

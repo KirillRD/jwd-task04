@@ -21,7 +21,6 @@ import java.util.*;
 
 public class ReaderListPage implements Command {
     private static final Logger logger = Logger.getLogger(ReaderListPage.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String READER_LIST = "reader_list";
     private static final String CHECKED = "checked";
@@ -30,7 +29,7 @@ public class ReaderListPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Reader list build started"));
 
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();

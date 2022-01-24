@@ -19,7 +19,6 @@ import java.io.IOException;
 
 public class DeleteInstance implements Command {
     private static final Logger logger = Logger.getLogger(DeleteInstance.class.getName());
-    private LogMessageBuilder logMesBuilder;
 
     private static final String BOOK_ID = "book_id";
     private static final String INSTANCE_ID = "instance_id";
@@ -28,7 +27,7 @@ public class DeleteInstance implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logMesBuilder = new LogMessageBuilder(request);
+        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
         logger.info(logMesBuilder.build("Instance delete started"));
 
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
@@ -43,7 +42,14 @@ public class DeleteInstance implements Command {
         }
 
         try {
-            int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
+            int instanceID;
+            if (Util.isID(request.getParameter(INSTANCE_ID))) {
+                instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
+            } else {
+                logger.error(logMesBuilder.build("Invalid page attributes. Instance was not deleted"));
+                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                return;
+            }
             if (!instanceService.deleteInstance(instanceID)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_DELETE_INSTANCE);

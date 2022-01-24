@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface PublisherService {
     List<Publisher> getPublishersList() throws ServiceException;
+    void addPublisher(Publisher publisher) throws ServiceException;
+    void updatePublisher(Publisher publisher) throws ServiceException;
+    Publisher getPublisher(int publisherID) throws ServiceException;
+    boolean deletePublisher(int publisherID) throws ServiceException;
 }
