@@ -6,6 +6,7 @@ import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.command.util.LogMessageBuilder;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.User;
 import com.epam.library.constant.UserListFilterName;
 import com.epam.library.service.ServiceProvider;
@@ -24,6 +25,11 @@ public class UserListPage implements Command {
 
     private static final String USER_LIST = "user_list";
     private static final String SELECTED = "selected";
+
+    private String url;
+    private static final String PAGE = "page";
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String URL = "url";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -65,8 +71,22 @@ public class UserListPage implements Command {
 
         List<User> users;
         try {
-            users = userService.getUsersByFilter(filters);
+            int page;
+            if (Util.isID(request.getParameter(PAGE))) {
+                page = Integer.parseInt(request.getParameter(PAGE));
+            } else {
+                url = request.getQueryString();
+                page = 1;
+            }
+            request.setAttribute(PAGE, page);
+            request.setAttribute(URL, url);
+
+            users = userService.getUsersByFilter(filters, page);
             request.setAttribute(USER_LIST, users);
+
+            int pagesCount = userService.getPagesCount();
+            request.setAttribute(PAGES_COUNT, pagesCount);
+
             logger.info(logMesBuilder.build("User list building completed"));
 
             RequestProvider.forward(PagePath.USER_LIST_PAGE, request, response);

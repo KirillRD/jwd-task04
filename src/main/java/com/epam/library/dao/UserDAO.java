@@ -13,10 +13,13 @@ public interface UserDAO {
     Integer authentication(String email, String password) throws DAOException;
     boolean checkEmail(int userID, String email) throws DAOException;
     boolean checkPassword(int userID, String currentPassword) throws DAOException;
+    boolean checkUserLock(int userID) throws DAOException;
+    void lockUser(int userID) throws DAOException;
     void updateUser(UserInfo user, String currentPassword, String newPassword) throws DAOException;
     void updateUser(UserInfo user) throws DAOException;
     boolean updatePassword(int userID, String currentPassword, String newPassword) throws DAOException;
     User getUser(int userID) throws DAOException;
-    List<User> getUsersByFilter(Map<String, Object> filters) throws DAOException;
+    List<User> getUsersByFilter(Map<String, Object> filters, int page) throws DAOException;
+    int getPagesCount() throws DAOException;
     SessionUser getSessionUser(int userID) throws DAOException;
 }

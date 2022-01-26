@@ -19,6 +19,7 @@ public class MYSQLUserDAO implements UserDAO {
     private static final Logger logger = Logger.getLogger(MYSQLUserDAO.class.getName());
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
+
     private static final String MAX_ID_USER = "MAX(id)";
     private static final String ID = "id";
     private static final String ROLES_ID = "roles_id";
@@ -34,15 +35,17 @@ public class MYSQLUserDAO implements UserDAO {
     private static final String ADDRESS = "address";
     private static final String PHONE = "phone";
     private static final String IMAGE = "image";
+    private static final String LOCK = "lock";
     private static final String DEFAULT_IMAGE_USER = "images/users/default_image_user.jpg";
 
     private static final String GET_USER_BY_EMAIL = "SELECT * FROM users WHERE email=?";
     private static final String SELECT_USER = "SELECT * FROM users WHERE id=?";
     private static final String GET_MAX_ID_USER = "SELECT MAX(id) FROM users";
-    private static final String REGISTRATION_USER = "INSERT INTO users (id, roles_id, nickname, password, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    private static final String REGISTRATION_USER = "INSERT INTO users (id, roles_id, nickname, password, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image, `lock`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)";
     private static final String AUTHORIZATION_USER = "SELECT * FROM users WHERE email=?";
     private static final String UPDATE_PASSWORD = "UPDATE users SET password=? WHERE id=?";
     private static final String UPDATE_USER_WITH_PASSWORD = "UPDATE users SET roles_id=?, nickname=?, email=?, password=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=?, image=? WHERE id=?";
+    private static final String UPDATE_LOCK = "UPDATE users SET `lock`= CASE WHEN IFNULL(`lock`,0)=0 THEN 1 ELSE 0 END WHERE id=?";
     private static final String UPDATE_USER = "UPDATE users SET roles_id=?, nickname=?, email=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=?, image=? WHERE id=?";
 
     private static final String USER_FILTER_QUERY = "SELECT * FROM users";
@@ -66,6 +69,12 @@ public class MYSQLUserDAO implements UserDAO {
             UserListFilterName.ROLE_ASCENDING, "roles_id DESC, last_name ASC",
             UserListFilterName.ROLE_DESCENDING, "roles_id ASC, last_name ASC"
     );
+
+    private String query;
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String GET_PAGES_COUNT = "SELECT COUNT(*) AS pages_count FROM ( %s ) query";
+    private static final String COLON = ": ";
+    private static final String PAGE_LIMIT = " LIMIT %s, 10";
 
     public MYSQLUserDAO() {}
 
@@ -191,6 +200,53 @@ public class MYSQLUserDAO implements UserDAO {
         } finally {
             try {
                 connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public boolean checkUserLock(int userID) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(SELECT_USER);
+            preparedStatement.setInt(1, userID);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getBoolean(LOCK);
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public void lockUser(int userID) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(UPDATE_LOCK);
+            preparedStatement.setInt(1, userID);
+            preparedStatement.executeUpdate();
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
                 logger.error("Error closing resources", e);
             }
@@ -328,6 +384,7 @@ public class MYSQLUserDAO implements UserDAO {
                 user.setAddress(resultSet.getString(ADDRESS));
                 user.setPhone(resultSet.getString(PHONE));
                 user.setImageURL(resultSet.getString(IMAGE));
+                user.setLock(resultSet.getBoolean(LOCK));
             }
             return user;
         } catch (SQLException | ConnectionPoolException e) {
@@ -342,7 +399,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public List<User> getUsersByFilter(Map<String, Object> filters) throws DAOException {
+    public List<User> getUsersByFilter(Map<String, Object> filters, int page) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -365,11 +422,20 @@ public class MYSQLUserDAO implements UserDAO {
             query.append(ORDER_BY);
             query.append(sortValue.get(filters.get(UserListFilterName.SORT)));
 
+            page = 10*page-10;
+            String limit = String.format(PAGE_LIMIT, page);
+            query.append(limit);
+
             preparedStatement = connection.prepareStatement(query.toString());
             List<String> filterNames = new ArrayList<>(filters.keySet());
             for (int i = 0; i < filterNames.size() - 1; i++) {
                 preparedStatement.setString(i + 1, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
             }
+
+            this.query = preparedStatement.toString();
+            this.query = this.query.substring(this.query.indexOf(COLON) + 2);
+            this.query = this.query.substring(0, this.query.length() - limit.length());
+
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -386,9 +452,36 @@ public class MYSQLUserDAO implements UserDAO {
                 user.setAddress(resultSet.getString(ADDRESS));
                 user.setPhone(resultSet.getString(PHONE));
                 user.setImageURL(resultSet.getString(IMAGE));
+                user.setLock(resultSet.getBoolean(LOCK));
                 users.add(user);
             }
             return users;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public int getPagesCount() throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, query));
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int pagesCount = resultSet.getInt(PAGES_COUNT);
+
+            return pagesCount % 10 == 0 && pagesCount != 0 ? pagesCount/10 : pagesCount/10+1;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

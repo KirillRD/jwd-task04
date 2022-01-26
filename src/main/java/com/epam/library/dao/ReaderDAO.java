@@ -10,7 +10,8 @@ import java.util.Map;
 
 public interface ReaderDAO {
     Reader getReader(int readerID) throws DAOException;
-    List<Reader> getReadersByFilter(Map<String, Object> filters) throws DAOException;
+    List<Reader> getReadersByFilter(Map<String, Object> filters, int page) throws DAOException;
+    int getPagesCount() throws DAOException;
     List<ReaderIssuance> getReaderIssuanceList(int readerID) throws DAOException;
     List<ReaderIssuance> getReaderIssuanceHistoryList(int readerID) throws DAOException;
     List<ReaderReservation> getReaderReservationList(int readerID) throws DAOException;

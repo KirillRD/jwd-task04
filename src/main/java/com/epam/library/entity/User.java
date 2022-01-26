@@ -21,6 +21,7 @@ public class User implements Serializable {
     private String address;
     private String phone;
     private String imageURL;
+    private boolean lock;
 
     public User() {}
 
@@ -128,17 +129,25 @@ public class User implements Serializable {
         this.imageURL = imageURL;
     }
 
+    public boolean isLock() {
+        return lock;
+    }
+
+    public void setLock(boolean lock) {
+        this.lock = lock;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && role == user.role && Objects.equals(nickname, user.nickname) && Objects.equals(email, user.email) && Objects.equals(lastName, user.lastName) && Objects.equals(firstName, user.firstName) && Objects.equals(fatherName, user.fatherName) && Objects.equals(birthday, user.birthday) && gender == user.gender && Objects.equals(passport, user.passport) && Objects.equals(address, user.address) && Objects.equals(phone, user.phone) && Objects.equals(imageURL, user.imageURL);
+        return id == user.id && lock == user.lock && role == user.role && Objects.equals(nickname, user.nickname) && Objects.equals(email, user.email) && Objects.equals(lastName, user.lastName) && Objects.equals(firstName, user.firstName) && Objects.equals(fatherName, user.fatherName) && Objects.equals(birthday, user.birthday) && gender == user.gender && Objects.equals(passport, user.passport) && Objects.equals(address, user.address) && Objects.equals(phone, user.phone) && Objects.equals(imageURL, user.imageURL);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, role, nickname, email, lastName, firstName, fatherName, birthday, gender, passport, address, phone, imageURL);
+        return Objects.hash(id, role, nickname, email, lastName, firstName, fatherName, birthday, gender, passport, address, phone, imageURL, lock);
     }
 
     @Override
@@ -157,6 +166,7 @@ public class User implements Serializable {
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
                 ", imageURL='" + imageURL + '\'' +
+                ", lock=" + lock +
                 '}';
     }
 }

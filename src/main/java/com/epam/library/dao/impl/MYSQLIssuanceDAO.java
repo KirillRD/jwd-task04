@@ -229,7 +229,6 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
         } catch (SQLException | ConnectionPoolException e) {
             try {
                 if (connection != null) {
@@ -241,8 +240,11 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
             throw new DAOException(e);
         } finally {
             try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                }
                 connectionPool.closeConnection(preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
+            } catch (ConnectionPoolException | SQLException e) {
                 logger.error("Error closing resources", e);
             }
         }

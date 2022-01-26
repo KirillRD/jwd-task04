@@ -7,6 +7,7 @@ import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.command.util.LogMessageBuilder;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.book.Author;
 import com.epam.library.entity.book.Genre;
 import com.epam.library.entity.book.Publisher;
@@ -32,6 +33,11 @@ public class BookCatalogPage implements Command {
     private static final String GENRES = "genres";
     private static final String SPACE = " ";
     private static final String POINT = ".";
+
+    private String url;
+    private static final String PAGE = "page";
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String URL = "url";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -71,8 +77,22 @@ public class BookCatalogPage implements Command {
             request.setAttribute(AUTHORS, authors);
             request.setAttribute(GENRES, genres);
 
-            bookCatalog = bookCatalogService.getBookCatalogByFilter(filters);
+            int page;
+            if (Util.isID(request.getParameter(PAGE))) {
+                page = Integer.parseInt(request.getParameter(PAGE));
+            } else {
+                url = request.getQueryString();
+                page = 1;
+            }
+            request.setAttribute(PAGE, page);
+            request.setAttribute(URL, url);
+
+            bookCatalog = bookCatalogService.getBookCatalogByFilter(filters, page);
             request.setAttribute(BOOK_CATALOG, bookCatalog);
+
+            int pagesCount = bookCatalogService.getPagesCount();
+            request.setAttribute(PAGES_COUNT, pagesCount);
+
             logger.info(logMesBuilder.build("Book catalog building completed"));
 
             RequestProvider.forward(PagePath.BOOK_CATALOG_PAGE, request, response);

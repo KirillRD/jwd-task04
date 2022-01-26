@@ -10,5 +10,6 @@ public interface BookCatalogService {
     BookCatalog getBookCatalog(int bookID) throws ServiceException;
     List<BookCatalog> getNewBookCatalogList() throws ServiceException;
     List<BookCatalog> getPopularBookCatalogList() throws ServiceException;
-    List<BookCatalog> getBookCatalogByFilter(Map<String, Object> filters) throws ServiceException;
+    int getPagesCount() throws ServiceException;
+    List<BookCatalog> getBookCatalogByFilter(Map<String, Object> filters, int page) throws ServiceException;
 }

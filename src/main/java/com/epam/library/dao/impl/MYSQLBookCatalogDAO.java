@@ -43,9 +43,9 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
     private static final String BOOK_FILTER_QUERY =
             "SELECT " +
             "DISTINCT books.id, books.name, publishers.name AS publisher, publishers.city, types.name AS type, publication_year, pages, part, isbn, issn, annotation, price, image, " +
-            "(SELECT CAST(AVG(rating) AS DECIMAL(2,1)) FROM reviews WHERE books_id=books.id) AS rating, " +
-            "(SELECT COUNT(*) FROM reviews WHERE books_id=books.id) AS count_ratings, " +
-            "(SELECT COUNT(*) FROM reviews WHERE books_id=books.id AND (comment!='' AND comment IS NOT NULL)) AS count_comments " +
+            "(SELECT CAST(AVG(rating) AS DECIMAL(2,1)) FROM reviews WHERE books_id=books.id AND (SELECT `lock` FROM users WHERE id=reviews.reader_id)=0) AS rating, " +
+            "(SELECT COUNT(*) FROM reviews WHERE books_id=books.id AND (SELECT `lock` FROM users WHERE id=reviews.reader_id)=0) AS count_ratings, " +
+            "(SELECT COUNT(*) FROM reviews WHERE books_id=books.id AND (comment!='' AND comment IS NOT NULL) AND (SELECT `lock` FROM users WHERE id=reviews.reader_id)=0) AS count_comments " +
             "FROM books " +
             "INNER JOIN publishers ON books.publishers_id=publishers.id " +
             "INNER JOIN types ON books.types_id=types.id " +
@@ -161,6 +161,12 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             BookCatalogFilterName.NAME_ASCENDING, "ASC",
             BookCatalogFilterName.NAME_DESCENDING, "DESC"
     );
+
+    private String query;
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String GET_PAGES_COUNT = "SELECT COUNT(*) AS pages_count FROM ( %s ) query";
+    private static final String COLON = ": ";
+    private static final String PAGE_LIMIT = " LIMIT %s, 12";
 
     public MYSQLBookCatalogDAO() {}
 
@@ -438,7 +444,33 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
     }
 
     @Override
-    public List<BookCatalog> getBookCatalogByFilter(Map<String, Object> filters) throws DAOException {
+    public int getPagesCount() throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, query));
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int pagesCount = resultSet.getInt(PAGES_COUNT);
+
+            return pagesCount % 12 == 0 && pagesCount != 0 ? pagesCount/12 : pagesCount/12+1;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public List<BookCatalog> getBookCatalogByFilter(Map<String, Object> filters, int page) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -474,6 +506,10 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             query.append(SORT_FILTER);
             query.append(sortValue.get(filters.get(BookCatalogFilterName.SORT)));
 
+            page = 12*page-12;
+            String limit = String.format(PAGE_LIMIT, page);
+            query.append(limit);
+
             preparedStatement = connection.prepareStatement(query.toString());
             List<String> filterNames = new ArrayList<>(filters.keySet());
             for (int i = 0, n = 1; i < filterNames.size() - 1; i++, n++) {
@@ -506,6 +542,10 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                         break;
                 }
             }
+
+            this.query = preparedStatement.toString();
+            this.query = this.query.substring(this.query.indexOf(COLON) + 2);
+            this.query = this.query.substring(0, this.query.length() - limit.length());
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

@@ -223,6 +223,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean checkUserLock(int userID) throws ServiceException {
+        try {
+            return userDAO.checkUserLock(userID);
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public void lockUser(int userID) throws ServiceException {
+        try {
+            userDAO.lockUser(userID);
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
     public User getUser(int userID) throws ServiceException {
         try {
             return userDAO.getUser(userID);
@@ -232,9 +250,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUsersByFilter(Map<String, Object> filters) throws ServiceException {
+    public List<User> getUsersByFilter(Map<String, Object> filters, int page) throws ServiceException {
         try {
-            return userDAO.getUsersByFilter(filters);
+            return userDAO.getUsersByFilter(filters, page);
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public int getPagesCount() throws ServiceException {
+        try {
+            return userDAO.getPagesCount();
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

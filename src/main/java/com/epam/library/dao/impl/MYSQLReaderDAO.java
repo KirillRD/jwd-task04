@@ -43,9 +43,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
     private static final String COUNT_DAYS_RENTAL = "count_days_rental";
     private static final String COUNT_READING_HALL_BOOKS = "count_reading_hall_books";
     private static final String RENTAL_PRICE = "rental_price";
+    private static final String LOCK = "lock";
 
     private static final String READER_FILTER_QUERY =
-            "SELECT id, nickname, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image, " +
+            "SELECT id, nickname, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image, `lock`, " +
             "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_debts, " +
             "(SELECT IFNULL(DATEDIFF(CURDATE(),MIN(date_return_planned)),0) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=1 AND reader_id=users.id AND date_return IS NULL AND date_return_planned<CURDATE()) AS count_days_debts, " +
             "(SELECT COUNT(*) FROM issuance INNER JOIN instances ON issuance.instances_id=instances.id WHERE halls_id=2 AND reader_id=users.id AND date_return IS NULL AND date_return_planned=CURDATE()) AS count_reading_hall_books, " +
@@ -102,7 +103,7 @@ public class MYSQLReaderDAO implements ReaderDAO {
             " CASE WHEN halls_id=2 THEN IFNULL(DATEDIFF(date_return,date_return_planned),0) ELSE 0 END AS count_days_rental " +
             " FROM issuance LEFT JOIN instances LEFT JOIN books ON instances.books_id = books.id " +
             " LEFT JOIN halls ON instances.halls_id = halls.id ON issuance.instances_id = instances.id " +
-            " WHERE reader_id=? AND date_return IS NOT NULL ORDER BY issuance.date_issue DESC, books.name";
+            " WHERE reader_id=? AND date_return IS NOT NULL ORDER BY issuance.date_return DESC, issuance.date_issue DESC, books.name";
 
     private static final String ISSUANCE_ID = "issuance_id";
     private static final String BOOK_ID = "book_id";
@@ -156,6 +157,11 @@ public class MYSQLReaderDAO implements ReaderDAO {
             ReaderListFilterName.RESERVATION_DATE_DESCENDING, "min_date_reservation DESC, last_name ASC"
     );
 
+    private String query;
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String GET_PAGES_COUNT = "SELECT COUNT(*) AS pages_count FROM ( %s ) query";
+    private static final String COLON = ": ";
+    private static final String PAGE_LIMIT = " LIMIT %s, 10";
 
     public MYSQLReaderDAO () {}
 
@@ -196,6 +202,7 @@ public class MYSQLReaderDAO implements ReaderDAO {
                 reader.setCountReadingHallBooks(resultSet.getInt(COUNT_READING_HALL_BOOKS));
                 reader.setCountRental(resultSet.getInt(COUNT_RENTAL));
                 reader.setCountDaysRental(resultSet.getInt(COUNT_DAYS_RENTAL));
+                reader.setLock(resultSet.getBoolean(LOCK));
             }
             return reader;
         } catch (SQLException | ConnectionPoolException e) {
@@ -210,7 +217,33 @@ public class MYSQLReaderDAO implements ReaderDAO {
     }
 
     @Override
-    public List<Reader> getReadersByFilter(Map<String, Object> filters) throws DAOException {
+    public int getPagesCount() throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, query));
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int pagesCount = resultSet.getInt(PAGES_COUNT);
+
+            return pagesCount % 10 == 0 && pagesCount != 0 ? pagesCount/10 : pagesCount/10+1;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
+    public List<Reader> getReadersByFilter(Map<String, Object> filters, int page) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -231,6 +264,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
             query.append(ORDER_BY);
             query.append(sortValue.get(filters.get(ReaderListFilterName.SORT)));
 
+            page = 10*page-10;
+            String limit = String.format(PAGE_LIMIT, page);
+            query.append(limit);
+
             preparedStatement = connection.prepareStatement(query.toString());
             List<String> filterNames = new ArrayList<>(filters.keySet());
             for (int i = 0, n = 1; i < filterNames.size() - 1; i++, n++) {
@@ -243,6 +280,10 @@ public class MYSQLReaderDAO implements ReaderDAO {
                     n--;
                 }
             }
+
+            this.query = preparedStatement.toString();
+            this.query = this.query.substring(this.query.indexOf(COLON) + 2);
+            this.query = this.query.substring(0, this.query.length() - limit.length());
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

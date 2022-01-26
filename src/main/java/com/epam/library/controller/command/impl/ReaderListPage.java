@@ -6,6 +6,7 @@ import com.epam.library.controller.command.constant.ErrorMessage;
 import com.epam.library.controller.command.constant.PagePath;
 import com.epam.library.controller.command.constant.RedirectCommand;
 import com.epam.library.controller.command.util.LogMessageBuilder;
+import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.user.Reader;
 import com.epam.library.constant.ReaderListFilterName;
 import com.epam.library.service.ReaderService;
@@ -26,6 +27,11 @@ public class ReaderListPage implements Command {
     private static final String CHECKED = "checked";
     private static final String ON = "on";
     private static final String SELECTED = "selected";
+
+    private String url;
+    private static final String PAGE = "page";
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String URL = "url";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -74,8 +80,22 @@ public class ReaderListPage implements Command {
 
         List<Reader> readers;
         try {
-            readers = readerService.getReadersByFilter(filters);
+            int page;
+            if (Util.isID(request.getParameter(PAGE))) {
+                page = Integer.parseInt(request.getParameter(PAGE));
+            } else {
+                url = request.getQueryString();
+                page = 1;
+            }
+            request.setAttribute(PAGE, page);
+            request.setAttribute(URL, url);
+
+            readers = readerService.getReadersByFilter(filters, page);
             request.setAttribute(READER_LIST, readers);
+
+            int pagesCount = readerService.getPagesCount();
+            request.setAttribute(PAGES_COUNT, pagesCount);
+
             logger.info(logMesBuilder.build("Reader list building completed"));
 
             RequestProvider.forward(PagePath.READER_LIST_PAGE, request, response);

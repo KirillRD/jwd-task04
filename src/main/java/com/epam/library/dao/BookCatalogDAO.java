@@ -10,5 +10,6 @@ public interface BookCatalogDAO {
     BookCatalog getBookCatalog(int bookID) throws DAOException;
     List<BookCatalog> getNewBookCatalogList() throws DAOException;
     List<BookCatalog> getPopularBookCatalogList() throws DAOException;
-    List<BookCatalog> getBookCatalogByFilter(Map<String, Object> filters) throws DAOException;
+    int getPagesCount() throws DAOException;
+    List<BookCatalog> getBookCatalogByFilter(Map<String, Object> filters, int page) throws DAOException;
 }

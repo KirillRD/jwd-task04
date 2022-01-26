@@ -183,7 +183,7 @@
                             <tr>
                                 <td>
                                     <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
-                                        <img class="book-catalog-image" src="${bookInfo.imageURL}">
+                                        <img class="book-list-image" src="${bookInfo.imageURL}">
                                     </a>
                                 </td>
                                 <td>
@@ -235,19 +235,42 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="controller" method="post" onsubmit="return confirm('<fmt:message key="message.confirm-delete.book"/>');">
-                                        <input type="hidden" name="command" value="delete-book">
-                                        <input type="hidden" name="book_id" value="${bookInfo.id}">
-                                        <button class="link" type="submit"
-                                            ${bookInfo.bookIsUsed ? 'disabled' : ''}
-                                        ><span class="material-icons-outlined
-                                            ${bookInfo.bookIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
-                                        title="<fmt:message key="book-list.button.delete-book"/>">clear</span></button>
-                                    </form>
+                                    <button onclick="document.getElementById('delete-${bookInfo.id}').style.display='block'" class="link" ${bookInfo.bookIsUsed ? 'disabled' : ''}>
+                                    <span class="material-icons-outlined
+                                        ${bookInfo.bookIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
+                                          title="<fmt:message key="book-list.button.delete-book"/>">clear</span>
+                                    </button>
+
+                                    <div id="delete-${bookInfo.id}" class="w3-modal">
+                                        <div class="w3-modal-content w3-card-4 w3-animate-opacity" style="max-width:400px">
+                                            <div class="w3-container w3-padding-large w3-border-bottom w3-light-gray">
+                                                <b class="w3-text-dark-gray"><fmt:message key="message.confirm-delete.book"/></b>
+                                            </div>
+
+                                            <div class="w3-container w3-padding-large w3-border-top w3-theme-l4">
+                                                <button onclick="document.getElementById('delete-${bookInfo.id}').style.display='none'" type="button" class="w3-button w3-red w3-right"><fmt:message key="delete.cancel"/></button>
+                                                <form action="controller" method="post">
+                                                    <input type="hidden" name="command" value="delete-book">
+                                                    <input type="hidden" name="book_id" value="${bookInfo.id}">
+                                                    <button class="w3-button w3-theme w3-right w3-margin-right" type="submit"><fmt:message key="delete.confirm"/></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>
                     </table>
+
+                    <div class="w3-center w3-section">
+                        <div class="w3-bar">
+                            <a href="controller?${requestScope.url}&page=${requestScope.page > 1 ? requestScope.page-1 : 1}" class="w3-bar-item w3-button w3-theme-l4">&laquo;</a>
+                            <c:forEach var="page_number" begin="1" end="${requestScope.pages_count}">
+                                <a href="controller?${requestScope.url}&page=${page_number}" class="w3-bar-item w3-button ${page_number == requestScope.page ? 'w3-theme' : 'w3-theme-l4'}">${page_number}</a>
+                            </c:forEach>
+                            <a href="controller?${requestScope.url}&page=${requestScope.page < requestScope.pages_count ? requestScope.page+1 : requestScope.pages_count}" class="w3-bar-item w3-button w3-theme-l4">&raquo;</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="w3-col w3-container" style="width: 15%;"></div>
             </div>

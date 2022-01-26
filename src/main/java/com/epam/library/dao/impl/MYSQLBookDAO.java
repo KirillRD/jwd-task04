@@ -128,7 +128,6 @@ public class MYSQLBookDAO implements BookDAO {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
         } catch (SQLException | ConnectionPoolException e) {
             try {
                 if (connection != null) {
@@ -140,8 +139,11 @@ public class MYSQLBookDAO implements BookDAO {
             throw new DAOException(e);
         } finally {
             try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                }
                 connectionPool.closeConnection(resultSet, preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
+            } catch (ConnectionPoolException | SQLException e) {
                 logger.error("Error closing resources", e);
             }
         }
@@ -249,7 +251,6 @@ public class MYSQLBookDAO implements BookDAO {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
         } catch (SQLException | ConnectionPoolException e) {
             try {
                 if (connection != null) {
@@ -261,8 +262,11 @@ public class MYSQLBookDAO implements BookDAO {
             throw new DAOException(e);
         } finally {
             try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                }
                 connectionPool.closeConnection(preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
+            } catch (ConnectionPoolException | SQLException e) {
                 logger.error("Error closing resources", e);
             }
         }
@@ -303,7 +307,6 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.executeUpdate();
 
             connection.commit();
-            connection.setAutoCommit(true);
 
             return true;
         } catch (SQLException | ConnectionPoolException e) {
@@ -317,8 +320,11 @@ public class MYSQLBookDAO implements BookDAO {
             throw new DAOException(e);
         } finally {
             try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                }
                 connectionPool.closeConnection(resultSet, preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
+            } catch (ConnectionPoolException | SQLException e) {
                 logger.error("Error closing resources", e);
             }
         }

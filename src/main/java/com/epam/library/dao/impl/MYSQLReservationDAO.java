@@ -155,7 +155,6 @@ public class MYSQLReservationDAO implements ReservationDAO {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
         } catch (SQLException | ConnectionPoolException e) {
             try {
                 if (connection != null) {
@@ -167,8 +166,11 @@ public class MYSQLReservationDAO implements ReservationDAO {
             throw new DAOException(e);
         } finally {
             try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                }
                 connectionPool.closeConnection(preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
+            } catch (ConnectionPoolException | SQLException e) {
                 logger.error("Error closing resources", e);
             }
         }

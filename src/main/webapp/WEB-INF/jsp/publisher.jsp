@@ -91,15 +91,28 @@
                                         </form>
                                     </td>
                                     <td>
-                                        <form action="controller" method="post" onsubmit="return confirm('<fmt:message key="message.confirm-delete.publisher"/>');">
-                                            <input type="hidden" name="command" value="delete-publisher">
-                                            <input type="hidden" name="publisher_id" value="${publisher.id}">
-                                            <button class="link" type="submit"
-                                                ${publisher.publisherIsUsed ? 'disabled' : ''}
-                                            ><span class="material-icons-outlined
+                                        <button onclick="document.getElementById('delete-${publisher.id}').style.display='block'" class="link" ${publisher.publisherIsUsed ? 'disabled' : ''}>
+                                        <span class="material-icons-outlined
                                             ${publisher.publisherIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
-                                                   title="<fmt:message key="publisher.delete-publisher"/>">clear</span></button>
-                                        </form>
+                                              title="<fmt:message key="publisher.delete-publisher"/>">clear</span>
+                                        </button>
+
+                                        <div id="delete-${publisher.id}" class="w3-modal">
+                                            <div class="w3-modal-content w3-card-4 w3-animate-opacity" style="max-width:400px">
+                                                <div class="w3-container w3-padding-large w3-border-bottom w3-light-gray">
+                                                    <b class="w3-text-dark-gray"><fmt:message key="message.confirm-delete.publisher"/></b>
+                                                </div>
+
+                                                <div class="w3-container w3-padding-large w3-border-top w3-theme-l4">
+                                                    <button onclick="document.getElementById('delete-${publisher.id}').style.display='none'" type="button" class="w3-button w3-red w3-right"><fmt:message key="delete.cancel"/></button>
+                                                    <form action="controller" method="post">
+                                                        <input type="hidden" name="command" value="delete-publisher">
+                                                        <input type="hidden" name="publisher_id" value="${publisher.id}">
+                                                        <button class="w3-button w3-theme w3-right w3-margin-right" type="submit"><fmt:message key="delete.confirm"/></button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </c:forEach>

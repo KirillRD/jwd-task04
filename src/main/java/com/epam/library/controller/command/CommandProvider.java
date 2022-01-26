@@ -58,6 +58,7 @@ public final class CommandProvider {
         commands.put(CommandName.DELETE_TYPE.getCommandName(), new DeleteType());
         commands.put(CommandName.GO_TO_RULE_PAGE.getCommandName(), new GoToRulePage());
         commands.put(CommandName.GO_TO_CONTACT_PAGE.getCommandName(), new GoToContactPage());
+        commands.put(CommandName.LOCK_USER.getCommandName(), new LockUser());
     }
 
     public final Command getCommand(String command) {

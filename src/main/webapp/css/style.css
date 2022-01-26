@@ -96,6 +96,20 @@ main {
     width: 100%;
 }
 
+.book-list-image {
+    padding-top: 4px;
+    padding-left: 2px;
+    height: 150px;
+    width: 100%;
+}
+
+.user-list-image {
+    padding-top: 4px;
+    padding-left: 2px;
+    height: 70px;
+    width: 100%;
+}
+
 .book-catalog-span {
     vertical-align: super;
 }

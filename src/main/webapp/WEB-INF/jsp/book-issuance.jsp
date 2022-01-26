@@ -176,7 +176,7 @@
 
                         <table class="w3-table w3-striped w3-border w3-hoverable">
                             <tr>
-                                <th></th>
+                                <th style="width: 120px;"></th>
                                 <th><fmt:message key="book.name"/></th>
                                 <th><fmt:message key="book.authors"/></th>
                                 <th><fmt:message key="book.publisher"/></th>
@@ -191,7 +191,7 @@
                                 <tr>
                                     <td>
                                         <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
-                                            <img class="book-catalog-image" src="${bookInfo.imageURL}">
+                                            <img class="book-list-image" src="${bookInfo.imageURL}">
                                         </a>
                                     </td>
                                     <td>
@@ -246,6 +246,16 @@
                             </c:forEach>
                         </table>
                     </form>
+
+                    <div class="w3-center w3-section">
+                        <div class="w3-bar">
+                            <a href="controller?${requestScope.url}&page=${requestScope.page > 1 ? requestScope.page-1 : 1}" class="w3-bar-item w3-button w3-theme-l4">&laquo;</a>
+                            <c:forEach var="page_number" begin="1" end="${requestScope.pages_count}">
+                                <a href="controller?${requestScope.url}&page=${page_number}" class="w3-bar-item w3-button ${page_number == requestScope.page ? 'w3-theme' : 'w3-theme-l4'}">${page_number}</a>
+                            </c:forEach>
+                            <a href="controller?${requestScope.url}&page=${requestScope.page < requestScope.pages_count ? requestScope.page+1 : requestScope.pages_count}" class="w3-bar-item w3-button w3-theme-l4">&raquo;</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="w3-col w3-container" style="width: 15%;"></div>
             </div>

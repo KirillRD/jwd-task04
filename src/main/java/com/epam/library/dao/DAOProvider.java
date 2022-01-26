@@ -12,7 +12,6 @@ public class DAOProvider {
     private final AuthorDAO authorDAO = new MYSQLAuthorDAO();
     private final GenreDAO genreDAO = new MYSQLGenreDAO();
     private final BookCatalogDAO bookCatalogDAO = new MYSQLBookCatalogDAO();
-    private final BookReviewDAO bookReviewDAO = new MYSQLBookReviewDAO();
     private final ReaderDAO readerDAO = new MYSQLReaderDAO();
     private final InstanceDAO instanceDAO = new MYSQLInstanceDAO();
     private final HallDAO hallDAO = new MYSQLHallDAO();
@@ -52,10 +51,6 @@ public class DAOProvider {
 
     public BookCatalogDAO getBookCatalogDAO() {
         return bookCatalogDAO;
-    }
-
-    public BookReviewDAO getBookReviewDAO() {
-        return bookReviewDAO;
     }
 
     public ReaderDAO getReaderDAO() {

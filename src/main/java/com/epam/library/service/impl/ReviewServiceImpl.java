@@ -4,6 +4,7 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.ReviewDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Review;
+import com.epam.library.entity.book.catalog.BookReview;
 import com.epam.library.service.ReviewService;
 import com.epam.library.service.exception.ReviewException;
 import com.epam.library.service.exception.ServiceException;
@@ -49,6 +50,15 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new ReviewException(exceptions);
             }
             return true;
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<BookReview> getBookReviews(int bookID) throws ServiceException {
+        try {
+            return reviewDAO.getBookReviews(bookID);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

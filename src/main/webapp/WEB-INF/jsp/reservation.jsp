@@ -18,7 +18,9 @@
                 <p class="w3-center w3-text-blue-gray"><b class="w3-xlarge"><fmt:message key="reservation.label"/></b></p>
                 <c:if test="${requestScope.reader_reservation.size() != 0 && requestScope.reader_reservation != null}">
                     <div class="w3-container w3-margin-bottom w3-text-blue-gray">
-                        <h3><fmt:message key="reader.reserved-books"/></h3>
+                        <div class="w3-padding">
+                            <b class="w3-large w3-text-dark-gray"><fmt:message key="reader.reserved-books"/></b>
+                        </div>
                         <table class="w3-table w3-striped w3-border w3-hoverable">
                             <tr>
                                 <th><fmt:message key="book.name"/></th>

@@ -14,96 +14,146 @@
         <jsp:include page="tempalte/header.jsp" />
         <jsp:include page="tempalte/nav.jsp" />
         <main class="w3-auto w3-container">
-            <div class="w3-row">
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/3.jpg">
-                    </p>
-                </div>
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 165px">
-                        <fmt:message key="main.about-library.1"/>
-                    </p>
-                </div>
-            </div>
+<%--            <div class="w3-row">--%>
 
-            <div class="w3-row">
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 165px">
-                        <fmt:message key="main.about-library.2"/>
+                <p class="w3-text-dark-gray w3-center w3-large">
+                    <fmt:message key="main.rule-library.1"/>
+                </p>
+                <div class="w3-container">
+                    <p class="w3-text-dark-gray w3-left w3-large">
+                        <fmt:message key="main.rule-library.2"/>
+                    </p>
+                    <p class="w3-text-dark-gray w3-left w3-large">
+                        <fmt:message key="main.rule-library.3"/>
+                    </p>
+                    <p class="w3-text-dark-gray w3-left w3-large">
+                        <fmt:message key="main.rule-library.4"/>
+                    </p>
+                    <p class="w3-text-dark-gray w3-left w3-large">
+                        <fmt:message key="main.rule-library.5"/>
                     </p>
                 </div>
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/7.jpg">
-                    </p>
-                </div>
-            </div>
 
-            <div class="w3-row">
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/8.jpg">
-                    </p>
-                </div>
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">
-                        <fmt:message key="main.about-library.3"/>
-                    </p>
-                </div>
-            </div>
+                <p class="w3-text-dark-gray w3-center w3-large">
+                    <fmt:message key="main.rule-library.6"/>
+                </p>
+                <p class="w3-text-dark-gray w3-center w3-large">
+                    <fmt:message key="main.rule-library.7"/>
+                </p>
+                <p class="w3-text-dark-gray w3-center w3-large">
+                    <fmt:message key="main.rule-library.8"/>
+                </p>
 
-            <div class="w3-row">
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">
-                        <fmt:message key="main.about-library.4"/>
-                    </p>
-                </div>
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/2.jpg">
-                    </p>
-                </div>
-            </div>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/3.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-dark-gray w3-center w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.1"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-left w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.2"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-left w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.3"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-left w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.4"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-left w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.5"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-center w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.6"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-center w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.7"/>--%>
+<%--                    </p>--%>
+<%--                    <p class="w3-text-dark-gray w3-center w3-large">--%>
+<%--                        <fmt:message key="main.rule-library.8"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
 
-            <div class="w3-row">
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/4.jpg">
-                    </p>
-                </div>
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">
-                        <fmt:message key="main.about-library.5"/>
-                    </p>
-                </div>
-            </div>
+<%--            <div class="w3-row">--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 165px">--%>
+<%--                        <fmt:message key="main.about-library.2"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/7.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
 
-            <div class="w3-row">
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">
-                        <fmt:message key="main.about-library.6"/>
-                    </p>
-                </div>
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/5.jpg">
-                    </p>
-                </div>
-            </div>
+<%--            <div class="w3-row">--%>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/8.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">--%>
+<%--                        <fmt:message key="main.about-library.3"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
 
-            <div class="w3-row">
-                <div class="w3-twothird w3-container">
-                    <p>
-                        <img class="w3-image" src="images/library/6.jpg">
-                    </p>
-                </div>
-                <div class="w3-third w3-container">
-                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">
-                        <fmt:message key="main.about-library.7"/>
-                    </p>
-                </div>
-            </div>
+<%--            <div class="w3-row">--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">--%>
+<%--                        <fmt:message key="main.about-library.4"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/2.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+
+<%--            <div class="w3-row">--%>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/4.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">--%>
+<%--                        <fmt:message key="main.about-library.5"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+
+<%--            <div class="w3-row">--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">--%>
+<%--                        <fmt:message key="main.about-library.6"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/5.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+
+<%--            <div class="w3-row">--%>
+<%--                <div class="w3-twothird w3-container">--%>
+<%--                    <p>--%>
+<%--                        <img class="w3-image" src="images/library/6.jpg">--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--                <div class="w3-third w3-container">--%>
+<%--                    <p class="w3-text-blue-gray w3-center w3-large" style="margin-top: 175px">--%>
+<%--                        <fmt:message key="main.about-library.7"/>--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
         </main>
         <jsp:include page="tempalte/footer.jsp" />
     </body>

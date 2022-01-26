@@ -47,7 +47,8 @@ public enum CommandName {
     DELETE_PUBLISHER("delete-publisher"),
     DELETE_TYPE("delete-type"),
     GO_TO_RULE_PAGE("go-to-rule-page"),
-    GO_TO_CONTACT_PAGE("go-to-contact-page");
+    GO_TO_CONTACT_PAGE("go-to-contact-page"),
+    LOCK_USER("lock-user");
 
     private final String commandName;
 

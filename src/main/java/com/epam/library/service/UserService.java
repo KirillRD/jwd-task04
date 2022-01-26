@@ -12,7 +12,10 @@ public interface UserService {
     int registration(UserInfo user, String password, String repeatedPassword) throws ServiceException;
     Integer authentication(String email, String password) throws ServiceException;
     void updateUser(UserInfo user, String currentPassword, String newPassword, String repeatedNewPassword) throws ServiceException;
+    boolean checkUserLock(int userID) throws ServiceException;
+    void lockUser(int userID) throws ServiceException;
     User getUser(int userID) throws ServiceException;
-    List<User> getUsersByFilter(Map<String, Object> filters) throws ServiceException;
+    List<User> getUsersByFilter(Map<String, Object> filters, int page) throws ServiceException;
+    int getPagesCount() throws ServiceException;
     SessionUser getSessionUser(int userID) throws ServiceException;
 }

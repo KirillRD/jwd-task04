@@ -26,6 +26,7 @@ public class Authentication implements Command {
 
     private static final String MESSAGE = "message";
     private static final String ERROR_AUTHENTICATION = "error-authentication";
+    private static final String ERROR_LOCK = "error-lock";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -39,6 +40,14 @@ public class Authentication implements Command {
         try {
             Integer userID = userService.authentication(email, password);
             if (userID != null) {
+                if (userService.checkUserLock(userID)) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute(EMAIL, email);
+                    session.setAttribute(MESSAGE, ERROR_LOCK);
+                    logger.info(logMesBuilder.build("Authentication was not completed. User is locked"));
+                    RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
+                    return;
+                }
                 SessionUser sessionUser = userService.getSessionUser(userID);
                 SessionUserProvider.setSessionUser(request, sessionUser);
                 logger.info(logMesBuilder.build("Authentication completed"));

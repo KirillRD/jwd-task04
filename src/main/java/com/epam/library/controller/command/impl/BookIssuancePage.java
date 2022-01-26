@@ -38,6 +38,11 @@ public class BookIssuancePage implements Command {
     private static final String SPACE = " ";
     private static final String POINT = ".";
 
+    private String url;
+    private static final String PAGE = "page";
+    private static final String PAGES_COUNT = "pages_count";
+    private static final String URL = "url";
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
@@ -94,9 +99,23 @@ public class BookIssuancePage implements Command {
             }
             request.setAttribute(READER, reader);
 
-            bookCatalog = bookCatalogService.getBookCatalogByFilter(filters);
-            logger.info(logMesBuilder.build("Book list for issuance building completed"));
+            int page;
+            if (Util.isID(request.getParameter(PAGE))) {
+                page = Integer.parseInt(request.getParameter(PAGE));
+            } else {
+                url = request.getQueryString();
+                page = 1;
+            }
+            request.setAttribute(PAGE, page);
+            request.setAttribute(URL, url);
+
+            bookCatalog = bookCatalogService.getBookCatalogByFilter(filters, page);
             request.setAttribute(BOOK_CATALOG, bookCatalog);
+
+            int pagesCount = bookCatalogService.getPagesCount();
+            request.setAttribute(PAGES_COUNT, pagesCount);
+
+            logger.info(logMesBuilder.build("Book list for issuance building completed"));
 
             RequestProvider.forward(PagePath.BOOK_ISSUANCE_PAGE, request, response);
         } catch (ServiceException e) {

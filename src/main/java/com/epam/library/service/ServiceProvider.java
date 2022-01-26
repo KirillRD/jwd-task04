@@ -12,7 +12,6 @@ public class ServiceProvider {
     private final AuthorService authorService = new AuthorServiceImpl();
     private final GenreService genreService = new GenreServiceImpl();
     private final BookCatalogService bookCatalogService = new BookCatalogServiceImpl();
-    private final BookReviewService bookReviewService = new BookReviewServiceImpl();
     private final ReaderService readerService = new ReaderServiceImpl();
     private final InstanceService instanceService = new InstanceServiceImpl();
     private final HallService hallService = new HallServiceImpl();
@@ -52,10 +51,6 @@ public class ServiceProvider {
 
     public BookCatalogService getBookCatalogService() {
         return bookCatalogService;
-    }
-
-    public BookReviewService getBookReviewService() {
-        return bookReviewService;
     }
 
     public ReaderService getReaderService() {

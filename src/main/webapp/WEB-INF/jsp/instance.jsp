@@ -172,16 +172,29 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="controller" method="post" onsubmit="return confirm('<fmt:message key="message.confirm-delete.instance"/>');">
-                                        <input type="hidden" name="command" value="delete-instance">
-                                        <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
-                                        <input type="hidden" name="instance_id" value="${instance.id}">
-                                        <button class="link" type="submit"
-                                            ${instance.instanceIsUsed ? 'disabled' : ''}
-                                        ><span class="material-icons-outlined
-                                            ${instance.instanceIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
-                                        title="<fmt:message key="instance.delete-instance"/>">clear</span></button>
-                                    </form>
+                                    <button onclick="document.getElementById('delete-${instance.id}').style.display='block'" class="link" ${instance.instanceIsUsed ? 'disabled' : ''}>
+                                    <span class="material-icons-outlined
+                                        ${instance.instanceIsUsed ? 'w3-text-gray' : 'w3-text-red'}"
+                                          title="<fmt:message key="instance.delete-instance"/>">clear</span>
+                                    </button>
+
+                                    <div id="delete-${instance.id}" class="w3-modal">
+                                        <div class="w3-modal-content w3-card-4 w3-animate-opacity" style="max-width:400px">
+                                            <div class="w3-container w3-padding-large w3-border-bottom w3-light-gray">
+                                                <b class="w3-text-dark-gray"><fmt:message key="message.confirm-delete.instance"/></b>
+                                            </div>
+
+                                            <div class="w3-container w3-padding-large w3-border-top w3-theme-l4">
+                                                <button onclick="document.getElementById('delete-${instance.id}').style.display='none'" type="button" class="w3-button w3-red w3-right"><fmt:message key="delete.cancel"/></button>
+                                                <form action="controller" method="post">
+                                                    <input type="hidden" name="command" value="delete-instance">
+                                                    <input type="hidden" name="book_id" value="${requestScope.book_info.id}">
+                                                    <input type="hidden" name="instance_id" value="${instance.id}">
+                                                    <button class="w3-button w3-theme w3-right w3-margin-right" type="submit"><fmt:message key="delete.confirm"/></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>

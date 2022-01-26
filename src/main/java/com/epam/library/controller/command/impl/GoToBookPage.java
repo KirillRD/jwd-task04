@@ -10,7 +10,7 @@ import com.epam.library.controller.command.util.Util;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.book.catalog.BookReview;
 import com.epam.library.service.BookCatalogService;
-import com.epam.library.service.BookReviewService;
+import com.epam.library.service.ReviewService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
@@ -36,7 +36,7 @@ public class GoToBookPage implements Command {
         BookCatalog bookInfo;
         List<BookReview> bookReviews;
         BookCatalogService bookCatalogService = ServiceProvider.getInstance().getBookCatalogService();
-        BookReviewService bookReviewService = ServiceProvider.getInstance().getBookReviewService();
+        ReviewService reviewService = ServiceProvider.getInstance().getReviewService();
 
         try {
             int bookID;
@@ -55,7 +55,7 @@ public class GoToBookPage implements Command {
             }
             request.setAttribute(BOOK_INFO, bookInfo);
 
-            bookReviews = bookReviewService.getBookReviews(bookID);
+            bookReviews = reviewService.getBookReviews(bookID);
             request.setAttribute(BOOK_REVIEW, bookReviews);
             logger.info(logMesBuilder.build("Going to book page was completed"));
 

@@ -30,7 +30,7 @@ public class ReaderServiceImpl implements ReaderService {
     }
 
     @Override
-    public List<Reader> getReadersByFilter(Map<String, Object> filters) throws ServiceException {
+    public List<Reader> getReadersByFilter(Map<String, Object> filters, int page) throws ServiceException {
         try {
             if (filters.get(ReaderListFilterName.RESERVATION_DATE_FROM) != null) {
                 if (!validator.isDate(filters.get(ReaderListFilterName.RESERVATION_DATE_FROM).toString())) {
@@ -44,7 +44,16 @@ public class ReaderServiceImpl implements ReaderService {
                 }
             }
 
-            return readerDAO.getReadersByFilter(filters);
+            return readerDAO.getReadersByFilter(filters, page);
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public int getPagesCount() throws ServiceException {
+        try {
+            return readerDAO.getPagesCount();
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

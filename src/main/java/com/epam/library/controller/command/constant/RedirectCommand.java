@@ -21,4 +21,5 @@ public final class RedirectCommand {
     public static final String GENRE_PAGE = "?command=genre-page%s";
     public static final String PUBLISHER_PAGE = "?command=publisher-page%s";
     public static final String TYPE_PAGE = "?command=type-page%s";
+    public static final String USER_LIST_PAGE = "?command=user-list-page";
 }
