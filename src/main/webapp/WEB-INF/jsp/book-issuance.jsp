@@ -191,7 +191,7 @@
                                 <tr>
                                     <td>
                                         <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
-                                            <img class="book-list-image" src="${bookInfo.imageURL}">
+                                            <img class="book-list-image" src="images/books/${bookInfo.imageURL}">
                                         </a>
                                     </td>
                                     <td>

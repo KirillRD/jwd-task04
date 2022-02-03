@@ -1,7 +1,6 @@
 package com.epam.library.entity;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.Objects;
 
 public class Review implements Serializable {
@@ -10,7 +9,6 @@ public class Review implements Serializable {
     private int readerID;
     private int rating;
     private String comment;
-    private Date date;
 
     public Review() {}
 
@@ -54,25 +52,17 @@ public class Review implements Serializable {
         this.comment = comment;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Review review = (Review) o;
-        return id == review.id && bookID == review.bookID && readerID == review.readerID && rating == review.rating && Objects.equals(comment, review.comment) && Objects.equals(date, review.date);
+        return id == review.id && bookID == review.bookID && readerID == review.readerID && rating == review.rating && Objects.equals(comment, review.comment);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, bookID, readerID, rating, comment, date);
+        return Objects.hash(id, bookID, readerID, rating, comment);
     }
 
     @Override
@@ -83,7 +73,6 @@ public class Review implements Serializable {
                 ", readerID=" + readerID +
                 ", rating=" + rating +
                 ", comment='" + comment + '\'' +
-                ", date=" + date +
                 '}';
     }
 }

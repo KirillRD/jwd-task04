@@ -2,14 +2,14 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.PagePath;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.PagePath;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
-import com.epam.library.entity.user.Role;
+import com.epam.library.entity.user.constant.Role;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.UserService;
@@ -31,8 +31,8 @@ public class GoToEditUserPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Going to page for updating user started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Going to page for updating user started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();
 
@@ -40,18 +40,18 @@ public class GoToEditUserPage implements Command {
             int userID;
             SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
             if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                logger.info(logMesBuilder.build("Admin/Librarian goes to page for updating user"));
+                logger.info(LogMessageBuilder.message(logMessage, "Admin/Librarian goes to page for updating user"));
                 userID = Integer.parseInt(request.getParameter(USER_ID));
             } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                logger.info(logMesBuilder.build("Admin/Librarian goes to page for updating user"));
+                logger.info(LogMessageBuilder.message(logMessage, "Admin/Librarian goes to page for updating user"));
                 userID = Integer.parseInt(request.getParameter(READER_ID));
             } else {
-                logger.info(logMesBuilder.build("User goes to page for updating self"));
+                logger.info(LogMessageBuilder.message(logMessage, "User goes to page for updating self"));
                 userID = sessionUser.getId();
             }
             User user = userService.getUser(userID);
             if (user == null) {
-                logger.error(logMesBuilder.build("Invalid page attributes. Going to page for updating user is failed"));
+                logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Going to page for updating user is failed"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -60,10 +60,10 @@ public class GoToEditUserPage implements Command {
                 session.setAttribute(USER, user);
             }
 
-            logger.info(logMesBuilder.build("Going to page for updating user was completed"));
+            logger.info(LogMessageBuilder.message(logMessage, "Going to page for updating user was completed"));
             RequestProvider.forward(PagePath.EDIT_USER_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error in data while going to page for updating user"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error in data while going to page for updating user"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

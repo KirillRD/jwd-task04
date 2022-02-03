@@ -152,7 +152,7 @@
                             <div class="w3-row book-catalog-half">
                                 <div class="book-catalog-half-left w3-half">
                                     <a href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
-                                        <img class="book-catalog-image" src="${bookInfo.imageURL}">
+                                        <img class="book-catalog-image" src="images/books/${bookInfo.imageURL}">
                                     </a>
                                     <span class="material-icons w3-text-yellow">star</span>
                                     <span class="book-catalog-span">${bookInfo.rating} (${bookInfo.countRatings})</span>

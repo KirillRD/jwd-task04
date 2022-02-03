@@ -3,7 +3,7 @@ package com.epam.library.service.impl;
 import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.GenreDAO;
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.entity.book.Genre;
+import com.epam.library.entity.book.dictionary.Genre;
 import com.epam.library.service.GenreService;
 import com.epam.library.service.exception.GenreException;
 import com.epam.library.service.exception.ServiceException;

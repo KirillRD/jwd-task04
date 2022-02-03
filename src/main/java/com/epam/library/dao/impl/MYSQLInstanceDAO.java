@@ -4,9 +4,8 @@ import com.epam.library.dao.InstanceDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.entity.Instance;
 import com.epam.library.entity.instance.BookInstance;
-import com.epam.library.entity.instance.InstanceInfo;
+import com.epam.library.entity.Instance;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -21,7 +20,6 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     private static final String COUNT_RESERVATIONS = "count_reservations";
     private static final String MAX_ID_INSTANCE = "MAX(id)";
     private static final String ID = "id";
-    private static final String BOOKS_ID = "books_id";
     private static final String NUMBER = "number";
     private static final String HALLS_ID = "halls_id";
     private static final String DATE_RECEIVED = "date_received";
@@ -32,7 +30,6 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     private static final String GET_INSTANCE_BY_NUMBER = "SELECT * FROM instances WHERE number=?";
     private static final String GET_MAX_ID_INSTANCE = "SELECT MAX(id) FROM instances";
     private static final String INSERT_INSTANCE = "INSERT INTO instances (id, books_id, number, halls_id, date_received, date_write_off) VALUES (?,?,?,?,?,?)";
-    private static final String SELECT_INSTANCE = "SELECT * FROM instances WHERE id=?";
     private static final String UPDATE_INSTANCE = "UPDATE instances SET books_id=?, number=?, halls_id=?, date_received=?, date_write_off=? WHERE id=?";
     private static final String GET_ISSUANCE = "SELECT COUNT(1) AS count_issuance FROM issuance WHERE instances_id=?";
     private static final String GET_RESERVATIONS = "SELECT COUNT(1) AS count_reservations FROM reservation WHERE instances_id=?";
@@ -86,7 +83,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     }
 
     @Override
-    public void addInstance(InstanceInfo instance) throws DAOException {
+    public void addInstance(Instance instance) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -120,41 +117,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     }
 
     @Override
-    public Instance getInstance(int instanceID) throws DAOException {
-        Instance instance = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(SELECT_INSTANCE);
-            preparedStatement.setInt(1, instanceID);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                instance = new Instance();
-                instance.setId(instanceID);
-                instance.setBookID(resultSet.getInt(BOOKS_ID));
-                instance.setNumber(resultSet.getString(NUMBER));
-                instance.setHallID(resultSet.getInt(HALLS_ID));
-                instance.setReceivedDate(resultSet.getDate(DATE_RECEIVED));
-                instance.setWriteOffDate(resultSet.getDate(DATE_WRITE_OFF));
-            }
-            return instance;
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
-            try {
-                connectionPool.closeConnection(resultSet, preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
-                logger.error("Error closing resources", e);
-            }
-        }
-    }
-
-    @Override
-    public void updateInstance(InstanceInfo instance) throws DAOException {
+    public void updateInstance(Instance instance) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 

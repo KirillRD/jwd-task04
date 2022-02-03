@@ -4,7 +4,7 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.UserDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.User;
-import com.epam.library.entity.user.Gender;
+import com.epam.library.entity.user.constant.Gender;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.UserService;
@@ -14,6 +14,8 @@ import com.epam.library.service.exception.user.password.*;
 import com.epam.library.service.exception.user.*;
 import com.epam.library.service.validation.Validator;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +88,8 @@ public class UserServiceImpl implements UserService {
                 exceptions.add(new EmptyBirthdayException());
             } else if (!validator.isDate(user.getBirthday())) {
                 exceptions.add(new InvalidBirthdayFormatException());
+            } else if (Date.valueOf(user.getBirthday()).compareTo(Date.valueOf(LocalDate.now())) > 0) {
+                exceptions.add(new InvalidBirthdayException());
             }
 
             if (validator.isEmpty(user.getGender())) {
@@ -150,6 +154,8 @@ public class UserServiceImpl implements UserService {
                 exceptions.add(new EmptyBirthdayException());
             } else if (!validator.isDate(user.getBirthday())) {
                 exceptions.add(new InvalidBirthdayFormatException());
+            } else if (Date.valueOf(user.getBirthday()).compareTo(Date.valueOf(LocalDate.now())) > 0) {
+                exceptions.add(new InvalidBirthdayException());
             }
 
             if (validator.isEmpty(user.getGender())) {
@@ -211,12 +217,21 @@ public class UserServiceImpl implements UserService {
                 if (validator.isEmpty(currentPassword) && validator.isEmpty(newPassword) && validator.isEmpty(repeatedNewPassword)) {
                     userDAO.updateUser(user);
                 } else {
-                    userDAO.updateUser(user, currentPassword, newPassword);
+                    userDAO.updateUser(user, newPassword);
                 }
             } else {
                 throw new UserException(exceptions);
             }
 
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public void updateUserImage(int userID, String imageURL) throws ServiceException {
+        try {
+            userDAO.updateUserImage(userID, imageURL);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
@@ -259,9 +274,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int getPagesCount() throws ServiceException {
+    public int getPagesCount(Map<String, Object> filters) throws ServiceException {
         try {
-            return userDAO.getPagesCount();
+            return userDAO.getPagesCount(filters);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

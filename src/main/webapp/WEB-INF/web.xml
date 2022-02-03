@@ -16,6 +16,24 @@
         <servlet-name>Controller</servlet-name>
         <url-pattern>/controller</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserImageUpload</servlet-name>
+        <servlet-class>com.epam.library.controller.UserImageUpload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserImageUpload</servlet-name>
+        <url-pattern>/user-image-upload</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>BookImageUpload</servlet-name>
+        <servlet-class>com.epam.library.controller.BookImageUpload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BookImageUpload</servlet-name>
+        <url-pattern>/book-image-upload</url-pattern>
+    </servlet-mapping>
     
     <listener>
         <listener-class>com.epam.library.controller.listener.ContextListener</listener-class>

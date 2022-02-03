@@ -1,5 +1,7 @@
 package com.epam.library.entity.user;
 
+import com.epam.library.entity.user.constant.Gender;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;

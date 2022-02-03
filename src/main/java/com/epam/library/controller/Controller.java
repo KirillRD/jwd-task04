@@ -2,9 +2,9 @@ package com.epam.library.controller;
 
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.CommandProvider;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +35,8 @@ public class Controller extends HttpServlet {
         Command command = commandProvider.getCommand(commandName);
 
         if (command == null) {
-            LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-            logger.info(logMesBuilder.build("Non-existent command"));
+            String logMessage = LogMessageBuilder.build(request);
+            logger.info(LogMessageBuilder.message(logMessage, "Non-existent command"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }

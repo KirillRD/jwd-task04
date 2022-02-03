@@ -7,7 +7,7 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.issuance.ReaderIssuance;
 import com.epam.library.entity.reservation.ReaderReservation;
 import com.epam.library.constant.ReservationStatus;
-import com.epam.library.entity.user.Gender;
+import com.epam.library.entity.user.constant.Gender;
 import com.epam.library.entity.user.Reader;
 import com.epam.library.constant.ReaderListFilterName;
 import org.apache.log4j.Logger;
@@ -157,7 +157,6 @@ public class MYSQLReaderDAO implements ReaderDAO {
             ReaderListFilterName.RESERVATION_DATE_DESCENDING, "min_date_reservation DESC, last_name ASC"
     );
 
-    private String query;
     private static final String PAGES_COUNT = "pages_count";
     private static final String GET_PAGES_COUNT = "SELECT COUNT(*) AS pages_count FROM ( %s ) query";
     private static final String COLON = ": ";
@@ -217,7 +216,7 @@ public class MYSQLReaderDAO implements ReaderDAO {
     }
 
     @Override
-    public int getPagesCount() throws DAOException {
+    public int getPagesCount(Map<String, Object> filters) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -225,7 +224,35 @@ public class MYSQLReaderDAO implements ReaderDAO {
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, query));
+            StringBuilder query = new StringBuilder(READER_FILTER_QUERY);
+            if (filters.size() > 1) {
+                for (String filterName : filters.keySet()) {
+                    if (!filterName.equals(ReaderListFilterName.SORT)) {
+                        query.append(AND);
+                        query.append(filterValues.get(filterName));
+                    }
+                }
+            }
+            query.append(ORDER_BY);
+            query.append(sortValue.get(filters.get(ReaderListFilterName.SORT)));
+
+            preparedStatement = connection.prepareStatement(query.toString());
+            List<String> filterNames = new ArrayList<>(filters.keySet());
+            for (int i = 0, n = 1; i < filterNames.size() - 1; i++, n++) {
+                String filterName = filterNames.get(i);
+                if (filterName.equals(ReaderListFilterName.LAST_NAME)) {
+                    preparedStatement.setString(n, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
+                } else if (filterName.equals(ReaderListFilterName.RESERVATION_DATE_FROM) || filterName.equals(ReaderListFilterName.RESERVATION_DATE_TO)) {
+                    preparedStatement.setDate(n, Date.valueOf(filters.get(filterNames.get(i)).toString()));
+                } else if (filterName.equals(ReaderListFilterName.DEBTORS) || filterName.equals(ReaderListFilterName.RESERVATION)) {
+                    n--;
+                }
+            }
+
+            String pagesQuery = preparedStatement.toString();
+            pagesQuery = pagesQuery.substring(pagesQuery.indexOf(COLON) + 2);
+
+            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, pagesQuery));
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
             int pagesCount = resultSet.getInt(PAGES_COUNT);
@@ -280,10 +307,6 @@ public class MYSQLReaderDAO implements ReaderDAO {
                     n--;
                 }
             }
-
-            this.query = preparedStatement.toString();
-            this.query = this.query.substring(this.query.indexOf(COLON) + 2);
-            this.query = this.query.substring(0, this.query.length() - limit.length());
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

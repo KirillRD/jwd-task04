@@ -91,7 +91,7 @@
                                 </td>
                                 <td>
                                     <a href="controller?command=go-to-user-page&user_id=${user.id}">
-                                        <img class="user-list-image" src="${user.imageURL}">
+                                        <img class="user-list-image" src="images/users/${user.imageURL}">
                                     </a>
                                 </td>
                                 <td>

@@ -2,14 +2,14 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.PagePath;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.PagePath;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.entity.instance.BookInstance;
-import com.epam.library.entity.instance.Hall;
+import com.epam.library.entity.instance.hall.Hall;
 import com.epam.library.service.BookCatalogService;
 import com.epam.library.service.HallService;
 import com.epam.library.service.InstanceService;
@@ -36,8 +36,8 @@ public class InstancePage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Instance list build started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Instance list build started"));
 
         BookCatalog bookInfo;
         List<BookInstance> bookInstances;
@@ -50,7 +50,7 @@ public class InstancePage implements Command {
         if (Util.isID(request.getParameter(BOOK_ID))) {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
-            logger.error(logMesBuilder.build("Invalid page attributes. Book was not found"));
+            logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not found"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -61,7 +61,7 @@ public class InstancePage implements Command {
 
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
-                logger.error(logMesBuilder.build("Invalid page attributes. Book was not found"));
+                logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not found"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
@@ -74,7 +74,7 @@ public class InstancePage implements Command {
                 int instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
                 BookInstance instance = instanceService.getBookInstance(instanceID);
                 if (instance == null) {
-                    logger.error(logMesBuilder.build("Invalid page attributes. Instance was not found"));
+                    logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not found"));
                     RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
@@ -83,11 +83,11 @@ public class InstancePage implements Command {
                     session.setAttribute(INSTANCE, instance);
                 }
             }
-            logger.info(logMesBuilder.build("Instance list building completed"));
+            logger.info(LogMessageBuilder.message(logMessage, "Instance list building completed"));
 
             RequestProvider.forward(PagePath.INSTANCE_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error getting data for instance list"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error getting data for instance list"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

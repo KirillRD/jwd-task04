@@ -2,9 +2,9 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.service.ServiceProvider;
@@ -30,8 +30,8 @@ public class Authentication implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Authentication started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Authentication started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();
         String email = request.getParameter(EMAIL);
@@ -44,25 +44,25 @@ public class Authentication implements Command {
                     HttpSession session = request.getSession();
                     session.setAttribute(EMAIL, email);
                     session.setAttribute(MESSAGE, ERROR_LOCK);
-                    logger.info(logMesBuilder.build("Authentication was not completed. User is locked"));
+                    logger.info(LogMessageBuilder.message(logMessage, "Authentication was not completed. User is locked"));
                     RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
                     return;
                 }
                 SessionUser sessionUser = userService.getSessionUser(userID);
                 SessionUserProvider.setSessionUser(request, sessionUser);
-                logger.info(logMesBuilder.build("Authentication completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Authentication completed"));
             } else {
                 HttpSession session = request.getSession();
                 session.setAttribute(EMAIL, email);
                 session.setAttribute(MESSAGE, ERROR_AUTHENTICATION);
-                logger.info(logMesBuilder.build("Authentication was not completed. Email or password entered incorrectly"));
+                logger.info(LogMessageBuilder.message(logMessage, "Authentication was not completed. Email or password entered incorrectly"));
                 RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
                 return;
             }
 
             RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error data authentication"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error data authentication"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

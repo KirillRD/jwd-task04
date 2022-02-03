@@ -5,7 +5,6 @@ import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
-import com.epam.library.entity.reservation.ReservationInfo;
 import com.epam.library.constant.ReservationStatus;
 import org.apache.log4j.Logger;
 
@@ -18,10 +17,6 @@ public class MYSQLReservationDAO implements ReservationDAO {
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String MAX_ID = "MAX(id)";
     private static final String ID = "id";
-    private static final String READER_ID = "reader_id";
-    private static final String DATE = "date";
-    private static final String INSTANCES_ID = "instances_id";
-    private static final String STATUS = "status";
 
     private static final String GET_MAX_ID_RESERVATION = "SELECT MAX(id) FROM reservation";
     private static final String INSERT_RESERVATION =
@@ -40,7 +35,6 @@ public class MYSQLReservationDAO implements ReservationDAO {
             "WHERE books_id=? AND halls_id=? AND date_write_off IS NULL AND " +
             "NOT EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND (date_return IS NULL OR lost=1)) AND " +
             "NOT EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')) LIMIT 1";
-    private static final String SELECT_RESERVATION = "SELECT * FROM reservation WHERE id=?";
     private static final String UPDATE_RESERVATION = "UPDATE reservation SET status=? WHERE id=?";
     private static final String GET_RESERVATION_NOT_RESERVED = "SELECT * FROM reservation WHERE id=? AND status!='RESERVED'";
     private static final String DELETE_RESERVATION = "DELETE FROM reservation WHERE id=?";
@@ -49,7 +43,7 @@ public class MYSQLReservationDAO implements ReservationDAO {
     public MYSQLReservationDAO() {}
 
     @Override
-    public boolean addReservation(ReservationInfo reservation) throws DAOException {
+    public boolean addReservation(Reservation reservation) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -80,38 +74,6 @@ public class MYSQLReservationDAO implements ReservationDAO {
             preparedStatement.setDate(4, Date.valueOf(reservation.getDate()));
             preparedStatement.executeUpdate();
             return true;
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
-            try {
-                connectionPool.closeConnection(resultSet, preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
-                logger.error("Error closing resources", e);
-            }
-        }
-    }
-
-    @Override
-    public Reservation getReservation(int reservationID) throws DAOException {
-        Reservation reservation = new Reservation();
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(SELECT_RESERVATION);
-            preparedStatement.setInt(1, reservationID);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                reservation.setId(reservationID);
-                reservation.setInstanceID(resultSet.getInt(INSTANCES_ID));
-                reservation.setReaderID(resultSet.getInt(READER_ID));
-                reservation.setDate(resultSet.getDate(DATE));
-                reservation.setStatus(ReservationStatus.valueOf(resultSet.getString(STATUS)));
-            }
-            return reservation;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

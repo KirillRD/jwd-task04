@@ -2,8 +2,8 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
 import com.epam.library.controller.session.SessionUserProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,11 +17,11 @@ public class LogOut implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Log out started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Log out started"));
 
         SessionUserProvider.removeSessionUser(request);
-        logger.info(logMesBuilder.build("Log out completed"));
+        logger.info(LogMessageBuilder.message(logMessage, "Log out completed"));
         RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
     }
 }

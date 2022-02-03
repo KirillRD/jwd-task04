@@ -2,11 +2,11 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.PagePath;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.PagePath;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.entity.user.Reader;
 import com.epam.library.constant.ReaderListFilterName;
 import com.epam.library.service.ReaderService;
@@ -28,15 +28,24 @@ public class ReaderListPage implements Command {
     private static final String ON = "on";
     private static final String SELECTED = "selected";
 
-    private String url;
     private static final String PAGE = "page";
     private static final String PAGES_COUNT = "pages_count";
     private static final String URL = "url";
+    private static final String REDIRECT_PAGE = "&page=";
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Reader list build started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Reader list build started"));
+
+        int page;
+        String url = (String) request.getSession().getAttribute(URL);
+        if (Util.isID(request.getParameter(PAGE))) {
+            page = Integer.parseInt(request.getParameter(PAGE));
+        } else {
+            response.sendRedirect(url + REDIRECT_PAGE + 1);
+            return;
+        }
 
         ReaderService readerService = ServiceProvider.getInstance().getReaderService();
 
@@ -78,29 +87,22 @@ public class ReaderListPage implements Command {
             filters.put(ReaderListFilterName.SORT, ReaderListFilterName.LAST_NAME_ASCENDING);
         }
 
+        request.setAttribute(PAGE, page);
+        request.setAttribute(URL, request.getQueryString().replaceAll(REDIRECT_PAGE + page, ""));
+
         List<Reader> readers;
         try {
-            int page;
-            if (Util.isID(request.getParameter(PAGE))) {
-                page = Integer.parseInt(request.getParameter(PAGE));
-            } else {
-                url = request.getQueryString();
-                page = 1;
-            }
-            request.setAttribute(PAGE, page);
-            request.setAttribute(URL, url);
-
             readers = readerService.getReadersByFilter(filters, page);
             request.setAttribute(READER_LIST, readers);
 
-            int pagesCount = readerService.getPagesCount();
+            int pagesCount = readerService.getPagesCount(filters);
             request.setAttribute(PAGES_COUNT, pagesCount);
 
-            logger.info(logMesBuilder.build("Reader list building completed"));
+            logger.info(LogMessageBuilder.message(logMessage, "Reader list building completed"));
 
             RequestProvider.forward(PagePath.READER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error getting data for reader list"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error getting data for reader list"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

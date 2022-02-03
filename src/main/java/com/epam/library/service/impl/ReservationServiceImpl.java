@@ -4,17 +4,15 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.ReservationDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
-import com.epam.library.entity.reservation.ReservationInfo;
 import com.epam.library.constant.ReservationStatus;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.exception.ReservationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.reservation.EmptyHallException;
-import com.epam.library.service.exception.reservation.EmptyReservationDateException;
-import com.epam.library.service.exception.reservation.InvalidHallFormatException;
-import com.epam.library.service.exception.reservation.InvalidReservationDateFormatException;
+import com.epam.library.service.exception.reservation.*;
 import com.epam.library.service.validation.Validator;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationServiceImpl() {}
 
     @Override
-    public boolean addReservation(ReservationInfo reservation) throws ServiceException {
+    public boolean addReservation(Reservation reservation) throws ServiceException {
 
         List<ReservationException> exceptions = new ArrayList<>();
         try {
@@ -39,6 +37,8 @@ public class ReservationServiceImpl implements ReservationService {
                 exceptions.add(new EmptyReservationDateException());
             } else if (!validator.isDate(reservation.getDate())) {
                 exceptions.add(new InvalidReservationDateFormatException());
+            } else if (Date.valueOf(reservation.getDate()).compareTo(Date.valueOf(LocalDate.now())) < 0) {
+                exceptions.add(new InvalidReservationDateException());
             }
 
             if (exceptions.isEmpty()) {
@@ -46,15 +46,6 @@ public class ReservationServiceImpl implements ReservationService {
             } else {
                 throw new ReservationException(exceptions);
             }
-        } catch (DAOException e) {
-            throw new ServiceException(e);
-        }
-    }
-
-    @Override
-    public Reservation getReservation(int reservationID) throws ServiceException {
-        try {
-            return reservationDAO.getReservation(reservationID);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

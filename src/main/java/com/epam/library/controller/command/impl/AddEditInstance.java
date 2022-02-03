@@ -2,11 +2,11 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
-import com.epam.library.entity.instance.InstanceInfo;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
+import com.epam.library.entity.Instance;
 import com.epam.library.service.InstanceService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.InstanceException;
@@ -45,27 +45,28 @@ public class AddEditInstance implements Command {
             Map.entry(InvalidHallFormatException.class.getSimpleName(), "error-hall-format"),
             Map.entry(InvalidLengthNumberException.class.getSimpleName(), "error-length-number"),
             Map.entry(InvalidReceivedDateFormatException.class.getSimpleName(), "error-received-date-format"),
-            Map.entry(InvalidWriteOffDateFormatException.class.getSimpleName(), "error-write-off-date-format")
+            Map.entry(InvalidWriteOffDateFormatException.class.getSimpleName(), "error-write-off-date-format"),
+            Map.entry(InvalidWriteOffDateException.class.getSimpleName(), "error-write-off-date")
     );
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        String logMessage = LogMessageBuilder.build(request);
 
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
-        InstanceInfo instance = new InstanceInfo();
+        Instance instance = new Instance();
         if (Util.isID(request.getParameter(INSTANCE_ID))) {
             instance.setId(Integer.parseInt(request.getParameter(INSTANCE_ID)));
-            logger.info(logMesBuilder.build("Instance update started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Instance update started"));
         } else {
-            logger.info(logMesBuilder.build("Instance add started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Instance add started"));
         }
 
         int bookID;
         if (Util.isID(request.getParameter(BOOK_ID))) {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
-            logger.error(logMesBuilder.build("Invalid page attributes. Instance was not added/updated"));
+            logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not added/updated"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -78,10 +79,10 @@ public class AddEditInstance implements Command {
         try {
             if (instance.getId() != 0) {
                 instanceService.updateInstance(instance);
-                logger.info(logMesBuilder.build("Instance update completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Instance update completed"));
             } else {
                 instanceService.addInstance(instance);
-                logger.info(logMesBuilder.build("Instance add completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Instance add completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
@@ -90,14 +91,14 @@ public class AddEditInstance implements Command {
             session.setAttribute(INSTANCE, instance);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (instance.getId() != 0) {
-                logger.info(logMesBuilder.build("The entered data is invalid. Instance was not updated"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Instance was not updated"));
                 RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID + REDIRECT_INSTANCE_ID + instance.getId()), request, response);
             } else {
-                logger.info(logMesBuilder.build("The entered data is invalid. Instance was not added"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Instance was not added"));
                 RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error adding/updating instance data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating instance data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

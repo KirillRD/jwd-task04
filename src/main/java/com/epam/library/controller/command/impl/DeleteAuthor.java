@@ -2,10 +2,10 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.service.AuthorService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -26,8 +26,8 @@ public class DeleteAuthor implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Author delete started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Author delete started"));
 
         AuthorService authorService = ServiceProvider.getInstance().getAuthorService();
         try {
@@ -35,21 +35,21 @@ public class DeleteAuthor implements Command {
             if (Util.isID(request.getParameter(AUTHOR_ID))) {
                 authorID = Integer.parseInt(request.getParameter(AUTHOR_ID));
             } else {
-                logger.error(logMesBuilder.build("Invalid page attributes. Author was not deleted"));
+                logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Author was not deleted"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             if (!authorService.deleteAuthor(authorID)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_DELETE_AUTHOR);
-                logger.info(logMesBuilder.build("Author was not deleted. The book of this author already exists"));
+                logger.info(LogMessageBuilder.message(logMessage, "Author was not deleted. The book of this author already exists"));
             } else {
-                logger.info(logMesBuilder.build("Author delete completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Author delete completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error deleting author data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error deleting author data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

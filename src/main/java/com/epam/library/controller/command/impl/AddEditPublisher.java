@@ -2,11 +2,11 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
-import com.epam.library.entity.book.Publisher;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
+import com.epam.library.entity.book.dictionary.Publisher;
 import com.epam.library.service.PublisherService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.PublisherException;
@@ -44,15 +44,15 @@ public class AddEditPublisher implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        String logMessage = LogMessageBuilder.build(request);
 
         PublisherService publisherService = ServiceProvider.getInstance().getPublisherService();
         Publisher publisher = new Publisher();
         if (Util.isID(request.getParameter(PUBLISHER_ID))) {
             publisher.setId(Integer.parseInt(request.getParameter(PUBLISHER_ID)));
-            logger.info(logMesBuilder.build("Publisher update started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Publisher update started"));
         } else {
-            logger.info(logMesBuilder.build("Publisher add started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Publisher add started"));
         }
 
         publisher.setName(request.getParameter(NAME));
@@ -60,10 +60,10 @@ public class AddEditPublisher implements Command {
         try {
             if (publisher.getId() != 0) {
                 publisherService.updatePublisher(publisher);
-                logger.info(logMesBuilder.build("Publisher update completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Publisher update completed"));
             } else {
                 publisherService.addPublisher(publisher);
-                logger.info(logMesBuilder.build("Publisher add completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Publisher add completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, ""), request, response);
@@ -72,14 +72,14 @@ public class AddEditPublisher implements Command {
             session.setAttribute(PUBLISHER, publisher);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (publisher.getId() != 0) {
-                logger.info(logMesBuilder.build("The entered data is invalid. Publisher was not updated"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Publisher was not updated"));
                 RequestProvider.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, REDIRECT_PUBLISHER_ID + publisher.getId()), request, response);
             } else {
-                logger.info(logMesBuilder.build("The entered data is invalid. Publisher was not added"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Publisher was not added"));
                 RequestProvider.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error adding/updating publisher data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating publisher data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

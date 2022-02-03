@@ -2,12 +2,12 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.PagePath;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
-import com.epam.library.entity.book.Author;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.PagePath;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
+import com.epam.library.entity.book.dictionary.Author;
 import com.epam.library.service.AuthorService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -29,8 +29,8 @@ public class AuthorPage implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Author list build started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Author list build started"));
 
         AuthorService authorService = ServiceProvider.getInstance().getAuthorService();
 
@@ -41,7 +41,7 @@ public class AuthorPage implements Command {
                 int authorID = Integer.parseInt(request.getParameter(AUTHOR_ID));
                 Author author = authorService.getAuthor(authorID);
                 if (author == null) {
-                    logger.error(logMesBuilder.build("Invalid page attributes. Author was not found"));
+                    logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Author was not found"));
                     RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
@@ -50,11 +50,11 @@ public class AuthorPage implements Command {
                     session.setAttribute(AUTHOR, author);
                 }
             }
-            logger.info(logMesBuilder.build("Author list building completed"));
+            logger.info(LogMessageBuilder.message(logMessage, "Author list building completed"));
 
             RequestProvider.forward(PagePath.AUTHOR_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error getting data for author list"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error getting data for author list"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

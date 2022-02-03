@@ -1,17 +1,15 @@
 package com.epam.library.entity;
 
-import com.epam.library.constant.ReservationStatus;
-
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.Objects;
 
 public class Reservation implements Serializable {
     private int id;
     private int instanceID;
     private int readerID;
-    private Date date;
-    private ReservationStatus status;
+    private int bookID;
+    private String hallID;
+    private String date;
 
     public Reservation() {}
 
@@ -39,20 +37,28 @@ public class Reservation implements Serializable {
         this.readerID = readerID;
     }
 
-    public Date getDate() {
+    public int getBookID() {
+        return bookID;
+    }
+
+    public void setBookID(int bookID) {
+        this.bookID = bookID;
+    }
+
+    public String getHallID() {
+        return hallID;
+    }
+
+    public void setHallID(String hallID) {
+        this.hallID = hallID;
+    }
+
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
-    }
-
-    public ReservationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ReservationStatus status) {
-        this.status = status;
     }
 
     @Override
@@ -60,22 +66,23 @@ public class Reservation implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Reservation that = (Reservation) o;
-        return id == that.id && instanceID == that.instanceID && readerID == that.readerID && Objects.equals(date, that.date) && status == that.status;
+        return id == that.id && instanceID == that.instanceID && readerID == that.readerID && bookID == that.bookID && Objects.equals(hallID, that.hallID) && Objects.equals(date, that.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, instanceID, readerID, date, status);
+        return Objects.hash(id, instanceID, readerID, bookID, hallID, date);
     }
 
     @Override
     public String toString() {
-        return "Reservation{" +
+        return "ReservationInfo{" +
                 "id=" + id +
                 ", instanceID=" + instanceID +
                 ", readerID=" + readerID +
-                ", date=" + date +
-                ", status=" + status +
+                ", bookID=" + bookID +
+                ", hallID='" + hallID + '\'' +
+                ", date='" + date + '\'' +
                 '}';
     }
 }

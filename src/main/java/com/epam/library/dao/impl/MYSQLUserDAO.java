@@ -7,6 +7,8 @@ import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.User;
 import com.epam.library.entity.user.*;
+import com.epam.library.entity.user.constant.Gender;
+import com.epam.library.entity.user.constant.Role;
 import org.apache.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -36,17 +38,17 @@ public class MYSQLUserDAO implements UserDAO {
     private static final String PHONE = "phone";
     private static final String IMAGE = "image";
     private static final String LOCK = "lock";
-    private static final String DEFAULT_IMAGE_USER = "images/users/default_image_user.jpg";
+    private static final String DEFAULT_IMAGE_USER = "default_image_user.jpg";
 
     private static final String GET_USER_BY_EMAIL = "SELECT * FROM users WHERE email=?";
     private static final String SELECT_USER = "SELECT * FROM users WHERE id=?";
     private static final String GET_MAX_ID_USER = "SELECT MAX(id) FROM users";
     private static final String REGISTRATION_USER = "INSERT INTO users (id, roles_id, nickname, password, email, last_name, first_name, father_name, birthday, gender, passport, address, phone, image, `lock`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)";
     private static final String AUTHORIZATION_USER = "SELECT * FROM users WHERE email=?";
-    private static final String UPDATE_PASSWORD = "UPDATE users SET password=? WHERE id=?";
-    private static final String UPDATE_USER_WITH_PASSWORD = "UPDATE users SET roles_id=?, nickname=?, email=?, password=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=?, image=? WHERE id=?";
+    private static final String UPDATE_USER_WITH_PASSWORD = "UPDATE users SET roles_id=?, nickname=?, email=?, password=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=? WHERE id=?";
     private static final String UPDATE_LOCK = "UPDATE users SET `lock`= CASE WHEN IFNULL(`lock`,0)=0 THEN 1 ELSE 0 END WHERE id=?";
-    private static final String UPDATE_USER = "UPDATE users SET roles_id=?, nickname=?, email=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=?, image=? WHERE id=?";
+    private static final String UPDATE_USER = "UPDATE users SET roles_id=?, nickname=?, email=?, last_name=?, first_name=?, father_name=?, birthday=?, gender=?, passport=?, address=?, phone=? WHERE id=?";
+    private static final String UPDATE_USER_IMAGE = "UPDATE users SET image=? WHERE id=?";
 
     private static final String USER_FILTER_QUERY = "SELECT * FROM users";
     private static final String AND = " AND ";
@@ -70,7 +72,6 @@ public class MYSQLUserDAO implements UserDAO {
             UserListFilterName.ROLE_DESCENDING, "roles_id ASC, last_name ASC"
     );
 
-    private String query;
     private static final String PAGES_COUNT = "pages_count";
     private static final String GET_PAGES_COUNT = "SELECT COUNT(*) AS pages_count FROM ( %s ) query";
     private static final String COLON = ": ";
@@ -254,7 +255,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void updateUser(UserInfo user, String currentPassword, String newPassword) throws DAOException {
+    public void updateUser(UserInfo user, String newPassword) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -275,8 +276,7 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setString(10, user.getPassport());
             preparedStatement.setString(11, user.getAddress());
             preparedStatement.setString(12, user.getPhone());
-            preparedStatement.setString(13, user.getImageURL());
-            preparedStatement.setInt(14, user.getId());
+            preparedStatement.setInt(13, user.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
@@ -305,12 +305,11 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement.setString(5, user.getFirstName());
             preparedStatement.setString(6, user.getFatherName());
             preparedStatement.setDate(7, Date.valueOf(user.getBirthday()));
-            preparedStatement.setString(8, user.getGender().toString());
+            preparedStatement.setString(8, user.getGender());
             preparedStatement.setString(9, user.getPassport());
             preparedStatement.setString(10, user.getAddress());
             preparedStatement.setString(11, user.getPhone());
-            preparedStatement.setString(12, user.getImageURL());
-            preparedStatement.setInt(13, user.getId());
+            preparedStatement.setInt(12, user.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
@@ -324,32 +323,22 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean updatePassword(int userID, String currentPassword, String newPassword) throws DAOException {
+    public void updateUserImage(int userID, String imageURL) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
 
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(SELECT_USER);
-            preparedStatement.setInt(1, userID);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                preparedStatement = connection.prepareStatement(UPDATE_PASSWORD);
-                String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-                preparedStatement.setString(1, hashed);
-                preparedStatement.setInt(2, userID);
-                preparedStatement.executeUpdate();
-                return true;
-            } else {
-                return false;
-            }
+            preparedStatement = connection.prepareStatement(UPDATE_USER_IMAGE);
+            preparedStatement.setString(1, imageURL);
+            preparedStatement.setInt(2, userID);
+            preparedStatement.executeUpdate();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
             try {
-                connectionPool.closeConnection(resultSet, preparedStatement, connection);
+                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
                 logger.error("Error closing resources", e);
             }
@@ -432,10 +421,6 @@ public class MYSQLUserDAO implements UserDAO {
                 preparedStatement.setString(i + 1, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
             }
 
-            this.query = preparedStatement.toString();
-            this.query = this.query.substring(this.query.indexOf(COLON) + 2);
-            this.query = this.query.substring(0, this.query.length() - limit.length());
-
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
@@ -468,7 +453,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public int getPagesCount() throws DAOException {
+    public int getPagesCount(Map<String, Object> filters) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -476,7 +461,30 @@ public class MYSQLUserDAO implements UserDAO {
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, query));
+            StringBuilder query = new StringBuilder(USER_FILTER_QUERY);
+            if (filters.size() > 1) {
+                query.append(WHERE);
+                for (String filterName : filters.keySet()) {
+                    if (!filterName.equals(UserListFilterName.SORT)) {
+                        query.append(filterValues.get(filterName));
+                        query.append(AND);
+                    }
+                }
+                query.setLength(query.length() - 4);
+            }
+            query.append(ORDER_BY);
+            query.append(sortValue.get(filters.get(UserListFilterName.SORT)));
+
+            preparedStatement = connection.prepareStatement(query.toString());
+            List<String> filterNames = new ArrayList<>(filters.keySet());
+            for (int i = 0; i < filterNames.size() - 1; i++) {
+                preparedStatement.setString(i + 1, PERCENT + filters.get(filterNames.get(i)) + PERCENT);
+            }
+
+            String pagesQuery = preparedStatement.toString();
+            pagesQuery = pagesQuery.substring(pagesQuery.indexOf(COLON) + 2);
+
+            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, pagesQuery));
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
             int pagesCount = resultSet.getInt(PAGES_COUNT);

@@ -11,7 +11,7 @@ import java.util.Map;
 public interface ReaderService {
     Reader getReader(int readerID) throws ServiceException;
     List<Reader> getReadersByFilter(Map<String, Object> filters, int page) throws ServiceException;
-    int getPagesCount() throws ServiceException;
+    int getPagesCount(Map<String, Object> filters) throws ServiceException;
     List<ReaderIssuance> getReaderIssuanceList(int readerID) throws ServiceException;
     List<ReaderIssuance> getReaderIssuanceHistoryList(int readerID) throws ServiceException;
     List<ReaderReservation> getReaderReservationList(int readerID) throws ServiceException;

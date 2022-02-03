@@ -2,10 +2,10 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.service.InstanceService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -27,8 +27,8 @@ public class DeleteInstance implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Instance delete started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Instance delete started"));
 
         InstanceService instanceService = ServiceProvider.getInstance().getInstanceService();
 
@@ -36,7 +36,7 @@ public class DeleteInstance implements Command {
         if (Util.isID(request.getParameter(BOOK_ID))) {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
-            logger.error(logMesBuilder.build("Invalid page attributes. Instance was not deleted"));
+            logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not deleted"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -46,21 +46,21 @@ public class DeleteInstance implements Command {
             if (Util.isID(request.getParameter(INSTANCE_ID))) {
                 instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
             } else {
-                logger.error(logMesBuilder.build("Invalid page attributes. Instance was not deleted"));
+                logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not deleted"));
                 RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             if (!instanceService.deleteInstance(instanceID)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_DELETE_INSTANCE);
-                logger.info(logMesBuilder.build("Instance was not deleted. Instance has an issue history or a reservation history"));
+                logger.info(LogMessageBuilder.message(logMessage, "Instance was not deleted. Instance has an issue history or a reservation history"));
             } else {
-                logger.info(logMesBuilder.build("Instance delete completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Instance delete completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error deleting instance data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error deleting instance data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -1,5 +1,7 @@
 package com.epam.library.entity.user;
 
+import com.epam.library.entity.user.constant.Role;
+
 import java.io.Serializable;
 import java.util.Objects;
 

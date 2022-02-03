@@ -9,5 +9,6 @@ public interface BookDAO {
     void addBook(BookInfo book) throws DAOException;
     Book getBook(int bookID) throws DAOException;
     void updateBook(BookInfo book) throws DAOException;
+    void updateBookImage(int bookID, String imageURL) throws DAOException;
     boolean deleteBook(int bookID) throws DAOException;
 }

@@ -51,9 +51,9 @@ public class ReaderServiceImpl implements ReaderService {
     }
 
     @Override
-    public int getPagesCount() throws ServiceException {
+    public int getPagesCount(Map<String, Object> filters) throws ServiceException {
         try {
-            return readerDAO.getPagesCount();
+            return readerDAO.getPagesCount(filters);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

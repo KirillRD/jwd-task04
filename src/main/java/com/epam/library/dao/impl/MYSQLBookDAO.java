@@ -8,6 +8,9 @@ import com.epam.library.entity.Book;
 import com.epam.library.entity.book.BookInfo;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,7 +35,9 @@ public class MYSQLBookDAO implements BookDAO {
     private static final String IMAGE = "image";
     private static final String GENRE_ID = "genres_id";
     private static final String AUTHOR_ID = "authors_id";
-    private static final String DEFAULT_IMAGE_BOOK = "images/books/default_image_book.jpg";
+    private static final String DEFAULT_IMAGE_BOOK = "default_image_book.jpg";
+    private static final String BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT = "E:\\Users\\Kirill\\Programs\\EPAM\\jwd-task04\\src\\main\\webapp\\images\\books\\";
+    private static final String BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT = "D:\\Program Files\\Program\\Tomcat 10.0\\webapps\\jwd_task04\\images\\books\\";
 
     private static final String GET_BOOK_BY_ISBN_ISSN = "SELECT * FROM books WHERE (isbn IS NULL OR isbn=?) AND (issn IS NULL OR issn=?)";
     private static final String GET_MAX_ID_BOOK = "SELECT MAX(id) FROM books";
@@ -42,7 +47,8 @@ public class MYSQLBookDAO implements BookDAO {
     private static final String SELECT_BOOK = "SELECT * FROM books WHERE id=?";
     private static final String SELECT_BOOK_GENRES = "SELECT * FROM books_genres WHERE books_id=?";
     private static final String SELECT_BOOK_AUTHORS = "SELECT * FROM books_authors WHERE books_id=?";
-    private static final String UPDATE_BOOK = "UPDATE books SET name=?, publishers_id=?, types_id=?, publication_year=?, pages=?, part=?, isbn=?, issn=?, annotation=?, price=?, image=? WHERE id=?";
+    private static final String UPDATE_BOOK = "UPDATE books SET name=?, publishers_id=?, types_id=?, publication_year=?, pages=?, part=?, isbn=?, issn=?, annotation=?, price=? WHERE id=?";
+    private static final String UPDATE_BOOK_IMAGE = "UPDATE books SET image=? WHERE id=?";
     private static final String DELETE_BOOK_GENRES = "DELETE FROM books_genres WHERE books_id=?";
     private static final String DELETE_BOOK_AUTHORS = "DELETE FROM books_authors WHERE books_id=?";
     private static final String GET_INSTANCES = "SELECT * FROM instances WHERE books_id=?";
@@ -110,7 +116,7 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.setString(9, book.getIssn());
             preparedStatement.setString(10, book.getAnnotation());
             preparedStatement.setDouble(11, Double.parseDouble(book.getPrice()));
-            preparedStatement.setString(12, DEFAULT_IMAGE_BOOK);//TODO загрузка картинки книги
+            preparedStatement.setString(12, DEFAULT_IMAGE_BOOK);
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(INSERT_BOOK_GENRE);
@@ -224,8 +230,7 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.setString(8, book.getIssn());
             preparedStatement.setString(9, book.getAnnotation());
             preparedStatement.setDouble(10, Double.parseDouble(book.getPrice()));
-            preparedStatement.setString(11, book.getImageURL());
-            preparedStatement.setInt(12, book.getId());
+            preparedStatement.setInt(11, book.getId());
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(DELETE_BOOK_GENRES);
@@ -273,6 +278,29 @@ public class MYSQLBookDAO implements BookDAO {
     }
 
     @Override
+    public void updateBookImage(int bookID, String imageURL) throws DAOException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = connectionPool.getConnection();
+
+            preparedStatement = connection.prepareStatement(UPDATE_BOOK_IMAGE);
+            preparedStatement.setString(1, imageURL);
+            preparedStatement.setInt(2, bookID);
+            preparedStatement.executeUpdate();
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException(e);
+        } finally {
+            try {
+                connectionPool.closeConnection(preparedStatement, connection);
+            } catch (ConnectionPoolException e) {
+                logger.error("Error closing resources", e);
+            }
+        }
+    }
+
+    @Override
     public boolean deleteBook(int bookID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -302,14 +330,22 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.setInt(1, bookID);
             preparedStatement.executeUpdate();
 
+            preparedStatement = connection.prepareStatement(SELECT_BOOK);
+            preparedStatement.setInt(1, bookID);
+            resultSet = preparedStatement.executeQuery();
+            String imageURL = resultSet.getString(IMAGE);
+
             preparedStatement = connection.prepareStatement(DELETE_BOOK);
             preparedStatement.setInt(1, bookID);
             preparedStatement.executeUpdate();
 
             connection.commit();
 
+            Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + imageURL));
+            Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + imageURL));
+
             return true;
-        } catch (SQLException | ConnectionPoolException e) {
+        } catch (SQLException | ConnectionPoolException | IOException e) {
             try {
                 if (connection != null) {
                     connection.rollback();

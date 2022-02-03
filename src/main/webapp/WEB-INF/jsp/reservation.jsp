@@ -76,7 +76,7 @@
 
                 <div class="w3-quarter w3-container">
                     <div class="w3-margin-bottom w3-margin-top w3-display-container book-small-image-preview">
-                        <img class="book-small-image w3-display-middle" src="${requestScope.book_info.imageURL}">
+                        <img class="book-small-image w3-display-middle" src="images/books/${requestScope.book_info.imageURL}">
                     </div>
                 </div>
                 <div class="w3-quarter w3-container">

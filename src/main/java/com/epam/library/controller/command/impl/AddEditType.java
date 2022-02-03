@@ -2,11 +2,11 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
-import com.epam.library.entity.book.Type;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
+import com.epam.library.entity.book.dictionary.Type;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.TypeService;
 import com.epam.library.service.exception.ServiceException;
@@ -43,25 +43,25 @@ public class AddEditType implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        String logMessage = LogMessageBuilder.build(request);
 
         TypeService typeService = ServiceProvider.getInstance().getTypeService();
         Type type = new Type();
         if (Util.isID(request.getParameter(TYPE_ID))) {
             type.setId(Integer.parseInt(request.getParameter(TYPE_ID)));
-            logger.info(logMesBuilder.build("Type update started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Type update started"));
         } else {
-            logger.info(logMesBuilder.build("Type add started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Type add started"));
         }
 
         type.setName(request.getParameter(NAME));
         try {
             if (type.getId() != 0) {
                 typeService.updateType(type);
-                logger.info(logMesBuilder.build("Type update completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Type update completed"));
             } else {
                 typeService.addType(type);
-                logger.info(logMesBuilder.build("Type add completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Type add completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.TYPE_PAGE, ""), request, response);
@@ -70,14 +70,14 @@ public class AddEditType implements Command {
             session.setAttribute(TYPE, type);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (type.getId() != 0) {
-                logger.info(logMesBuilder.build("The entered data is invalid. Type was not updated"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Type was not updated"));
                 RequestProvider.redirect(String.format(RedirectCommand.TYPE_PAGE, REDIRECT_TYPE_ID + type.getId()), request, response);
             } else {
-                logger.info(logMesBuilder.build("The entered data is invalid. Type was not added"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Type was not added"));
                 RequestProvider.redirect(String.format(RedirectCommand.TYPE_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error adding/updating type data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating type data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

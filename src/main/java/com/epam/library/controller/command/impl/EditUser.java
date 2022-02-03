@@ -2,13 +2,13 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.controller.session.SessionUserProvider;
 import com.epam.library.entity.User;
-import com.epam.library.entity.user.Role;
+import com.epam.library.entity.user.constant.Role;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.ServiceProvider;
@@ -84,13 +84,14 @@ public class EditUser implements Command {
             Map.entry(EmptyGenderException.class.getSimpleName(), "error-empty-gender"),
             Map.entry(InvalidGenderFormatException.class.getSimpleName(), "error-gender-format"),
             Map.entry(EmptyEmailException.class.getSimpleName(), "error-empty-email"),
-            Map.entry(EmptyBirthdayException.class.getSimpleName(), "error-empty-birthday")
+            Map.entry(EmptyBirthdayException.class.getSimpleName(), "error-empty-birthday"),
+            Map.entry(InvalidBirthdayException.class.getSimpleName(), "error-birthday")
     );
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("User update started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "User update started"));
 
         UserService userService = ServiceProvider.getInstance().getUserService();
 
@@ -98,13 +99,13 @@ public class EditUser implements Command {
         SessionUser sessionUser = SessionUserProvider.getSessionUser(request);
         if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
             userID = Integer.parseInt(request.getParameter(USER_ID));
-            logger.info(logMesBuilder.build("Admin/Librarian update user"));
+            logger.info(LogMessageBuilder.message(logMessage, "Admin/Librarian update user"));
         } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
             userID = Integer.parseInt(request.getParameter(READER_ID));
-            logger.info(logMesBuilder.build("Admin/Librarian update user"));
+            logger.info(LogMessageBuilder.message(logMessage, "Admin/Librarian update user"));
         } else {
             userID = sessionUser.getId();
-            logger.info(logMesBuilder.build("User update himself"));
+            logger.info(LogMessageBuilder.message(logMessage, "User update himself"));
         }
 
         UserInfo user = new UserInfo();
@@ -144,15 +145,14 @@ public class EditUser implements Command {
                 user.setRole(Role.valueOf(request.getParameter(ROLE)));
             }
 
-
             String currentPassword = request.getParameter(CURRENT_PASSWORD);
             String newPassword = request.getParameter(NEW_PASSWORD);
             String repeatedNewPassword = request.getParameter(REPEATED_NEW_PASSWORD);
 
-            user.setImageURL(userService.getUser(userID).getImageURL());//TODO
+            user.setImageURL(userData.getImageURL());
 
             userService.updateUser(user, currentPassword, newPassword, repeatedNewPassword);
-            logger.info(logMesBuilder.build("User update completed"));
+            logger.info(LogMessageBuilder.message(logMessage, "User update completed"));
 
             if (userID == sessionUser.getId()) {
                 SessionUserProvider.removeSessionUser(request);
@@ -171,7 +171,7 @@ public class EditUser implements Command {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
-            logger.info(logMesBuilder.build("The entered data is invalid. User was not updated"));
+            logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. User was not updated"));
 
             if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
                 RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_USER_ID + userID), request, response);
@@ -181,7 +181,7 @@ public class EditUser implements Command {
                 RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error updating user data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error updating user data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

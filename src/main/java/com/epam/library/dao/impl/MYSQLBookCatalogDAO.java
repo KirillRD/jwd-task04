@@ -162,7 +162,6 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             BookCatalogFilterName.NAME_DESCENDING, "DESC"
     );
 
-    private String query;
     private static final String PAGES_COUNT = "pages_count";
     private static final String GET_PAGES_COUNT = "SELECT COUNT(*) AS pages_count FROM ( %s ) query";
     private static final String COLON = ": ";
@@ -444,7 +443,7 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
     }
 
     @Override
-    public int getPagesCount() throws DAOException {
+    public int getPagesCount(Map<String, Object> filters) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -452,7 +451,70 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
         try {
             connection = connectionPool.getConnection();
 
-            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, query));
+            StringBuilder query = new StringBuilder(BOOK_FILTER_QUERY);
+            if (filters.size() > 1) {
+                query.append(WHERE);
+                for (String filterName : filters.keySet()) {
+                    if (filterName.equals(BookCatalogFilterName.AUTHORS) || filterName.equals(BookCatalogFilterName.GENRES)) {
+                        query.append(BRACKET_LEFT);
+                        for (int i = 0; i < ((List<?>) filters.get(filterName)).size() - 1; i++) {
+                            query.append(filterValues.get(filterName));
+                            query.append(OR);
+                        }
+                        if (filterName.equals(BookCatalogFilterName.AUTHORS)) {
+                            query.append(AUTHOR_FILTER);
+                        } else {
+                            query.append(GENRE_FILTER);
+                        }
+                        query.append(BRACKET_RIGHT);
+                        query.append(AND);
+                    } else if (!filterName.equals(BookCatalogFilterName.SORT)) {
+                        query.append(filterValues.get(filterName));
+                        query.append(AND);
+                    }
+                }
+                query.setLength(query.length() - 4);
+            }
+            query.append(SORT_FILTER);
+            query.append(sortValue.get(filters.get(BookCatalogFilterName.SORT)));
+
+            preparedStatement = connection.prepareStatement(query.toString());
+            List<String> filterNames = new ArrayList<>(filters.keySet());
+            for (int i = 0, n = 1; i < filterNames.size() - 1; i++, n++) {
+                switch (filterNames.get(i)) {
+                    case BookCatalogFilterName.NAME:
+                    case BookCatalogFilterName.ISBN:
+                    case BookCatalogFilterName.ISSN:
+                        preparedStatement.setString(n, PERCENT + filters.get(filterNames.get(i)).toString() + PERCENT);
+                        break;
+
+                    case BookCatalogFilterName.PUBLISHER:
+                    case BookCatalogFilterName.PUBLICATION_YEAR_FROM:
+                    case BookCatalogFilterName.PUBLICATION_YEAR_TO:
+                    case BookCatalogFilterName.PAGES_FROM:
+                    case BookCatalogFilterName.PAGES_TO:
+                    case BookCatalogFilterName.TYPE:
+                        preparedStatement.setInt(n, Integer.parseInt(filters.get(filterNames.get(i)).toString()));
+                        break;
+
+                    case BookCatalogFilterName.AUTHORS:
+                    case BookCatalogFilterName.GENRES:
+                        List<?> values = (List<?>) filters.get(filterNames.get(i));
+                        for (int j = 0; j < values.size(); j++, n++) {
+                            preparedStatement.setInt(n, Integer.parseInt((String) values.get(j)));
+                        }
+                        break;
+
+                    case BookCatalogFilterName.FREE_INSTANCES:
+                        n--;
+                        break;
+                }
+            }
+
+            String pagesQuery = preparedStatement.toString();
+            pagesQuery = pagesQuery.substring(pagesQuery.indexOf(COLON) + 2);
+
+            preparedStatement = connection.prepareStatement(String.format(GET_PAGES_COUNT, pagesQuery));
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
             int pagesCount = resultSet.getInt(PAGES_COUNT);
@@ -542,10 +604,6 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
                         break;
                 }
             }
-
-            this.query = preparedStatement.toString();
-            this.query = this.query.substring(this.query.indexOf(COLON) + 2);
-            this.query = this.query.substring(0, this.query.length() - limit.length());
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

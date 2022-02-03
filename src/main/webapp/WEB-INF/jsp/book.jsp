@@ -16,7 +16,7 @@
         <main class="w3-auto w3-container">
             <div class="w3-third w3-container">
                 <div class="w3-margin-bottom w3-margin-top w3-display-container book-image-preview">
-                    <img class="book-image w3-display-middle" src="${requestScope.book_info.imageURL}">
+                    <img class="book-image w3-display-middle" src="images/books/${requestScope.book_info.imageURL}">
                 </div>
                 <span class="material-icons w3-text-yellow">star</span>
                 <span class="book-catalog-span">${requestScope.book_info.rating} (${requestScope.book_info.countRatings})</span>
@@ -151,7 +151,7 @@
                             <div class="w3-col w3-container w3-center" style="width: 15%">
                                 <span>${review.nickname}</span>
                                 <p>
-                                    <img src="${review.imageURL}">
+                                    <img src="images/users/${review.imageURL}">
                                 </p>
                             </div>
                             <div class="w3-col w3-container" style="width: 85%">

@@ -1,7 +1,7 @@
 package com.epam.library.service;
 
 import com.epam.library.entity.Review;
-import com.epam.library.entity.book.catalog.BookReview;
+import com.epam.library.entity.review.BookReview;
 import com.epam.library.service.exception.ServiceException;
 
 import java.util.List;

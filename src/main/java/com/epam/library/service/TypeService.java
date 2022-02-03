@@ -1,6 +1,6 @@
 package com.epam.library.service;
 
-import com.epam.library.entity.book.Type;
+import com.epam.library.entity.book.dictionary.Type;
 import com.epam.library.service.exception.ServiceException;
 
 import java.util.List;

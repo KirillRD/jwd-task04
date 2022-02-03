@@ -2,10 +2,10 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.ServiceException;
@@ -32,8 +32,8 @@ public class ReaderReservationOperation implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Book reservation operation started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Book reservation operation started"));
 
         ReservationService reservationService = ServiceProvider.getInstance().getReservationService();
 
@@ -41,7 +41,7 @@ public class ReaderReservationOperation implements Command {
         if (Util.isID(request.getParameter(READER_ID))) {
             readerID = Integer.parseInt(request.getParameter(READER_ID));
         } else {
-            logger.error(logMesBuilder.build("Invalid page attributes. Book reservation operation was failed"));
+            logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book reservation operation was failed"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -52,17 +52,17 @@ public class ReaderReservationOperation implements Command {
                 if (!reservationService.updateReservation(reservations, status)) {
                     HttpSession session = request.getSession();
                     session.setAttribute(RESERVATION_MESSAGE, ERROR_ISSUANCE_RESERVATION);
-                    logger.info(logMesBuilder.build("Book reservation operation was failed. Incorrect data format"));
+                    logger.info(LogMessageBuilder.message(logMessage, "Book reservation operation was failed. Incorrect data format"));
                 } else {
-                    logger.info(logMesBuilder.build("Book reservation operation completed"));
+                    logger.info(LogMessageBuilder.message(logMessage, "Book reservation operation completed"));
                 }
             } else {
-                logger.info(logMesBuilder.build("Book reservation operation was failed. Incorrect data format"));
+                logger.info(LogMessageBuilder.message(logMessage, "Book reservation operation was failed. Incorrect data format"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error of the book reservation operation data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error of the book reservation operation data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

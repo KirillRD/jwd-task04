@@ -2,10 +2,10 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.entity.book.BookInfo;
 import com.epam.library.service.BookService;
 import com.epam.library.service.ServiceProvider;
@@ -42,7 +42,6 @@ public class AddEditBook implements Command {
     private static final String ANNOTATION = "annotation";
     private static final String GENRES = "genres";
     private static final String AUTHORS = "authors";
-    private static final String IMAGE = "image";//TODO image
 
     private static final String REDIRECT_BOOK_ID = "&book_id=";
     private static final String MESSAGES = "messages";
@@ -73,16 +72,16 @@ public class AddEditBook implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        String logMessage = LogMessageBuilder.build(request);
 
         BookInfo book = new BookInfo();
         if (request.getParameter(BOOK_ID) == null) {
-            logger.info(logMesBuilder.build("Book add started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Book add started"));
         } else if (Util.isID(request.getParameter(BOOK_ID))) {
             book.setId(Integer.parseInt(request.getParameter(BOOK_ID)));
-            logger.info(logMesBuilder.build("Book update started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Book update started"));
         } else {
-            logger.error(logMesBuilder.build("Invalid page attributes. Book was not updated"));
+            logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not updated"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -106,12 +105,12 @@ public class AddEditBook implements Command {
         BookService bookService = ServiceProvider.getInstance().getBookService();
         try {
             if (book.getId() != 0) {
-                book.setImageURL(bookService.getBook(book.getId()).getImageURL());//TODO image
+                book.setImageURL(bookService.getBook(book.getId()).getImageURL());
                 bookService.updateBook(book);
-                logger.info(logMesBuilder.build("Book update completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Book update completed"));
             } else {
                 bookService.addBook(book);
-                logger.info(logMesBuilder.build("Book add completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Book add completed"));
             }
 
             RequestProvider.redirect(RedirectCommand.BOOK_LIST_PAGE, request, response);
@@ -120,14 +119,14 @@ public class AddEditBook implements Command {
             session.setAttribute(BOOK, book);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (book.getId() != 0) {
-                logger.info(logMesBuilder.build("The entered data is invalid. Book was not updated"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Book was not updated"));
                 RequestProvider.redirect(String.format(RedirectCommand.ADD_EDIT_BOOK_PAGE, REDIRECT_BOOK_ID + book.getId()), request, response);
             } else {
-                logger.info(logMesBuilder.build("The entered data is invalid. Book was not added"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Book was not added"));
                 RequestProvider.redirect(String.format(RedirectCommand.ADD_EDIT_BOOK_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error adding/updating book data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating book data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

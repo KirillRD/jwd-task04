@@ -8,5 +8,6 @@ public interface BookService {
     void addBook (BookInfo book) throws ServiceException;
     Book getBook (int bookID) throws ServiceException;
     void updateBook (BookInfo book) throws ServiceException;
+    void updateBookImage(int bookID, String imageURL) throws ServiceException;
     boolean deleteBook (int bookID) throws ServiceException;
 }

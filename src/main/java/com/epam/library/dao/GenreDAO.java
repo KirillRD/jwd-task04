@@ -1,7 +1,7 @@
 package com.epam.library.dao;
 
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.entity.book.Genre;
+import com.epam.library.entity.book.dictionary.Genre;
 
 import java.util.List;
 

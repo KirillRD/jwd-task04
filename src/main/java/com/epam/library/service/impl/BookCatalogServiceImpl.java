@@ -43,9 +43,9 @@ public class BookCatalogServiceImpl implements BookCatalogService {
     }
 
     @Override
-    public int getPagesCount() throws ServiceException {
+    public int getPagesCount(Map<String, Object> filters) throws ServiceException {
         try {
-            return bookCatalogDAO.getPagesCount();
+            return bookCatalogDAO.getPagesCount(filters);
         } catch (DAOException e) {
             throw new ServiceException(e);
         }

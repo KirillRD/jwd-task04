@@ -4,7 +4,7 @@ import com.epam.library.dao.GenreDAO;
 import com.epam.library.dao.connection_pool.ConnectionPool;
 import com.epam.library.dao.connection_pool.exception.ConnectionPoolException;
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.entity.book.Genre;
+import com.epam.library.entity.book.dictionary.Genre;
 import org.apache.log4j.Logger;
 
 import java.sql.Connection;

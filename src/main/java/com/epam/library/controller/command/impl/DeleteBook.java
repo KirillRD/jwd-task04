@@ -2,10 +2,10 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
 import com.epam.library.service.*;
 import com.epam.library.service.exception.ServiceException;
 import jakarta.servlet.ServletException;
@@ -25,8 +25,8 @@ public class DeleteBook implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
-        logger.info(logMesBuilder.build("Book delete started"));
+        String logMessage = LogMessageBuilder.build(request);
+        logger.info(LogMessageBuilder.message(logMessage, "Book delete started"));
 
         BookService bookService = ServiceProvider.getInstance().getBookService();
 
@@ -34,7 +34,7 @@ public class DeleteBook implements Command {
         if (Util.isID(request.getParameter(BOOK_ID))) {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
-            logger.error(logMesBuilder.build("Invalid page attributes. Book was not deleted"));
+            logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not deleted"));
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
@@ -43,14 +43,14 @@ public class DeleteBook implements Command {
             if (!bookService.deleteBook(bookID)) {
                 HttpSession session = request.getSession();
                 session.setAttribute(MESSAGE, ERROR_DELETE_BOOK);
-                logger.info(logMesBuilder.build("Book was not deleted. Book has instances"));
+                logger.info(LogMessageBuilder.message(logMessage, "Book was not deleted. Book has instances"));
             } else {
-                logger.info(logMesBuilder.build("Book delete completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Book delete completed"));
             }
 
             RequestProvider.redirect(RedirectCommand.BOOK_LIST_PAGE, request, response);
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error deleting book data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error deleting book data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

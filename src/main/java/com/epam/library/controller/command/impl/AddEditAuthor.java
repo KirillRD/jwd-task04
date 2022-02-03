@@ -2,11 +2,11 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
-import com.epam.library.entity.book.Author;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
+import com.epam.library.entity.book.dictionary.Author;
 import com.epam.library.service.AuthorService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.AuthorException;
@@ -46,15 +46,15 @@ public class AddEditAuthor implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        String logMessage = LogMessageBuilder.build(request);
 
         AuthorService authorService = ServiceProvider.getInstance().getAuthorService();
         Author author = new Author();
         if (Util.isID(request.getParameter(AUTHOR_ID))) {
             author.setId(Integer.parseInt(request.getParameter(AUTHOR_ID)));
-            logger.info(logMesBuilder.build("Author update started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Author update started"));
         } else {
-            logger.info(logMesBuilder.build("Author add started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Author add started"));
         }
 
         author.setLastName(request.getParameter(LAST_NAME));
@@ -63,10 +63,10 @@ public class AddEditAuthor implements Command {
         try {
             if (author.getId() != 0) {
                 authorService.updateAuthor(author);
-                logger.info(logMesBuilder.build("Author update completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Author update completed"));
             } else {
                 authorService.addAuthor(author);
-                logger.info(logMesBuilder.build("Author add completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Author add completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
@@ -75,14 +75,14 @@ public class AddEditAuthor implements Command {
             session.setAttribute(AUTHOR, author);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (author.getId() != 0) {
-                logger.info(logMesBuilder.build("The entered data is invalid. Author was not updated"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Author was not updated"));
                 RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, REDIRECT_AUTHOR_ID + author.getId()), request, response);
             } else {
-                logger.info(logMesBuilder.build("The entered data is invalid. Author was not added"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Author was not added"));
                 RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error adding/updating author data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating author data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

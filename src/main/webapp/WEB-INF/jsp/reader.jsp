@@ -20,7 +20,7 @@
                     <div class="w3-col w3-container" style="width: 70%">
                         <div class="w3-third w3-container">
                             <div class="w3-margin-bottom w3-margin-top w3-display-container user-image-page">
-                                <img class="user-image-page w3-display-middle" src="${requestScope.reader.imageURL}">
+                                <img class="user-image-page w3-display-middle" src="images/users/${requestScope.reader.imageURL}">
                             </div>
                             <c:if test="${requestScope.reader.countDebts > 0}">
                                 <span class="w3-text-red"><fmt:message key="user.debts"/>: ${requestScope.reader.countDebts}</span>

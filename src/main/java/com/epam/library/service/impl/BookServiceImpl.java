@@ -238,6 +238,15 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public void updateBookImage(int bookID, String imageURL) throws ServiceException {
+        try {
+            bookDAO.updateBookImage(bookID, imageURL);
+        } catch (DAOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
     public boolean deleteBook(int bookID) throws ServiceException {
         try {
             return bookDAO.deleteBook(bookID);

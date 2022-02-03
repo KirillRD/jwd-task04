@@ -1,16 +1,15 @@
 package com.epam.library.entity;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.Objects;
 
 public class Instance implements Serializable {
     private int id;
     private int bookID;
     private String number;
-    private int hallID;
-    private Date receivedDate;
-    private Date writeOffDate;
+    private String hallID;
+    private String receivedDate;
+    private String writeOffDate;
 
     public Instance() {}
 
@@ -38,27 +37,27 @@ public class Instance implements Serializable {
         this.number = number;
     }
 
-    public int getHallID() {
+    public String getHallID() {
         return hallID;
     }
 
-    public void setHallID(int hallID) {
+    public void setHallID(String hallID) {
         this.hallID = hallID;
     }
 
-    public Date getReceivedDate() {
+    public String getReceivedDate() {
         return receivedDate;
     }
 
-    public void setReceivedDate(Date receivedDate) {
+    public void setReceivedDate(String receivedDate) {
         this.receivedDate = receivedDate;
     }
 
-    public Date getWriteOffDate() {
+    public String getWriteOffDate() {
         return writeOffDate;
     }
 
-    public void setWriteOffDate(Date writeOffDate) {
+    public void setWriteOffDate(String writeOffDate) {
         this.writeOffDate = writeOffDate;
     }
 
@@ -66,8 +65,8 @@ public class Instance implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Instance instance = (Instance) o;
-        return id == instance.id && bookID == instance.bookID && hallID == instance.hallID && Objects.equals(number, instance.number) && Objects.equals(receivedDate, instance.receivedDate) && Objects.equals(writeOffDate, instance.writeOffDate);
+        Instance that = (Instance) o;
+        return id == that.id && bookID == that.bookID && Objects.equals(number, that.number) && Objects.equals(hallID, that.hallID) && Objects.equals(receivedDate, that.receivedDate) && Objects.equals(writeOffDate, that.writeOffDate);
     }
 
     @Override
@@ -77,13 +76,13 @@ public class Instance implements Serializable {
 
     @Override
     public String toString() {
-        return "Instance{" +
+        return "InstanceInfo{" +
                 "id=" + id +
                 ", bookID=" + bookID +
                 ", number='" + number + '\'' +
-                ", hallID=" + hallID +
-                ", receivedDate=" + receivedDate +
-                ", writeOffDate=" + writeOffDate +
+                ", hallID='" + hallID + '\'' +
+                ", receivedDate='" + receivedDate + '\'' +
+                ", writeOffDate='" + writeOffDate + '\'' +
                 '}';
     }
 }

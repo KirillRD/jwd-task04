@@ -2,11 +2,11 @@ package com.epam.library.controller.command.impl;
 
 import com.epam.library.controller.RequestProvider;
 import com.epam.library.controller.command.Command;
-import com.epam.library.controller.command.constant.ErrorMessage;
-import com.epam.library.controller.command.constant.RedirectCommand;
-import com.epam.library.controller.command.util.LogMessageBuilder;
-import com.epam.library.controller.command.util.Util;
-import com.epam.library.entity.book.Genre;
+import com.epam.library.controller.constant.ErrorMessage;
+import com.epam.library.controller.constant.RedirectCommand;
+import com.epam.library.controller.util.LogMessageBuilder;
+import com.epam.library.controller.util.Util;
+import com.epam.library.entity.book.dictionary.Genre;
 import com.epam.library.service.GenreService;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.exception.GenreException;
@@ -43,25 +43,25 @@ public class AddEditGenre implements Command {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LogMessageBuilder logMesBuilder = new LogMessageBuilder(request);
+        String logMessage = LogMessageBuilder.build(request);
 
         GenreService genreService = ServiceProvider.getInstance().getGenreService();
         Genre genre = new Genre();
         if (Util.isID(request.getParameter(GENRE_ID))) {
             genre.setId(Integer.parseInt(request.getParameter(GENRE_ID)));
-            logger.info(logMesBuilder.build("Genre update started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Genre update started"));
         } else {
-            logger.info(logMesBuilder.build("Genre add started"));
+            logger.info(LogMessageBuilder.message(logMessage, "Genre add started"));
         }
 
         genre.setName(request.getParameter(NAME));
         try {
             if (genre.getId() != 0) {
                 genreService.updateGenre(genre);
-                logger.info(logMesBuilder.build("Genre update completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Genre update completed"));
             } else {
                 genreService.addGenre(genre);
-                logger.info(logMesBuilder.build("Genre add completed"));
+                logger.info(LogMessageBuilder.message(logMessage, "Genre add completed"));
             }
 
             RequestProvider.redirect(String.format(RedirectCommand.GENRE_PAGE, ""), request, response);
@@ -70,14 +70,14 @@ public class AddEditGenre implements Command {
             session.setAttribute(GENRE, genre);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (genre.getId() != 0) {
-                logger.info(logMesBuilder.build("The entered data is invalid. Genre was not updated"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Genre was not updated"));
                 RequestProvider.redirect(String.format(RedirectCommand.GENRE_PAGE, REDIRECT_GENRE_ID + genre.getId()), request, response);
             } else {
-                logger.info(logMesBuilder.build("The entered data is invalid. Genre was not added"));
+                logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Genre was not added"));
                 RequestProvider.redirect(String.format(RedirectCommand.GENRE_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
-            logger.error(logMesBuilder.build("Error adding/updating genre data"), e);
+            logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating genre data"), e);
             RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }

@@ -3,7 +3,7 @@ package com.epam.library.service.impl;
 import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.PublisherDAO;
 import com.epam.library.dao.exception.DAOException;
-import com.epam.library.entity.book.Publisher;
+import com.epam.library.entity.book.dictionary.Publisher;
 import com.epam.library.service.PublisherService;
 import com.epam.library.service.exception.PublisherException;
 import com.epam.library.service.exception.ServiceException;

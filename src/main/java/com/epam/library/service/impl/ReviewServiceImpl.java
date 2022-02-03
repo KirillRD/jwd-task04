@@ -4,7 +4,7 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.ReviewDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Review;
-import com.epam.library.entity.book.catalog.BookReview;
+import com.epam.library.entity.review.BookReview;
 import com.epam.library.service.ReviewService;
 import com.epam.library.service.exception.ReviewException;
 import com.epam.library.service.exception.ServiceException;

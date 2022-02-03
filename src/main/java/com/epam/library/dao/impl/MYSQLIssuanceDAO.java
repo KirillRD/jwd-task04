@@ -20,12 +20,6 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
 
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     private static final String MAX_ID_ISSUANCE = "MAX(id)";
-    private static final String INSTANCES_ID = "instances_id";
-    private static final String READER_ID = "reader_id";
-    private static final String DATE_ISSUE = "date_issue";
-    private static final String DATE_RETURN = "date_return";
-    private static final String DATE_RETURN_PLANED = "date_return_planed";
-    private static final String LOST = "lost";
 
     private static final String GET_MAX_ID_ISSUANCE = "SELECT MAX(id) FROM issuance";
     private static final String GET_FREE_INSTANCE =
@@ -45,9 +39,6 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     private static final String INSERT_ISSUANCE =
             "INSERT INTO issuance (id, instances_id, reader_id, date_issue, date_return_planned, lost) " +
             "VALUES (?,?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL CASE WHEN (SELECT halls_id FROM instances WHERE id=?)=1 THEN (SELECT CAST(param_value AS UNSIGNED) FROM config WHERE param_name = 'days_of_issue') ELSE 0 END DAY),0)";
-    private static final String SELECT_ISSUANCE = "SELECT * FROM issuance WHERE id=?";
-    private static final String UPDATE_ISSUANCE = "UPDATE issuance SET instance_id=?, reader_id=?, date_issue=?, date_return=?, date_return_planed=?, lost=? WHERE id=?";
-    private static final String DELETE_ISSUANCE = "DELETE FROM issuance WHERE id=?";
 
     private static final String UPDATE_RETURN_ISSUANCE =
             "UPDATE issuance SET date_return=CURDATE(), " +
@@ -122,90 +113,6 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
         } finally {
             try {
                 connectionPool.closeConnection(resultSet, preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
-                logger.error("Error closing resources", e);
-            }
-        }
-    }
-
-    @Override
-    public Issuance getIssuance(int issuanceID) throws DAOException {
-        Issuance issuance = new Issuance();
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(SELECT_ISSUANCE);
-            preparedStatement.setInt(1, issuanceID);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                issuance.setId(issuanceID);
-                issuance.setInstanceID(resultSet.getInt(INSTANCES_ID));
-                issuance.setReaderID(resultSet.getInt(READER_ID));
-                issuance.setIssueDate(resultSet.getDate(DATE_ISSUE));
-                issuance.setReturnDate(resultSet.getDate(DATE_RETURN));
-                issuance.setReturnPlanedDate(resultSet.getDate(DATE_RETURN_PLANED));
-                issuance.setLost(resultSet.getBoolean(LOST));
-            }
-            return issuance;
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
-            try {
-                connectionPool.closeConnection(resultSet, preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
-                logger.error("Error closing resources", e);
-            }
-        }
-    }
-
-    @Override
-    public void updateIssuance(Issuance issuance) throws DAOException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(UPDATE_ISSUANCE);
-            preparedStatement.setInt(1, issuance.getInstanceID());
-            preparedStatement.setInt(2, issuance.getReaderID());
-            preparedStatement.setDate(3, issuance.getIssueDate());
-            preparedStatement.setDate(4, issuance.getReturnDate());
-            preparedStatement.setDate(5, issuance.getReturnPlanedDate());
-            preparedStatement.setBoolean(6, issuance.isLost());
-            preparedStatement.setInt(7, issuance.getId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
-            try {
-                connectionPool.closeConnection(preparedStatement, connection);
-            } catch (ConnectionPoolException e) {
-                logger.error("Error closing resources", e);
-            }
-        }
-    }
-
-    @Override
-    public void deleteIssuance(Issuance issuance) throws DAOException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = connectionPool.getConnection();
-
-            preparedStatement = connection.prepareStatement(DELETE_ISSUANCE);
-            preparedStatement.setInt(1, issuance.getId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DAOException(e);
-        } finally {
-            try {
-                connectionPool.closeConnection(preparedStatement, connection);
             } catch (ConnectionPoolException e) {
                 logger.error("Error closing resources", e);
             }
