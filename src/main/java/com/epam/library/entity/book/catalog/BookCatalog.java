@@ -1,11 +1,18 @@
 package com.epam.library.entity.book.catalog;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Entity of book for catalog
+ */
 public class BookCatalog implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -2927555746128611818L;
+
     private int id;
     private String name;
     private List<String> authors = new ArrayList<>();

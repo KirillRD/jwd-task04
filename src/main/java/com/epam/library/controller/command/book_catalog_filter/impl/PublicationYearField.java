@@ -5,6 +5,9 @@ import com.epam.library.controller.command.book_catalog_filter.FilterField;
 import com.epam.library.controller.util.Util;
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * Interface for adding a publication year field value to a filter
+ */
 public class PublicationYearField implements FilterField {
 
     private static final int PUBLICATION_YEAR_LENGTH = 4;
@@ -12,11 +15,11 @@ public class PublicationYearField implements FilterField {
     public PublicationYearField() {}
 
     @Override
-    public void execute(String filterName, String filterValue, HttpServletRequest request) {
+    public void execute(String filterName, String filterValue, BookCatalogFilter bookCatalogFilter, HttpServletRequest request) {
         if (Util.isID(filterValue) && filterValue.length() == PUBLICATION_YEAR_LENGTH) {
-            BookCatalogFilter.filters.put(filterName, filterValue);
+            bookCatalogFilter.getFilters().put(filterName, filterValue);
             request.setAttribute(filterName, filterValue);
-            BookCatalogFilter.filterNames.remove(filterName);
+            bookCatalogFilter.getFilterNames().remove(filterName);
         }
     }
 }

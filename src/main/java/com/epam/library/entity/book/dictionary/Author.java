@@ -1,9 +1,16 @@
 package com.epam.library.entity.book.dictionary;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity of book author
+ */
 public class Author implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -2765878959696591249L;
+
     private int id;
     private String lastName;
     private String firstName;

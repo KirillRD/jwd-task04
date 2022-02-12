@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to delete book author
+ */
 public class DeleteAuthor implements Command {
     private static final Logger logger = Logger.getLogger(DeleteAuthor.class.getName());
 
@@ -36,7 +39,7 @@ public class DeleteAuthor implements Command {
                 authorID = Integer.parseInt(request.getParameter(AUTHOR_ID));
             } else {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Author was not deleted"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             if (!authorService.deleteAuthor(authorID)) {
@@ -47,10 +50,10 @@ public class DeleteAuthor implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Author delete completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error deleting author data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

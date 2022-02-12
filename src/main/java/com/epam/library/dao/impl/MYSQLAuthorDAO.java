@@ -40,7 +40,7 @@ public class MYSQLAuthorDAO implements AuthorDAO {
     public MYSQLAuthorDAO() {}
 
     @Override
-    public boolean checkAuthor(Author author) throws DAOException {
+    public boolean authorExists(Author author) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -55,10 +55,10 @@ public class MYSQLAuthorDAO implements AuthorDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (author.getId() == 0 || author.getId() != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

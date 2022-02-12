@@ -2,11 +2,18 @@ package com.epam.library.entity.reservation;
 
 import com.epam.library.constant.ReservationStatus;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
+/**
+ * Entity of reserved book of the reader
+ */
 public class ReaderReservation implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -4210618195840135166L;
+
     private int reservationID;
     private int bookID;
     private String bookName;

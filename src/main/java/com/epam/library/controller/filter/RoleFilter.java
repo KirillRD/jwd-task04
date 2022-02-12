@@ -1,6 +1,6 @@
 package com.epam.library.controller.filter;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.constant.CommandName;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -16,6 +16,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * Filter commands by role
+ */
 public class RoleFilter implements Filter {
     private static final Logger logger = Logger.getLogger(RoleFilter.class.getName());
 
@@ -62,10 +65,10 @@ public class RoleFilter implements Filter {
                     String logMessage = LogMessageBuilder.build(request);
                     if (readerCommands.contains(command) || userCommands.contains(command)) {
                         logger.info(LogMessageBuilder.message(logMessage, "Unauthorized user trying to execute reader command"));
-                        RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
+                        RequestManager.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
                     } else {
                         logger.warn(LogMessageBuilder.message(logMessage, "Unauthorized user trying to admin/librarian command"));
-                        RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                        RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     }
                     return;
                 }
@@ -73,14 +76,14 @@ public class RoleFilter implements Filter {
                 if (!(commonCommands.contains(command) || readerCommands.contains(command) || userCommands.contains(command))) {
                     String logMessage = LogMessageBuilder.build(request);
                     logger.warn(LogMessageBuilder.message(logMessage, "Reader trying to execute admin/librarian command"));
-                    RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                    RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
             } else if (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN) {
                 if (readerCommands.contains(command)) {
                     String logMessage = LogMessageBuilder.build(request);
                     logger.info(LogMessageBuilder.message(logMessage, "Admin/Librarian trying to execute reader command"));
-                    RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                    RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
             }

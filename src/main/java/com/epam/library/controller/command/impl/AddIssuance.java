@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Command to add book issuance
+ */
 public class AddIssuance implements Command {
     private static final Logger logger = Logger.getLogger(AddIssuance.class.getName());
 
@@ -41,7 +44,7 @@ public class AddIssuance implements Command {
             readerID = Integer.parseInt(request.getParameter(READER_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Books were not issued"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
         try {
@@ -66,10 +69,10 @@ public class AddIssuance implements Command {
                 }
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.BOOK_ISSUANCE_PAGE, readerID), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.BOOK_ISSUANCE_PAGE, readerID), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Data error issuing books"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

@@ -2,6 +2,9 @@ package com.epam.library.service;
 
 import com.epam.library.service.impl.*;
 
+/**
+ * Provider of the service objects
+ */
 public class ServiceProvider {
     private static final ServiceProvider instance = new ServiceProvider();
 

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -22,13 +23,13 @@
                         <div class="w3-third w3-container">
                             <p>
                                 <label><fmt:message key="user.last-name"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${requestScope.last_name}">
+                                <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${fn:escapeXml(requestScope.last_name)}">
                             </p>
                         </div>
                         <div class="w3-third w3-container">
                             <p>
                                 <label><fmt:message key="user.email"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="email" value="${requestScope.email}">
+                                <input class="input-padding w3-input w3-round" type="text" name="email" value="${fn:escapeXml(requestScope.email)}">
                             </p>
                             <p>
                                 <label class="w3-left"><fmt:message key="user.filter.sort-by"/></label>
@@ -48,7 +49,7 @@
                         <div class="w3-third w3-container">
                             <p>
                                 <label><fmt:message key="user.nickname"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${requestScope.nickname}">
+                                <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${fn:escapeXml(requestScope.nickname)}">
                             </p>
                             <button class="w3-button w3-margin-top w3-right w3-theme w3-round-large" type="submit"><fmt:message key="user.filter.button"/></button>
                         </div>
@@ -96,12 +97,12 @@
                                 </td>
                                 <td>
                                     <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-user-page&user_id=${user.id}">
-                                        ${user.lastName} ${user.firstName} ${user.fatherName}
+                                        ${fn:escapeXml(user.lastName)} ${fn:escapeXml(user.firstName)} ${fn:escapeXml(user.fatherName)}
                                     </a>
                                 </td>
-                                <td>${user.email}</td>
-                                <td>${user.nickname}</td>
-                                <td>${user.address}</td>
+                                <td>${fn:escapeXml(user.email)}</td>
+                                <td>${fn:escapeXml(user.nickname)}</td>
+                                <td>${fn:escapeXml(user.address)}</td>
                                 <td>${user.phone}</td>
                                 <td>${user.birthday}</td>
                                 <c:if test="${sessionScope.session_user.role == 'ADMIN'}">

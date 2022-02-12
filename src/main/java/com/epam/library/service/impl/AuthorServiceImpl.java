@@ -5,9 +5,10 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.dictionary.Author;
 import com.epam.library.service.AuthorService;
-import com.epam.library.service.exception.AuthorException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.AuthorValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.author.*;
+import com.epam.library.service.exception.validation.author.*;
 import com.epam.library.service.validation.Validator;
 
 import java.util.ArrayList;
@@ -26,16 +27,16 @@ public class AuthorServiceImpl implements AuthorService {
         try {
             return authorDAO.getAuthorsList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void addAuthor(Author author) throws ServiceException {
 
-        List<AuthorException> exceptions = new ArrayList<>();
+        List<AuthorValidationException> exceptions = new ArrayList<>();
         try {
-            if (!authorDAO.checkAuthor(author)) {
+            if (authorDAO.authorExists(author)) {
                 exceptions.add(new ExistAuthorException());
             }
 
@@ -58,19 +59,19 @@ public class AuthorServiceImpl implements AuthorService {
             if (exceptions.isEmpty()) {
                 authorDAO.addAuthor(author);
             } else {
-                throw new AuthorException(exceptions);
+                throw new AuthorValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateAuthor(Author author) throws ServiceException {
 
-        List<AuthorException> exceptions = new ArrayList<>();
+        List<AuthorValidationException> exceptions = new ArrayList<>();
         try {
-            if (!authorDAO.checkAuthor(author)) {
+            if (authorDAO.authorExists(author)) {
                 exceptions.add(new ExistAuthorException());
             }
 
@@ -93,10 +94,10 @@ public class AuthorServiceImpl implements AuthorService {
             if (exceptions.isEmpty()) {
                 authorDAO.updateAuthor(author);
             } else {
-                throw new AuthorException(exceptions);
+                throw new AuthorValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -105,7 +106,7 @@ public class AuthorServiceImpl implements AuthorService {
         try {
             return authorDAO.getAuthor(authorID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -114,7 +115,7 @@ public class AuthorServiceImpl implements AuthorService {
         try {
             return authorDAO.deleteAuthor(authorID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

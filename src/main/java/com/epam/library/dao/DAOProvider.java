@@ -2,6 +2,9 @@ package com.epam.library.dao;
 
 import com.epam.library.dao.impl.*;
 
+/**
+ * Provider of the DAO objects
+ */
 public class DAOProvider {
     private static final DAOProvider instance = new DAOProvider();
 

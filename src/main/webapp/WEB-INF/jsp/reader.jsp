@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -37,18 +38,18 @@
                         <div class="w3-twothird w3-container">
                             <p>
                                 <b>
-                                    ${requestScope.reader.lastName}
-                                    ${requestScope.reader.firstName}
-                                    ${requestScope.reader.fatherName}
+                                    ${fn:escapeXml(requestScope.reader.lastName)}
+                                    ${fn:escapeXml(requestScope.reader.firstName)}
+                                    ${fn:escapeXml(requestScope.reader.fatherName)}
                                     <c:if test="${requestScope.reader.lock}">
                                         <span class="material-icons-outlined w3-text-red" title="<fmt:message key="user-list.locked"/>">person_off</span>
                                     </c:if>
                                 </b>
-                                <br><fmt:message key="user.address"/>: ${requestScope.reader.address}
+                                <br><fmt:message key="user.address"/>: ${fn:escapeXml(requestScope.reader.address)}
                                 <br><fmt:message key="user.phone"/>: ${requestScope.reader.phone}
                                 <br><fmt:message key="user.birthday"/>: ${requestScope.reader.birthday}
-                                <br><fmt:message key="user.email"/>: ${requestScope.reader.email}
-                                <br><fmt:message key="user.nickname"/>: ${requestScope.reader.nickname}
+                                <br><fmt:message key="user.email"/>: ${fn:escapeXml(requestScope.reader.email)}
+                                <br><fmt:message key="user.nickname"/>: ${fn:escapeXml(requestScope.reader.nickname)}
                             </p>
                             <form action="controller" method="get">
                                 <input type="hidden" name="command" value="book-issuance-page">
@@ -106,11 +107,11 @@
                                         <tr>
                                             <td>
                                                 <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${issuance.bookID}">
-                                                    ${issuance.bookName}
+                                                    ${fn:escapeXml(issuance.bookName)}
                                                 </a>
                                             </td>
-                                            <td>${issuance.authors}</td>
-                                            <td>${issuance.instanceNumber}</td>
+                                            <td>${fn:escapeXml(issuance.authors)}</td>
+                                            <td>${fn:escapeXml(issuance.instanceNumber)}</td>
                                             <td>
                                                 <c:if test="${issuance.dateIssue == issuance.dateReturnPlanned && issuance.countDaysRental == 0}">
                                                     <b>${issuance.hallName}</b>
@@ -188,11 +189,11 @@
                                         <tr>
                                             <td>
                                                 <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${reservation.bookID}">
-                                                    ${reservation.bookName}
+                                                    ${fn:escapeXml(reservation.bookName)}
                                                 </a>
                                             </td>
-                                            <td>${reservation.authors}</td>
-                                            <td>${reservation.instanceNumber}</td>
+                                            <td>${fn:escapeXml(reservation.authors)}</td>
+                                            <td>${fn:escapeXml(reservation.instanceNumber)}</td>
                                             <td>${reservation.hallName}</td>
                                             <td>${reservation.dateReservation}</td>
                                             <td class="
@@ -207,7 +208,7 @@
                                                 ${reservation.reservationDebts ? 'w3-text-red' : ''}
                                             ">
                                                 <c:if test="${reservation.countDaysReservation == 0}">
-                                                    Today
+                                                    <fmt:message key="reader.reservation-today"/>
                                                 </c:if>
                                                 <c:if test="${reservation.countDaysReservation != 0}">
                                                     ${reservation.countDaysReservation}
@@ -253,11 +254,11 @@
                                         <tr>
                                             <td>
                                                 <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${issuance.bookID}">
-                                                        ${issuance.bookName}
+                                                        ${fn:escapeXml(issuance.bookName)}
                                                 </a>
                                             </td>
-                                            <td>${issuance.authors}</td>
-                                            <td>${issuance.instanceNumber}</td>
+                                            <td>${fn:escapeXml(issuance.authors)}</td>
+                                            <td>${fn:escapeXml(issuance.instanceNumber)}</td>
                                             <td>${issuance.hallName}</td>
                                             <td>
                                                 <c:if test="${issuance.bookPrice > 0}">
@@ -313,11 +314,11 @@
                                         <tr>
                                             <td>
                                                 <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${reservation.bookID}">
-                                                        ${reservation.bookName}
+                                                        ${fn:escapeXml(reservation.bookName)}
                                                 </a>
                                             </td>
-                                            <td>${reservation.authors}</td>
-                                            <td>${reservation.instanceNumber}</td>
+                                            <td>${fn:escapeXml(reservation.authors)}</td>
+                                            <td>${fn:escapeXml(reservation.instanceNumber)}</td>
                                             <td>${reservation.hallName}</td>
                                             <td>${reservation.dateReservation}</td>
                                             <td class="

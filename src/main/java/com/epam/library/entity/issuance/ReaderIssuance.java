@@ -1,10 +1,17 @@
 package com.epam.library.entity.issuance;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
+/**
+ * Entity of issued book of the reader
+ */
 public class ReaderIssuance implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -2851501480268856139L;
+
     private int issuanceID;
     private int bookID;
     private String bookName;

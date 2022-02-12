@@ -5,6 +5,7 @@ import com.epam.library.dao.DAOProvider;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.catalog.BookCatalog;
 import com.epam.library.service.BookCatalogService;
+import com.epam.library.service.exception.GeneralException;
 import com.epam.library.service.exception.ServiceException;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class BookCatalogServiceImpl implements BookCatalogService {
         try {
             return bookCatalogDAO.getBookCatalog(bookID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -29,7 +30,7 @@ public class BookCatalogServiceImpl implements BookCatalogService {
         try {
             return bookCatalogDAO.getNewBookCatalogList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -38,7 +39,7 @@ public class BookCatalogServiceImpl implements BookCatalogService {
         try {
             return bookCatalogDAO.getPopularBookCatalogList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -47,7 +48,7 @@ public class BookCatalogServiceImpl implements BookCatalogService {
         try {
             return bookCatalogDAO.getPagesCount(filters);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -56,7 +57,7 @@ public class BookCatalogServiceImpl implements BookCatalogService {
         try {
             return bookCatalogDAO.getBookCatalogByFilter(filters, page);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

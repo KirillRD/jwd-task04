@@ -1,6 +1,14 @@
 package com.epam.library.service.exception;
 
+import java.io.Serial;
+
+/**
+ * Basic service exception
+ */
 public class ServiceException extends Exception {
+    @Serial
+    private static final long serialVersionUID = 6254205318775216910L;
+
     public ServiceException() {
         super();
     }

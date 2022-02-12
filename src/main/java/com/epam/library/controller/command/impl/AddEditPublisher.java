@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -9,9 +9,10 @@ import com.epam.library.controller.util.Util;
 import com.epam.library.entity.book.dictionary.Publisher;
 import com.epam.library.service.PublisherService;
 import com.epam.library.service.ServiceProvider;
-import com.epam.library.service.exception.PublisherException;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.PublisherValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.publisher.*;
+import com.epam.library.service.exception.validation.publisher.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to add/edit book publisher
+ */
 public class AddEditPublisher implements Command {
     private static final Logger logger = Logger.getLogger(AddEditPublisher.class.getName());
 
@@ -66,27 +70,27 @@ public class AddEditPublisher implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Publisher add completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, ""), request, response);
-        } catch (PublisherException e) {
+            RequestManager.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, ""), request, response);
+        } catch (PublisherValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(PUBLISHER, publisher);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (publisher.getId() != 0) {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Publisher was not updated"));
-                RequestProvider.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, REDIRECT_PUBLISHER_ID + publisher.getId()), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, REDIRECT_PUBLISHER_ID + publisher.getId()), request, response);
             } else {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Publisher was not added"));
-                RequestProvider.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, ""), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.PUBLISHER_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating publisher data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(PublisherException exception) {
+    private List<String> errorMessageBuilder(PublisherValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (PublisherException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to delete book type
+ */
 public class DeleteType implements Command {
     private static final Logger logger = Logger.getLogger(DeleteType.class.getName());
 
@@ -36,7 +39,7 @@ public class DeleteType implements Command {
                 typeID = Integer.parseInt(request.getParameter(TYPE_ID));
             } else {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Type was not deleted"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             if (!typeService.deleteType(typeID)) {
@@ -47,10 +50,10 @@ public class DeleteType implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Type delete completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.TYPE_PAGE, ""), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.TYPE_PAGE, ""), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error deleting type data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

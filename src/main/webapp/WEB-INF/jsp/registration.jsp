@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -34,7 +35,7 @@
                         <input type="hidden" name="command" value="registration">
                         <p>
                             <label><fmt:message key="user.email"/></label>
-                            <input class="input-padding w3-input w3-round" type="email" name="email" value="${sessionScope.user.email}" required>
+                            <input class="input-padding w3-input w3-round" type="email" name="email" value="${fn:escapeXml(sessionScope.user.email)}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.password"/></label>
@@ -46,19 +47,19 @@
                         </p>
                         <p>
                             <label><fmt:message key="user.nickname"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${sessionScope.user.nickname}" required>
+                            <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${fn:escapeXml(sessionScope.user.nickname)}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.last-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${sessionScope.user.lastName}" required>
+                            <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${fn:escapeXml(sessionScope.user.lastName)}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.first-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${sessionScope.user.firstName}" required>
+                            <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${fn:escapeXml(sessionScope.user.firstName)}" required>
                         </p>
                         <p>
                             <label><fmt:message key="user.father-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${sessionScope.user.fatherName}">
+                            <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${fn:escapeXml(sessionScope.user.fatherName)}">
                         </p>
                         <p>
                             <label><fmt:message key="user.birthday"/></label>
@@ -78,11 +79,11 @@
                         </p>
                         <p>
                             <label><fmt:message key="user.passport"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="passport" value="${sessionScope.user.passport}">
+                            <input class="input-padding w3-input w3-round" type="text" name="passport" value="${fn:escapeXml(sessionScope.user.passport)}">
                         </p>
                         <p>
                             <label><fmt:message key="user.address"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="address" value="${sessionScope.user.address}">
+                            <input class="input-padding w3-input w3-round" type="text" name="address" value="${fn:escapeXml(sessionScope.user.address)}">
                         </p>
                         <p>
                             <label><fmt:message key="user.phone"/></label>

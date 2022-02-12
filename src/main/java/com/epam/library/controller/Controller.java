@@ -12,8 +12,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.io.Serial;
 
 public class Controller extends HttpServlet {
+    @Serial
+    private static final long serialVersionUID = -332476879910115450L;
+
     private static final Logger logger = Logger.getLogger(Controller.class.getName());
 
     private static final String COMMAND = "command";
@@ -37,7 +41,7 @@ public class Controller extends HttpServlet {
         if (command == null) {
             String logMessage = LogMessageBuilder.build(request);
             logger.info(LogMessageBuilder.message(logMessage, "Non-existent command"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
 

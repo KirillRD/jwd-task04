@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -11,11 +11,10 @@ import com.epam.library.entity.Review;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.service.ReviewService;
 import com.epam.library.service.ServiceProvider;
-import com.epam.library.service.exception.ReviewException;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.ReviewValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.review.EmptyRatingException;
-import com.epam.library.service.exception.review.InvalidLengthCommentException;
-import com.epam.library.service.exception.review.InvalidRatingFormatException;
+import com.epam.library.service.exception.validation.review.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to add book review
+ */
 public class AddReview implements Command {
     private static final Logger logger = Logger.getLogger(AddReview.class.getName());
 
@@ -57,7 +59,7 @@ public class AddReview implements Command {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Review was not added"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
         Review review = new Review();
@@ -74,23 +76,23 @@ public class AddReview implements Command {
             } else {
                 logger.info(LogMessageBuilder.message(logMessage, "Review add completed"));
             }
-            RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
-        } catch (ReviewException e) {
+            RequestManager.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
+        } catch (ReviewValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(RATING, rating);
             session.setAttribute(COMMENT, comment);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Review was not added"));
-            RequestProvider.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.BOOK_PAGE, bookID), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error adding review data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(ReviewException exception) {
+    private List<String> errorMessageBuilder(ReviewValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (ReviewException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

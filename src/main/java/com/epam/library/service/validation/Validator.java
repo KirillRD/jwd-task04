@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
+/**
+ * Data validation class
+ */
 public class Validator {
     private static final Validator instance = new Validator();
 
@@ -23,10 +26,20 @@ public class Validator {
     private static final String YEAR_PATTER = "year-pattern";
     private static final String DATE_PATTERN = "yyyy-MM-dd";
 
+    /**
+     * Returns true if string is empty
+     * @param cs string that is checked
+     * @return true if string is empty
+     */
     public boolean isEmpty (CharSequence cs) {
         return cs == null || cs.length() == 0;
     }
 
+    /**
+     * Returns true if string is integer
+     * @param cs string that is checked
+     * @return true if string is integer
+     */
     public boolean isInteger(CharSequence cs) {
         if (isEmpty(cs) || (cs.length() == 1 && cs.charAt(0) == '0')) {
             return false;
@@ -40,6 +53,11 @@ public class Validator {
         return true;
     }
 
+    /**
+     * Returns true if string is rational number
+     * @param str string that is checked
+     * @return true if string is rational number
+     */
     public boolean isRationalNumber(String str) {
         if (isEmpty(str)) {
             return false;
@@ -73,6 +91,11 @@ public class Validator {
         return true;
     }
 
+    /**
+     * Returns true if string is date
+     * @param value string that is checked
+     * @return true if string is date
+     */
     public boolean isDate(String value) {
         if (value == null) {
             return false;
@@ -90,22 +113,47 @@ public class Validator {
         return true;
     }
 
+    /**
+     * Returns true if string is in email format
+     * @param email string that is checked
+     * @return true if string is in email format
+     */
     public boolean isEmail(String email) {
         return Pattern.compile(resourceBundle.getString(EMAIL_PATTERN)).matcher(email).matches();
     }
 
+    /**
+     * Returns true if string is in ISBN format
+     * @param isbn string that is checked
+     * @return true if string is in ISBN format
+     */
     public boolean isISBN(String isbn) {
         return Pattern.compile(resourceBundle.getString(ISBN_PATTER)).matcher(isbn).matches();
     }
 
+    /**
+     * Returns true if string is in ISSN format
+     * @param issn string that is checked
+     * @return true if string is in ISSN format
+     */
     public boolean isISSN(String issn) {
         return Pattern.compile(resourceBundle.getString(ISSN_PATTER)).matcher(issn).matches();
     }
 
+    /**
+     * Returns true if string is in phone format
+     * @param phone string that is checked
+     * @return true if string is in phone format
+     */
     public boolean isPhone(String phone) {
         return Pattern.compile(resourceBundle.getString(PHONE_NUMBER_PATTER)).matcher(phone).matches();
     }
 
+    /**
+     * Returns true if string is in year format
+     * @param year string that is checked
+     * @return true if string is in year format
+     */
     public boolean isYear(String year) {
         return Pattern.compile(resourceBundle.getString(YEAR_PATTER)).matcher(year).matches();
     }

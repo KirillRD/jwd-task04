@@ -2,6 +2,9 @@ package com.epam.library.constant;
 
 import java.util.Set;
 
+/**
+ * User list filter constants
+ */
 public final class UserListFilterName {
 
     private UserListFilterName() {}

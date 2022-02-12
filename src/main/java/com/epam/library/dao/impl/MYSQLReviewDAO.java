@@ -37,7 +37,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
     public MYSQLReviewDAO() {}
 
     @Override
-    public boolean checkReview(int bookID, int readerID) throws DAOException {
+    public boolean reviewExists(int bookID, int readerID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -49,10 +49,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
             preparedStatement.setInt(1, bookID);
             preparedStatement.setInt(2, readerID);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return false;
-            }
-            return true;
+            return resultSet.next();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

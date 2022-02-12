@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -9,9 +9,10 @@ import com.epam.library.controller.util.Util;
 import com.epam.library.entity.Instance;
 import com.epam.library.service.InstanceService;
 import com.epam.library.service.ServiceProvider;
-import com.epam.library.service.exception.InstanceException;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.InstanceValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.instance.*;
+import com.epam.library.service.exception.validation.instance.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to add/edit book instance
+ */
 public class AddEditInstance implements Command {
     private static final Logger logger = Logger.getLogger(AddEditInstance.class.getName());
 
@@ -67,7 +71,7 @@ public class AddEditInstance implements Command {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not added/updated"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
 
@@ -85,27 +89,27 @@ public class AddEditInstance implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Instance add completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
-        } catch (InstanceException e) {
+            RequestManager.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
+        } catch (InstanceValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(INSTANCE, instance);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (instance.getId() != 0) {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Instance was not updated"));
-                RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID + REDIRECT_INSTANCE_ID + instance.getId()), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID + REDIRECT_INSTANCE_ID + instance.getId()), request, response);
             } else {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Instance was not added"));
-                RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
             }
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating instance data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(InstanceException exception) {
+    private List<String> errorMessageBuilder(InstanceValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (InstanceException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

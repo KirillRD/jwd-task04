@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -9,9 +9,10 @@ import com.epam.library.controller.util.Util;
 import com.epam.library.entity.book.dictionary.Author;
 import com.epam.library.service.AuthorService;
 import com.epam.library.service.ServiceProvider;
-import com.epam.library.service.exception.AuthorException;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.AuthorValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.author.*;
+import com.epam.library.service.exception.validation.author.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to add/edit book author
+ */
 public class AddEditAuthor implements Command {
     private static final Logger logger = Logger.getLogger(AddEditAuthor.class.getName());
 
@@ -69,27 +73,27 @@ public class AddEditAuthor implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Author add completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
-        } catch (AuthorException e) {
+            RequestManager.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
+        } catch (AuthorValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(AUTHOR, author);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (author.getId() != 0) {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Author was not updated"));
-                RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, REDIRECT_AUTHOR_ID + author.getId()), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.AUTHOR_PAGE, REDIRECT_AUTHOR_ID + author.getId()), request, response);
             } else {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Author was not added"));
-                RequestProvider.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.AUTHOR_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating author data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(AuthorException exception) {
+    private List<String> errorMessageBuilder(AuthorValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (AuthorException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

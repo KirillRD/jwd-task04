@@ -1,10 +1,17 @@
 package com.epam.library.entity.instance;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
+/**
+ * Entity of book instance
+ */
 public class BookInstance implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -4707454776857086021L;
+
     private int id;
     private String number;
     private int hallID;

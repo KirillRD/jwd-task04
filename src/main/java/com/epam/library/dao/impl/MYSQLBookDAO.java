@@ -8,9 +8,6 @@ import com.epam.library.entity.Book;
 import com.epam.library.entity.book.BookInfo;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,8 +33,6 @@ public class MYSQLBookDAO implements BookDAO {
     private static final String GENRE_ID = "genres_id";
     private static final String AUTHOR_ID = "authors_id";
     private static final String DEFAULT_IMAGE_BOOK = "default_image_book.jpg";
-    private static final String BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT = "E:\\Users\\Kirill\\Programs\\EPAM\\jwd-task04\\src\\main\\webapp\\images\\books\\";
-    private static final String BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT = "D:\\Program Files\\Program\\Tomcat 10.0\\webapps\\jwd_task04\\images\\books\\";
 
     private static final String GET_BOOK_BY_ISBN_ISSN = "SELECT * FROM books WHERE (isbn IS NULL OR isbn=?) AND (issn IS NULL OR issn=?)";
     private static final String GET_MAX_ID_BOOK = "SELECT MAX(id) FROM books";
@@ -58,7 +53,7 @@ public class MYSQLBookDAO implements BookDAO {
     public MYSQLBookDAO() {}
 
     @Override
-    public boolean checkStandardNumber(int bookId, String isbn, String issn) throws DAOException {
+    public boolean standardNumberExists(int bookId, String isbn, String issn) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -72,10 +67,10 @@ public class MYSQLBookDAO implements BookDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (bookId == 0 || bookId != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -330,22 +325,14 @@ public class MYSQLBookDAO implements BookDAO {
             preparedStatement.setInt(1, bookID);
             preparedStatement.executeUpdate();
 
-            preparedStatement = connection.prepareStatement(SELECT_BOOK);
-            preparedStatement.setInt(1, bookID);
-            resultSet = preparedStatement.executeQuery();
-            String imageURL = resultSet.getString(IMAGE);
-
             preparedStatement = connection.prepareStatement(DELETE_BOOK);
             preparedStatement.setInt(1, bookID);
             preparedStatement.executeUpdate();
 
             connection.commit();
 
-            Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + imageURL));
-            Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + imageURL));
-
             return true;
-        } catch (SQLException | ConnectionPoolException | IOException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             try {
                 if (connection != null) {
                     connection.rollback();

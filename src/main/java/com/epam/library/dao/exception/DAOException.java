@@ -1,6 +1,14 @@
 package com.epam.library.dao.exception;
 
+import java.io.Serial;
+
+/**
+ * Thrown when error occurred while processing the data
+ */
 public class DAOException extends Exception {
+    @Serial
+    private static final long serialVersionUID = -8217140444978201737L;
+
     public DAOException() {
         super();
     }

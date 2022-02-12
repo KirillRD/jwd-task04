@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -36,29 +37,25 @@
             </div>
             <div class="w3-twothird w3-container">
                 <p>
-                    <b>${requestScope.book_info.name}</b>
+                    <b>${fn:escapeXml(requestScope.book_info.name)}</b>
                     <br>
                     <c:forEach var="author" varStatus="loop" items="${requestScope.book_info.authors}">
-                        <c:if test="${loop.index != 0}">
-                            ,
-                        </c:if>
-                        ${author}
+                        ${loop.index != 0 ? ',' : ''}
+                        ${fn:escapeXml(author)}
                     </c:forEach>
                     <br>
-                    <br><fmt:message key="book.publisher"/>: ${requestScope.book_info.publisher}
-                    <br><fmt:message key="book.city"/>: ${requestScope.book_info.city}
+                    <br><fmt:message key="book.publisher"/>: ${fn:escapeXml(requestScope.book_info.publisher)}
+                    <br><fmt:message key="book.city"/>: ${fn:escapeXml(requestScope.book_info.city)}
                     <br><fmt:message key="book.publication-year"/>: ${requestScope.book_info.publicationYear}
                     <br><fmt:message key="book.pages"/>: ${requestScope.book_info.pages}
                     <c:if test="${requestScope.book_info.part > 0}">
                         <br><fmt:message key="book.part"/>: ${requestScope.book_info.part}
                     </c:if>
-                    <br><fmt:message key="book.type"/>: ${requestScope.book_info.type}
+                    <br><fmt:message key="book.type"/>: ${fn:escapeXml(requestScope.book_info.type)}
                     <br><fmt:message key="book.genres"/>:
                     <c:forEach var="genre" varStatus="loop" items="${requestScope.book_info.genres}">
-                        <c:if test="${loop.index != 0}">
-                            ,
-                        </c:if>
-                        ${genre}
+                        ${loop.index != 0 ? ',' : ''}
+                        ${fn:escapeXml(genre)}
                     </c:forEach>
                     <br>
                     <c:if test="${requestScope.book_info.isbn != ''}">
@@ -79,7 +76,7 @@
                         ><fmt:message key="book.reservation-book"/></button>
                     </form>
                 </c:if>
-                <p class="annotation-p"><fmt:message key="book.annotation"/>: ${requestScope.book_info.annotation}</p>
+                <p class="annotation-p"><fmt:message key="book.annotation"/>: ${fn:escapeXml(requestScope.book_info.annotation)}</p>
             </div>
 
             <c:if test="${sessionScope.message != null}">
@@ -134,7 +131,7 @@
                                     <label for="rate1" title="<fmt:message key="book.rating.1"/>"></label>
                                     <c:remove var="rating" scope="session"/>
                                 </fieldset>
-                                <textarea class="w3-input w3-round" maxlength="1000" name="comment" style="resize: vertical">${sessionScope.comment}</textarea>
+                                <textarea class="w3-input w3-round" maxlength="1000" name="comment" style="resize: vertical">${fn:escapeXml(sessionScope.comment)}</textarea>
                                 <c:remove var="comment" scope="session"/>
                                 <button class="w3-button w3-right w3-theme w3-margin-bottom w3-margin-top w3-round-large" type="submit"><fmt:message key="book.add-review"/></button>
                             </form>
@@ -149,7 +146,7 @@
                     <c:if test="${review.comment != ''}">
                         <div class="w3-row w3-border">
                             <div class="w3-col w3-container w3-center" style="width: 15%">
-                                <span>${review.nickname}</span>
+                                <span>${fn:escapeXml(review.nickname)}</span>
                                 <p>
                                     <img src="images/users/${review.imageURL}">
                                 </p>
@@ -180,7 +177,7 @@
                                 </div>
 
                                 <div class="w3-margin-bottom">
-                                        ${review.comment}
+                                        ${fn:escapeXml(review.comment)}
                                 </div>
                             </div>
                         </div>

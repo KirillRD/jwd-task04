@@ -1,9 +1,16 @@
 package com.epam.library.entity.instance.hall;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity of library hall
+ */
 public class Hall implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 6584118746830133251L;
+
     private int id;
     private String name;
     private String shortName;

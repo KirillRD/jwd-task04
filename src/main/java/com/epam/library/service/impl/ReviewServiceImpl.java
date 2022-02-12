@@ -6,11 +6,10 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Review;
 import com.epam.library.entity.review.BookReview;
 import com.epam.library.service.ReviewService;
-import com.epam.library.service.exception.ReviewException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.ReviewValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.review.EmptyRatingException;
-import com.epam.library.service.exception.review.InvalidLengthCommentException;
-import com.epam.library.service.exception.review.InvalidRatingFormatException;
+import com.epam.library.service.exception.validation.review.*;
 import com.epam.library.service.validation.Validator;
 
 import java.util.ArrayList;
@@ -27,9 +26,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public boolean addReview(Review review, String rating) throws ServiceException {
 
-        List<ReviewException> exceptions = new ArrayList<>();
+        List<ReviewValidationException> exceptions = new ArrayList<>();
         try {
-            if (!reviewDAO.checkReview(review.getBookID(), review.getReaderID())) {
+            if (reviewDAO.reviewExists(review.getBookID(), review.getReaderID())) {
                 return false;
             }
 
@@ -47,11 +46,11 @@ public class ReviewServiceImpl implements ReviewService {
                 review.setRating(Integer.parseInt(rating));
                 reviewDAO.addReview(review);
             } else {
-                throw new ReviewException(exceptions);
+                throw new ReviewValidationException(exceptions);
             }
             return true;
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -60,7 +59,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             return reviewDAO.getBookReviews(bookID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

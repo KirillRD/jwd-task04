@@ -5,11 +5,10 @@ import com.epam.library.dao.GenreDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.dictionary.Genre;
 import com.epam.library.service.GenreService;
-import com.epam.library.service.exception.GenreException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.GenreValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.genre.EmptyGenreNameException;
-import com.epam.library.service.exception.genre.ExistGenreException;
-import com.epam.library.service.exception.genre.InvalidLengthGenreNameException;
+import com.epam.library.service.exception.validation.genre.*;
 import com.epam.library.service.validation.Validator;
 
 import java.util.ArrayList;
@@ -28,16 +27,16 @@ public class GenreServiceImpl implements GenreService {
         try {
             return genreDAO.getGenresList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void addGenre(Genre genre) throws ServiceException {
 
-        List<GenreException> exceptions = new ArrayList<>();
+        List<GenreValidationException> exceptions = new ArrayList<>();
         try {
-            if (!genreDAO.checkGenre(genre)) {
+            if (genreDAO.genreExists(genre)) {
                 exceptions.add(new ExistGenreException());
             }
 
@@ -50,19 +49,19 @@ public class GenreServiceImpl implements GenreService {
             if (exceptions.isEmpty()) {
                 genreDAO.addGenre(genre);
             } else {
-                throw new GenreException(exceptions);
+                throw new GenreValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateGenre(Genre genre) throws ServiceException {
 
-        List<GenreException> exceptions = new ArrayList<>();
+        List<GenreValidationException> exceptions = new ArrayList<>();
         try {
-            if (!genreDAO.checkGenre(genre)) {
+            if (genreDAO.genreExists(genre)) {
                 exceptions.add(new ExistGenreException());
             }
 
@@ -75,10 +74,10 @@ public class GenreServiceImpl implements GenreService {
             if (exceptions.isEmpty()) {
                 genreDAO.updateGenre(genre);
             } else {
-                throw new GenreException(exceptions);
+                throw new GenreValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -87,7 +86,7 @@ public class GenreServiceImpl implements GenreService {
         try {
             return genreDAO.getGenre(genreID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -96,7 +95,7 @@ public class GenreServiceImpl implements GenreService {
         try {
             return genreDAO.deleteGenre(genreID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

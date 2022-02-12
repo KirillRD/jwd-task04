@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -18,6 +18,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to authentication user
+ */
 public class Authentication implements Command {
     private static final Logger logger = Logger.getLogger(Authentication.class.getName());
 
@@ -40,30 +43,30 @@ public class Authentication implements Command {
         try {
             Integer userID = userService.authentication(email, password);
             if (userID != null) {
-                if (userService.checkUserLock(userID)) {
+                if (userService.userIsLock(userID)) {
                     HttpSession session = request.getSession();
                     session.setAttribute(EMAIL, email);
                     session.setAttribute(MESSAGE, ERROR_LOCK);
                     logger.info(LogMessageBuilder.message(logMessage, "Authentication was not completed. User is locked"));
-                    RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
+                    RequestManager.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
                     return;
                 }
                 SessionUser sessionUser = userService.getSessionUser(userID);
                 SessionUserProvider.setSessionUser(request, sessionUser);
-                logger.info(LogMessageBuilder.message(logMessage, "Authentication completed"));
+                logger.info(LogMessageBuilder.message(LogMessageBuilder.build(request), "Authentication completed"));
             } else {
                 HttpSession session = request.getSession();
                 session.setAttribute(EMAIL, email);
                 session.setAttribute(MESSAGE, ERROR_AUTHENTICATION);
                 logger.info(LogMessageBuilder.message(logMessage, "Authentication was not completed. Email or password entered incorrectly"));
-                RequestProvider.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
+                RequestManager.redirect(RedirectCommand.AUTHENTICATION_PAGE, request, response);
                 return;
             }
 
-            RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
+            RequestManager.redirect(RedirectCommand.MAIN_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error data authentication"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

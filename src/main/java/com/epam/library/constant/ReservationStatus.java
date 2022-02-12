@@ -1,5 +1,8 @@
 package com.epam.library.constant;
 
+/**
+ * Enum of reservation status
+ */
 public enum ReservationStatus {
     RESERVED,
     READY,

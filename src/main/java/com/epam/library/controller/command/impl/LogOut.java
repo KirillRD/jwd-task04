@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.RedirectCommand;
 import com.epam.library.controller.util.LogMessageBuilder;
@@ -12,6 +12,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to log out user
+ */
 public class LogOut implements Command {
     private static final Logger logger = Logger.getLogger(LogOut.class.getName());
 
@@ -22,6 +25,6 @@ public class LogOut implements Command {
 
         SessionUserProvider.removeSessionUser(request);
         logger.info(LogMessageBuilder.message(logMessage, "Log out completed"));
-        RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
+        RequestManager.redirect(RedirectCommand.MAIN_PAGE, request, response);
     }
 }

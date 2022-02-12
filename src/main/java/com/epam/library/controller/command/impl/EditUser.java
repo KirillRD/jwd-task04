@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -13,14 +13,12 @@ import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.UserService;
-import com.epam.library.service.exception.UserException;
-import com.epam.library.service.exception.user.*;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.UserValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.user.length.*;
-import com.epam.library.service.exception.user.password.EmptyCurrentPasswordException;
-import com.epam.library.service.exception.user.password.EmptyNewPasswordException;
-import com.epam.library.service.exception.user.password.EmptyRepeatedNewPasswordException;
-import com.epam.library.service.exception.user.password.NotEqualNewPasswordException;
+import com.epam.library.service.exception.validation.user.*;
+import com.epam.library.service.exception.validation.user.length.*;
+import com.epam.library.service.exception.validation.user.password.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,6 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to edit user
+ */
 public class EditUser implements Command {
     private static final Logger logger = Logger.getLogger(EditUser.class.getName());
 
@@ -161,34 +162,34 @@ public class EditUser implements Command {
             }
 
             if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                RequestProvider.redirect(String.format(RedirectCommand.USER_PAGE, REDIRECT_USER_ID + userID), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.USER_PAGE, REDIRECT_USER_ID + userID), request, response);
             } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, userID), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.READER_PAGE, userID), request, response);
             } else {
-                RequestProvider.redirect(String.format(RedirectCommand.USER_PAGE, ""), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.USER_PAGE, ""), request, response);
             }
-        } catch (UserException e) {
+        } catch (UserValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. User was not updated"));
 
             if (Util.isID(request.getParameter(USER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_USER_ID + userID), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_USER_ID + userID), request, response);
             } else if (Util.isID(request.getParameter(READER_ID)) && (sessionUser.getRole() == Role.LIBRARIAN || sessionUser.getRole() == Role.ADMIN)) {
-                RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_READER_ID + userID), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, REDIRECT_READER_ID + userID), request, response);
             } else {
-                RequestProvider.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, ""), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.EDIT_USER_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error updating user data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(UserException exception) {
+    private List<String> errorMessageBuilder(UserValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (UserException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

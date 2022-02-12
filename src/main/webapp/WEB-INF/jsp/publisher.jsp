@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -50,14 +51,14 @@
                                 <div class="w3-half w3-container">
                                     <p>
                                         <label><fmt:message key="publisher.name"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="name" value="${sessionScope.publisher.name}" required maxlength="50">
+                                        <input class="input-padding w3-input w3-round" type="text" name="name" value="${fn:escapeXml(sessionScope.publisher.name)}" required maxlength="50">
                                     </p>
                                 </div>
 
                                 <div class="w3-half w3-container">
                                     <p>
                                         <label><fmt:message key="publisher.city"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="city" value="${sessionScope.publisher.city}" required maxlength="30">
+                                        <input class="input-padding w3-input w3-round" type="text" name="city" value="${fn:escapeXml(sessionScope.publisher.city)}" required maxlength="30">
                                     </p>
                                 </div>
 
@@ -81,8 +82,8 @@
                                 <tr class="
                                 ${publisher.id == sessionScope.publisher.id ? 'w3-theme-l3' : ''}"
                                 >
-                                    <td>${publisher.name}</td>
-                                    <td>${publisher.city}</td>
+                                    <td>${fn:escapeXml(publisher.name)}</td>
+                                    <td>${fn:escapeXml(publisher.city)}</td>
                                     <td>
                                         <form action="controller" method="get">
                                             <input type="hidden" name="command" value="publisher-page">

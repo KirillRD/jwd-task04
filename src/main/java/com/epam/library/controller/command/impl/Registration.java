@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -11,10 +11,11 @@ import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.ServiceProvider;
 import com.epam.library.service.UserService;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.UserException;
-import com.epam.library.service.exception.user.*;
-import com.epam.library.service.exception.user.length.*;
-import com.epam.library.service.exception.user.password.*;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.UserValidationException;
+import com.epam.library.service.exception.validation.user.*;
+import com.epam.library.service.exception.validation.user.length.*;
+import com.epam.library.service.exception.validation.user.password.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to registration user
+ */
 public class Registration implements Command {
     private static final Logger logger = Logger.getLogger(Registration.class.getName());
 
@@ -91,26 +95,26 @@ public class Registration implements Command {
         UserService userService = ServiceProvider.getInstance().getUserService();
         try {
             int userID = userService.registration(user, password, repeatedPassword);
-            logger.info(LogMessageBuilder.message(logMessage, "Registration completed"));
             SessionUser sessionUser = userService.getSessionUser(userID);
             SessionUserProvider.setSessionUser(request, sessionUser);
+            logger.info(LogMessageBuilder.message(LogMessageBuilder.build(request), "Registration completed"));
 
-            RequestProvider.redirect(RedirectCommand.MAIN_PAGE, request, response);
-        } catch (UserException e) {
+            RequestManager.redirect(RedirectCommand.MAIN_PAGE, request, response);
+        } catch (UserValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(USER, user);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Registration was not completed"));
-            RequestProvider.redirect(RedirectCommand.REGISTRATION_PAGE, request, response);
+            RequestManager.redirect(RedirectCommand.REGISTRATION_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error data registration"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(UserException exception) {
+    private List<String> errorMessageBuilder(UserValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (UserException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

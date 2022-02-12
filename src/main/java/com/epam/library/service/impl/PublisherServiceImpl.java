@@ -5,9 +5,10 @@ import com.epam.library.dao.PublisherDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.dictionary.Publisher;
 import com.epam.library.service.PublisherService;
-import com.epam.library.service.exception.PublisherException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.PublisherValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.publisher.*;
+import com.epam.library.service.exception.validation.publisher.*;
 import com.epam.library.service.validation.Validator;
 
 import java.util.ArrayList;
@@ -27,16 +28,16 @@ public class PublisherServiceImpl implements PublisherService {
         try {
             return publisherDAO.getPublishersList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void addPublisher(Publisher publisher) throws ServiceException {
 
-        List<PublisherException> exceptions = new ArrayList<>();
+        List<PublisherValidationException> exceptions = new ArrayList<>();
         try {
-            if (!publisherDAO.checkPublisher(publisher)) {
+            if (publisherDAO.publisherExists(publisher)) {
                 exceptions.add(new ExistPublisherException());
             }
 
@@ -55,19 +56,19 @@ public class PublisherServiceImpl implements PublisherService {
             if (exceptions.isEmpty()) {
                 publisherDAO.addPublisher(publisher);
             } else {
-                throw new PublisherException(exceptions);
+                throw new PublisherValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updatePublisher(Publisher publisher) throws ServiceException {
 
-        List<PublisherException> exceptions = new ArrayList<>();
+        List<PublisherValidationException> exceptions = new ArrayList<>();
         try {
-            if (!publisherDAO.checkPublisher(publisher)) {
+            if (publisherDAO.publisherExists(publisher)) {
                 exceptions.add(new ExistPublisherException());
             }
 
@@ -86,10 +87,10 @@ public class PublisherServiceImpl implements PublisherService {
             if (exceptions.isEmpty()) {
                 publisherDAO.updatePublisher(publisher);
             } else {
-                throw new PublisherException(exceptions);
+                throw new PublisherValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -98,7 +99,7 @@ public class PublisherServiceImpl implements PublisherService {
         try {
             return publisherDAO.getPublisher(publisherID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -107,7 +108,7 @@ public class PublisherServiceImpl implements PublisherService {
         try {
             return publisherDAO.deletePublisher(publisherID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

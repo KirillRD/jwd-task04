@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.PagePath;
@@ -24,6 +24,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Command to go to user's page
+ */
 public class GoToUserPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToUserPage.class.getName());
 
@@ -55,7 +58,7 @@ public class GoToUserPage implements Command {
             User user = userService.getUser(userID);
             if (user == null) {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Going to user page is failed"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             request.setAttribute(USER, user);
@@ -75,10 +78,10 @@ public class GoToUserPage implements Command {
             }
 
             logger.info(LogMessageBuilder.message(logMessage, "Going to user page was completed"));
-            RequestProvider.forward(PagePath.USER_PAGE, request, response);
+            RequestManager.forward(PagePath.USER_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error in data while going to user page"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

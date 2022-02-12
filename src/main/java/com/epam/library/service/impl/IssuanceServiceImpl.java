@@ -6,6 +6,7 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Issuance;
 import com.epam.library.constant.IssuanceOperation;
 import com.epam.library.service.IssuanceService;
+import com.epam.library.service.exception.GeneralException;
 import com.epam.library.service.exception.ServiceException;
 import com.epam.library.service.validation.Validator;
 
@@ -22,7 +23,7 @@ public class IssuanceServiceImpl implements IssuanceService {
         try {
             return issuanceDAO.addIssuance(issues);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -42,7 +43,7 @@ public class IssuanceServiceImpl implements IssuanceService {
             issuanceDAO.updateConditionIssuance(issues, operation);
             return true;
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

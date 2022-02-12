@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -32,7 +33,7 @@
                         <input type="hidden" name="command" value="authentication">
                         <p>
                             <label><fmt:message key="user.email"/></label>
-                            <input class="input-padding w3-input w3-round" type="email" name="email" value="${sessionScope.email}" required>
+                            <input class="input-padding w3-input w3-round" type="email" name="email" value="${fn:escapeXml(sessionScope.email)}" required>
                             <c:remove var="email" scope="session"/>
                         </p>
                         <p>

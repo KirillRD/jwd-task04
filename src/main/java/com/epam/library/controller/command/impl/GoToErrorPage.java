@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.PagePath;
@@ -14,6 +14,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * Command to go to error page
+ */
 public class GoToErrorPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToErrorPage.class.getName());
 
@@ -30,9 +33,9 @@ public class GoToErrorPage implements Command {
 
         String error = request.getParameter(ERROR);
         if (error != null && errorMessages.contains(error)) {
-            RequestProvider.forward(PagePath.ERROR_PAGE, request, response);
+            RequestManager.forward(PagePath.ERROR_PAGE, request, response);
         } else {
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
         }
     }
 }

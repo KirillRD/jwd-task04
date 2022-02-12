@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -11,9 +11,10 @@ import com.epam.library.entity.Reservation;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.service.ReservationService;
 import com.epam.library.service.ServiceProvider;
-import com.epam.library.service.exception.ReservationException;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.ReservationValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.reservation.*;
+import com.epam.library.service.exception.validation.reservation.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to add book reservation
+ */
 public class AddReservation implements Command {
     private static final Logger logger = Logger.getLogger(AddReservation.class.getName());
 
@@ -56,7 +60,7 @@ public class AddReservation implements Command {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Reservation was not added"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
         Reservation reservation = new Reservation();
@@ -78,21 +82,21 @@ public class AddReservation implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Reservation was not added. There are no free instances"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID), request, response);
-        } catch (ReservationException e) {
+            RequestManager.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID), request, response);
+        } catch (ReservationValidationException e) {
             session.setAttribute(RESERVATION, reservation);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Reservation was not added"));
-            RequestProvider.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.RESERVATION_PAGE, bookID), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error adding reservation data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(ReservationException exception) {
+    private List<String> errorMessageBuilder(ReservationValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (ReservationException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

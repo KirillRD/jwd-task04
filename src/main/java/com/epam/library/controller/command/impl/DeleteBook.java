@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -16,6 +16,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to delete book
+ */
 public class DeleteBook implements Command {
     private static final Logger logger = Logger.getLogger(DeleteBook.class.getName());
 
@@ -35,7 +38,7 @@ public class DeleteBook implements Command {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not deleted"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
 
@@ -48,10 +51,10 @@ public class DeleteBook implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Book delete completed"));
             }
 
-            RequestProvider.redirect(RedirectCommand.BOOK_LIST_PAGE, request, response);
+            RequestManager.redirect(RedirectCommand.BOOK_LIST_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error deleting book data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

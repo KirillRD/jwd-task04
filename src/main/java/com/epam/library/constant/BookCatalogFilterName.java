@@ -2,6 +2,9 @@ package com.epam.library.constant;
 
 import java.util.Set;
 
+/**
+ * Book catalog filter constants
+ */
 public final class BookCatalogFilterName {
 
     private BookCatalogFilterName() {}

@@ -1,9 +1,16 @@
 package com.epam.library.entity.book.catalog;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity of free instance hall for the book catalog
+ */
 public class HallInstanceCatalog implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -484466861926293130L;
+
     private int id;
     private String hallFreeInstances;
 

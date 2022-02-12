@@ -2,10 +2,17 @@ package com.epam.library.entity.user;
 
 import com.epam.library.entity.user.constant.Role;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity of entered user data
+ */
 public class UserInfo implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -1444834058102610006L;
+
     private int id;
     private Role role;
     private String nickname;

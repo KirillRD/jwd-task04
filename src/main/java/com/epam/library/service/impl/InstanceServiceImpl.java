@@ -6,9 +6,10 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.instance.BookInstance;
 import com.epam.library.entity.Instance;
 import com.epam.library.service.InstanceService;
-import com.epam.library.service.exception.InstanceException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.InstanceValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.instance.*;
+import com.epam.library.service.exception.validation.instance.*;
 import com.epam.library.service.validation.Validator;
 
 import java.sql.Date;
@@ -26,13 +27,13 @@ public class InstanceServiceImpl implements InstanceService {
     @Override
     public void addInstance(Instance instance) throws ServiceException {
 
-        List<InstanceException> exceptions = new ArrayList<>();
+        List<InstanceValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmpty(instance.getNumber())) {
                 exceptions.add(new EmptyNumberException());
             } else if (instance.getNumber().length() > NUMBER_LENGTH) {
                 exceptions.add(new InvalidLengthNumberException());
-            } else if (!instanceDAO.checkInstanceNumber(instance.getId(), instance.getNumber())) {
+            } else if (instanceDAO.instanceNumberExists(instance.getId(), instance.getNumber())) {
                 exceptions.add(new ExistNumberException());
             }
 
@@ -57,23 +58,23 @@ public class InstanceServiceImpl implements InstanceService {
             if (exceptions.isEmpty()) {
                 instanceDAO.addInstance(instance);
             } else {
-                throw new InstanceException(exceptions);
+                throw new InstanceValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateInstance(Instance instance) throws ServiceException {
 
-        List<InstanceException> exceptions = new ArrayList<>();
+        List<InstanceValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmpty(instance.getNumber())) {
                 exceptions.add(new EmptyNumberException());
             } else if (instance.getNumber().length() > NUMBER_LENGTH) {
                 exceptions.add(new InvalidLengthNumberException());
-            } else if (!instanceDAO.checkInstanceNumber(instance.getId(), instance.getNumber())) {
+            } else if (instanceDAO.instanceNumberExists(instance.getId(), instance.getNumber())) {
                 exceptions.add(new ExistNumberException());
             }
 
@@ -98,10 +99,10 @@ public class InstanceServiceImpl implements InstanceService {
             if (exceptions.isEmpty()) {
                 instanceDAO.updateInstance(instance);
             } else {
-                throw new InstanceException(exceptions);
+                throw new InstanceValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -110,7 +111,7 @@ public class InstanceServiceImpl implements InstanceService {
         try {
             return instanceDAO.deleteInstance(instanceID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -119,7 +120,7 @@ public class InstanceServiceImpl implements InstanceService {
         try {
             return instanceDAO.getBookInstance(instanceID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -128,7 +129,7 @@ public class InstanceServiceImpl implements InstanceService {
         try {
             return instanceDAO.getBookInstances(bookID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

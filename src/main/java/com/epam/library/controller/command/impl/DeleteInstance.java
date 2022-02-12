@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to delete book instance
+ */
 public class DeleteInstance implements Command {
     private static final Logger logger = Logger.getLogger(DeleteInstance.class.getName());
 
@@ -37,7 +40,7 @@ public class DeleteInstance implements Command {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not deleted"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
 
@@ -47,7 +50,7 @@ public class DeleteInstance implements Command {
                 instanceID = Integer.parseInt(request.getParameter(INSTANCE_ID));
             } else {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not deleted"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             if (!instanceService.deleteInstance(instanceID)) {
@@ -58,10 +61,10 @@ public class DeleteInstance implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Instance delete completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.INSTANCE_PAGE, bookID), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error deleting instance data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

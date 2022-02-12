@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.command.book_catalog_filter.BookCatalogFilter;
 import com.epam.library.controller.constant.ErrorMessage;
@@ -24,6 +24,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Command to go to book issuance page and filter books
+ */
 public class BookIssuancePage implements Command {
     private static final Logger logger = Logger.getLogger(BookIssuancePage.class.getName());
 
@@ -100,13 +103,13 @@ public class BookIssuancePage implements Command {
                 readerID = Integer.parseInt(request.getParameter(READER_ID));
             } else {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book list for issuance was not built"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             reader = readerService.getReader(readerID);
             if (reader == null) {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book list for issuance was not built"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             request.setAttribute(READER, reader);
@@ -119,10 +122,10 @@ public class BookIssuancePage implements Command {
 
             logger.info(LogMessageBuilder.message(logMessage, "Book list for issuance building completed"));
 
-            RequestProvider.forward(PagePath.BOOK_ISSUANCE_PAGE, request, response);
+            RequestManager.forward(PagePath.BOOK_ISSUANCE_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error getting data for book list for issuance"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

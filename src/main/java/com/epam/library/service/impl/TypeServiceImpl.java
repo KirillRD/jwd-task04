@@ -5,11 +5,10 @@ import com.epam.library.dao.TypeDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.book.dictionary.Type;
 import com.epam.library.service.TypeService;
+import com.epam.library.service.exception.GeneralException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.TypeException;
-import com.epam.library.service.exception.type.EmptyTypeNameException;
-import com.epam.library.service.exception.type.ExistTypeException;
-import com.epam.library.service.exception.type.InvalidLengthTypeNameException;
+import com.epam.library.service.exception.validation.TypeValidationException;
+import com.epam.library.service.exception.validation.type.*;
 import com.epam.library.service.validation.Validator;
 
 import java.util.ArrayList;
@@ -28,16 +27,16 @@ public class TypeServiceImpl implements TypeService {
         try {
             return typeDAO.getTypesList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void addType(Type type) throws ServiceException {
 
-        List<TypeException> exceptions = new ArrayList<>();
+        List<TypeValidationException> exceptions = new ArrayList<>();
         try {
-            if (!typeDAO.checkType(type)) {
+            if (typeDAO.typeExists(type)) {
                 exceptions.add(new ExistTypeException());
             }
 
@@ -50,19 +49,19 @@ public class TypeServiceImpl implements TypeService {
             if (exceptions.isEmpty()) {
                 typeDAO.addType(type);
             } else {
-                throw new TypeException(exceptions);
+                throw new TypeValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateType(Type type) throws ServiceException {
 
-        List<TypeException> exceptions = new ArrayList<>();
+        List<TypeValidationException> exceptions = new ArrayList<>();
         try {
-            if (!typeDAO.checkType(type)) {
+            if (typeDAO.typeExists(type)) {
                 exceptions.add(new ExistTypeException());
             }
 
@@ -75,10 +74,10 @@ public class TypeServiceImpl implements TypeService {
             if (exceptions.isEmpty()) {
                 typeDAO.updateType(type);
             } else {
-                throw new TypeException(exceptions);
+                throw new TypeValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -87,7 +86,7 @@ public class TypeServiceImpl implements TypeService {
         try {
             return typeDAO.getType(typeID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -96,7 +95,7 @@ public class TypeServiceImpl implements TypeService {
         try {
             return typeDAO.deleteType(typeID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

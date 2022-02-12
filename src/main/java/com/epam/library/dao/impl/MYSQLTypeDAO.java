@@ -36,7 +36,7 @@ public class MYSQLTypeDAO implements TypeDAO {
     public MYSQLTypeDAO() {}
 
     @Override
-    public boolean checkType(Type type) throws DAOException {
+    public boolean typeExists(Type type) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -49,10 +49,10 @@ public class MYSQLTypeDAO implements TypeDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (type.getId() == 0 || type.getId() != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

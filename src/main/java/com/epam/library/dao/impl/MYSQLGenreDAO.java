@@ -37,7 +37,7 @@ public class MYSQLGenreDAO implements GenreDAO {
     public MYSQLGenreDAO() {}
 
     @Override
-    public boolean checkGenre(Genre genre) throws DAOException {
+    public boolean genreExists(Genre genre) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -50,10 +50,10 @@ public class MYSQLGenreDAO implements GenreDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (genre.getId() == 0 || genre.getId() != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

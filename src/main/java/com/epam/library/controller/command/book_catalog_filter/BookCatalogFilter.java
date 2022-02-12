@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.*;
 
+/**
+ * Class for building a map to filter books
+ */
 public class BookCatalogFilter {
 
     private static final String SAVED_AUTHORS = "saved_authors";
@@ -27,11 +30,11 @@ public class BookCatalogFilter {
             Map.entry(BookCatalogFilterName.ISSN, new DefaultField())
     );
 
-    public static Map<String, Object> filters;
-    public static Set<String> filterNames;
-    public static String sortValue;
-    public static List<String> authorsID;
-    public static List<String> genresID;
+    private Map<String, Object> filters;
+    private Set<String> filterNames;
+    private String sortValue;
+    private List<String> authorsID;
+    private List<String> genresID;
 
     public BookCatalogFilter () {
         filters = new LinkedHashMap<>();
@@ -41,6 +44,11 @@ public class BookCatalogFilter {
         genresID = new ArrayList<>();
     }
 
+    /**
+     * Returns map which consists of the filter field name and its value
+     * @param request
+     * @return map which consists of the filter field name and its value
+     */
     public Map<String, Object> buildFilter(HttpServletRequest request) {
 
         Map<String, String[]> requestParameterMap = request.getParameterMap();
@@ -50,7 +58,7 @@ public class BookCatalogFilter {
                 for (String filterValue : requestParameterMap.get(filterName)) {
                     if (!filterValue.isEmpty()) {
                         FilterField filterField = filterFields.get(filterName);
-                        filterField.execute(filterName, filterValue, request);
+                        filterField.execute(filterName, filterValue, this, request);
                     }
                 }
             }
@@ -72,5 +80,25 @@ public class BookCatalogFilter {
         }
 
         return filters;
+    }
+
+    public Map<String, Object> getFilters() {
+        return filters;
+    }
+
+    public Set<String> getFilterNames() {
+        return filterNames;
+    }
+
+    public List<String> getAuthorsID() {
+        return authorsID;
+    }
+
+    public List<String> getGenresID() {
+        return genresID;
+    }
+
+    public void setSortValue(String sortValue) {
+        this.sortValue = sortValue;
     }
 }

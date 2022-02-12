@@ -1,5 +1,8 @@
 package com.epam.library.entity.user.constant;
 
+/**
+ * Enum of user roles
+ */
 public enum Role {
     ADMIN(1), LIBRARIAN(2), READER(3);
 

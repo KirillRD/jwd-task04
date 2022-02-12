@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -50,7 +51,7 @@
                                 <div class="w3-container">
                                     <p>
                                         <label><fmt:message key="type.name"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="name" value="${sessionScope.type.name}" required maxlength="25">
+                                        <input class="input-padding w3-input w3-round" type="text" name="name" value="${fn:escapeXml(sessionScope.type.name)}" required maxlength="25">
                                     </p>
                                 </div>
 
@@ -73,7 +74,7 @@
                                 <tr class="
                                 ${type.id == sessionScope.type.id ? 'w3-theme-l3' : ''}"
                                 >
-                                    <td>${type.name}</td>
+                                    <td>${fn:escapeXml(type.name)}</td>
                                     <td>
                                         <form action="controller" method="get">
                                             <input type="hidden" name="command" value="type-page">

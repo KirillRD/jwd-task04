@@ -1,5 +1,8 @@
 package com.epam.library.controller.constant;
 
+/**
+ * Commands for redirect
+ */
 public final class RedirectCommand {
 
     private RedirectCommand() {}

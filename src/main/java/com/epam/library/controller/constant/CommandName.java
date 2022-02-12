@@ -1,5 +1,8 @@
 package com.epam.library.controller.constant;
 
+/**
+ * Enum of command names
+ */
 public enum CommandName {
     CHANGE_LOCALE("change-locale"),
     GO_TO_MAIN_PAGE("go-to-main-page"),

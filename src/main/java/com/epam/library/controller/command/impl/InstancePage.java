@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.PagePath;
@@ -24,6 +24,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Command to go to the book's instance page and crossing instance editing mode
+ */
 public class InstancePage implements Command {
     private static final Logger logger = Logger.getLogger(InstancePage.class.getName());
 
@@ -51,7 +54,7 @@ public class InstancePage implements Command {
             bookID = Integer.parseInt(request.getParameter(BOOK_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not found"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
 
@@ -62,7 +65,7 @@ public class InstancePage implements Command {
             bookInfo = bookCatalogService.getBookCatalog(bookID);
             if (bookInfo == null) {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not found"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             request.setAttribute(BOOK_INFO, bookInfo);
@@ -75,7 +78,7 @@ public class InstancePage implements Command {
                 BookInstance instance = instanceService.getBookInstance(instanceID);
                 if (instance == null) {
                     logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Instance was not found"));
-                    RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                    RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
                 HttpSession session = request.getSession();
@@ -85,10 +88,10 @@ public class InstancePage implements Command {
             }
             logger.info(LogMessageBuilder.message(logMessage, "Instance list building completed"));
 
-            RequestProvider.forward(PagePath.INSTANCE_PAGE, request, response);
+            RequestManager.forward(PagePath.INSTANCE_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error getting data for instance list"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

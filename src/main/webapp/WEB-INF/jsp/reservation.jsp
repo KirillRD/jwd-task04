@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -35,11 +36,11 @@
                                 <tr>
                                     <td>
                                         <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${reservation.bookID}">
-                                            ${reservation.bookName}
+                                            ${fn:escapeXml(reservation.bookName)}
                                         </a>
                                     </td>
-                                    <td>${reservation.authors}</td>
-                                    <td>${reservation.instanceNumber}</td>
+                                    <td>${fn:escapeXml(reservation.authors)}</td>
+                                    <td>${fn:escapeXml(reservation.instanceNumber)}</td>
                                     <td>${reservation.hallName}</td>
                                     <td>${reservation.dateReservation}</td>
                                     <td class="
@@ -51,7 +52,7 @@
                                                 ${reservation.reservationDebts ? 'w3-text-red' : ''}
                                             ">
                                         <c:if test="${reservation.countDaysReservation == 0}">
-                                            Today
+                                            <fmt:message key="reader.reservation-today"/>
                                         </c:if>
                                         <c:if test="${reservation.countDaysReservation != 0}">
                                             ${reservation.countDaysReservation}
@@ -81,25 +82,25 @@
                 </div>
                 <div class="w3-quarter w3-container">
                     <p>
-                        <b>${requestScope.book_info.name}</b>
+                        <b>${fn:escapeXml(requestScope.book_info.name)}</b>
                         <br>
                         <c:forEach var="author" varStatus="loop" items="${requestScope.book_info.authors}">
                             ${loop.index != 0 ? ',' : ''}
-                            ${author}
+                            ${fn:escapeXml(author)}
                         </c:forEach>
                         <br>
-                        <br><fmt:message key="book.publisher"/>: ${requestScope.book_info.publisher}
-                        <br><fmt:message key="book.city"/>: ${requestScope.book_info.city}
+                        <br><fmt:message key="book.publisher"/>: ${fn:escapeXml(requestScope.book_info.publisher)}
+                        <br><fmt:message key="book.city"/>: ${fn:escapeXml(requestScope.book_info.city)}
                         <br><fmt:message key="book.publication-year"/>: ${requestScope.book_info.publicationYear}
                         <br><fmt:message key="book.pages"/>: ${requestScope.book_info.pages}
                         <c:if test="${requestScope.book_info.part > 0}">
                             <br><fmt:message key="book.part"/>: ${requestScope.book_info.part}
                         </c:if>
-                        <br><fmt:message key="book.type"/>: ${requestScope.book_info.type}
+                        <br><fmt:message key="book.type"/>: ${fn:escapeXml(requestScope.book_info.type)}
                         <br><fmt:message key="book.genres"/>:
                         <c:forEach var="genre" varStatus="loop" items="${requestScope.book_info.genres}">
                             ${loop.index != 0 ? ',' : ''}
-                            ${genre}
+                            ${fn:escapeXml(genre)}
                         </c:forEach>
                         <br>
                         <c:if test="${requestScope.book_info.isbn != ''}">

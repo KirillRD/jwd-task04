@@ -2,11 +2,18 @@ package com.epam.library.entity.user;
 
 import com.epam.library.entity.user.constant.Gender;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
+/**
+ * Entity of reader data
+ */
 public class Reader implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 2813638501763540424L;
+
     private int id;
     private String nickname;
     private String email;

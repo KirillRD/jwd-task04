@@ -2,6 +2,9 @@ package com.epam.library.constant;
 
 import java.util.Set;
 
+/**
+ * Reader list filter constants
+ */
 public final class ReaderListFilterName {
 
     private ReaderListFilterName() {}

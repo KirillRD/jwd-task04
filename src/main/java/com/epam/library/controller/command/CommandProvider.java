@@ -6,6 +6,9 @@ import com.epam.library.controller.command.impl.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class to get the object of the class that implements the {@link com.epam.library.controller.command.Command} interface by method name
+ */
 public final class CommandProvider {
 
     private static final Map<String, Command> commands = new HashMap<>();

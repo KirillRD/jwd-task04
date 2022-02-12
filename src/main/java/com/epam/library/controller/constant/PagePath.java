@@ -1,5 +1,8 @@
 package com.epam.library.controller.constant;
 
+/**
+ * Paths to pages
+ */
 public final class PagePath {
 
     private PagePath() {}

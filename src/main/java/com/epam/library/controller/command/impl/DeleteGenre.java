@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to delete book genre
+ */
 public class DeleteGenre implements Command {
     private static final Logger logger = Logger.getLogger(DeleteGenre.class.getName());
 
@@ -36,7 +39,7 @@ public class DeleteGenre implements Command {
                 genreID = Integer.parseInt(request.getParameter(GENRE_ID));
             } else {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Genre was not deleted"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             if (!genreService.deleteGenre(genreID)) {
@@ -47,10 +50,10 @@ public class DeleteGenre implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Genre delete completed"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.GENRE_PAGE, ""), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.GENRE_PAGE, ""), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error deleting genre data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

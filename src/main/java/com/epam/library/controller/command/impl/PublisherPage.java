@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.PagePath;
@@ -20,6 +20,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Command to go to the book's publisher page and crossing publisher editing mode
+ */
 public class PublisherPage implements Command {
     private static final Logger logger = Logger.getLogger(PublisherPage.class.getName());
 
@@ -42,7 +45,7 @@ public class PublisherPage implements Command {
                 Publisher publisher = publisherService.getPublisher(publisherID);
                 if (publisher == null) {
                     logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Publisher was not found"));
-                    RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                    RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                     return;
                 }
                 HttpSession session = request.getSession();
@@ -52,10 +55,10 @@ public class PublisherPage implements Command {
             }
             logger.info(LogMessageBuilder.message(logMessage, "Publisher list building completed"));
 
-            RequestProvider.forward(PagePath.PUBLISHER_PAGE, request, response);
+            RequestManager.forward(PagePath.PUBLISHER_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error getting data for publisher list"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

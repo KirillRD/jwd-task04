@@ -6,9 +6,10 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Reservation;
 import com.epam.library.constant.ReservationStatus;
 import com.epam.library.service.ReservationService;
-import com.epam.library.service.exception.ReservationException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.ReservationValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.reservation.*;
+import com.epam.library.service.exception.validation.reservation.*;
 import com.epam.library.service.validation.Validator;
 
 import java.sql.Date;
@@ -25,7 +26,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public boolean addReservation(Reservation reservation) throws ServiceException {
 
-        List<ReservationException> exceptions = new ArrayList<>();
+        List<ReservationValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmpty(reservation.getHallID())) {
                 exceptions.add(new EmptyHallException());
@@ -44,10 +45,10 @@ public class ReservationServiceImpl implements ReservationService {
             if (exceptions.isEmpty()) {
                 return reservationDAO.addReservation(reservation);
             } else {
-                throw new ReservationException(exceptions);
+                throw new ReservationValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -67,7 +68,7 @@ public class ReservationServiceImpl implements ReservationService {
             reservationDAO.updateReservation(reservations, status);
             return true;
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -76,7 +77,7 @@ public class ReservationServiceImpl implements ReservationService {
         try {
             return reservationDAO.deleteReservation(reservationID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

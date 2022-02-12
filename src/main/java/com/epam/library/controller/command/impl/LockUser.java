@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -16,6 +16,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to lock user
+ */
 public class LockUser implements Command {
     private static final Logger logger = Logger.getLogger(LockUser.class.getName());
 
@@ -33,15 +36,15 @@ public class LockUser implements Command {
                 userID = Integer.parseInt(request.getParameter(USER_ID));
             } else {
                 logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. User lock is failed"));
-                RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
                 return;
             }
             userService.lockUser(userID);
             logger.info(LogMessageBuilder.message(logMessage, "User lock completed"));
-            RequestProvider.redirect(RedirectCommand.USER_LIST_PAGE, request, response);
+            RequestManager.redirect(RedirectCommand.USER_LIST_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error deleting type data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

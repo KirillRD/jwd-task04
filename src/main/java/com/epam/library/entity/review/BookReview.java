@@ -1,10 +1,17 @@
 package com.epam.library.entity.review;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
+/**
+ * Entity of book review
+ */
 public class BookReview implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -4991407359888269673L;
+
     private int userID;
     private String nickname;
     private String imageURL;

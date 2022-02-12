@@ -8,6 +8,9 @@ import jakarta.servlet.ServletContextListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * Listener to initialize and closing the connection pool
+ */
 public final class ContextListener implements ServletContextListener {
     private static final Logger logger = Logger.getLogger(ContextListener.class.getName());
     private static final String ERROR_CREATING_CONNECTION_POOL = "Error creating connection pool";

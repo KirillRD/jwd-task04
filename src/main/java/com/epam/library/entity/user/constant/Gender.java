@@ -1,5 +1,8 @@
 package com.epam.library.entity.user.constant;
 
+/**
+ * Enum of user genders
+ */
 public enum Gender {
     M, F;
 

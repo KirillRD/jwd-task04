@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -43,34 +44,34 @@
                             <div class="w3-half w3-container">
                                 <p>
                                     <label><fmt:message key="user.last-name"/></label>
-                                    <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${sessionScope.user.lastName}"
+                                    <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${fn:escapeXml(sessionScope.user.lastName)}"
                                     ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
                                            required maxlength="30">
                                     <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                        <input type="hidden" name="last_name" value="${sessionScope.user.lastName}">
+                                        <input type="hidden" name="last_name" value="${fn:escapeXml(sessionScope.user.lastName)}">
                                     </c:if>
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.first-name"/></label>
-                                    <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${sessionScope.user.firstName}"
+                                    <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${fn:escapeXml(sessionScope.user.firstName)}"
                                     ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
                                            required maxlength="30">
                                     <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                        <input type="hidden" name="first_name" value="${sessionScope.user.firstName}">
+                                        <input type="hidden" name="first_name" value="${fn:escapeXml(sessionScope.user.firstName)}">
                                     </c:if>
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.father-name"/></label>
-                                    <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${sessionScope.user.fatherName}"
+                                    <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${fn:escapeXml(sessionScope.user.fatherName)}"
                                     ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
                                            maxlength="30">
                                     <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                        <input type="hidden" name="father_name" value="${sessionScope.user.fatherName}">
+                                        <input type="hidden" name="father_name" value="${fn:escapeXml(sessionScope.user.fatherName)}">
                                     </c:if>
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.address"/></label>
-                                    <input class="input-padding w3-input w3-round" type="text" name="address" value="${sessionScope.user.address}" maxlength="100">
+                                    <input class="input-padding w3-input w3-round" type="text" name="address" value="${fn:escapeXml(sessionScope.user.address)}" maxlength="100">
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.phone"/></label>
@@ -144,29 +145,29 @@
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.passport"/></label>
-                                    <input class="input-padding w3-input w3-round" type="text" name="passport" value="${sessionScope.user.passport}"
+                                    <input class="input-padding w3-input w3-round" type="text" name="passport" value="${fn:escapeXml(sessionScope.user.passport)}"
                                     ${sessionScope.session_user.role == 'READER' ? 'disabled' : ''}
                                            maxlength="20">
                                     <c:if test="${sessionScope.session_user.role == 'READER'}">
-                                        <input type="hidden" name="passport" value="${sessionScope.user.passport}">
+                                        <input type="hidden" name="passport" value="${fn:escapeXml(sessionScope.user.passport)}">
                                     </c:if>
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.email"/></label>
-                                    <input class="input-padding w3-input w3-round" type="email" name="email" value="${sessionScope.user.email}"
+                                    <input class="input-padding w3-input w3-round" type="email" name="email" value="${fn:escapeXml(sessionScope.user.email)}"
                                     ${sessionScope.session_user.id != sessionScope.user.id ? 'disabled' : ''}
                                            required maxlength="45">
                                     <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
-                                        <input type="hidden" name="email" value="${sessionScope.user.email}">
+                                        <input type="hidden" name="email" value="${fn:escapeXml(sessionScope.user.email)}">
                                     </c:if>
                                 </p>
                                 <p>
                                     <label><fmt:message key="user.nickname"/></label>
-                                    <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${sessionScope.user.nickname}"
+                                    <input class="input-padding w3-input w3-round" type="text" name="nickname" value="${fn:escapeXml(sessionScope.user.nickname)}"
                                     ${sessionScope.session_user.id != sessionScope.user.id ? 'disabled' : ''}
                                            required maxlength="20">
                                     <c:if test="${sessionScope.session_user.id != sessionScope.user.id}">
-                                        <input type="hidden" name="nickname" value="${sessionScope.user.nickname}">
+                                        <input type="hidden" name="nickname" value="${fn:escapeXml(sessionScope.user.nickname)}">
                                     </c:if>
                                 </p>
 

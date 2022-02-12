@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -46,24 +47,24 @@
                                 </div>
                                 <div class="book-catalog-half-right w3-half">
                                     <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
-                                        <b>${bookInfo.name}</b>
+                                        <b>${fn:escapeXml(bookInfo.name)}</b>
                                     </a>
                                     <c:forEach var="author" varStatus="loop" items="${bookInfo.authors}">
                                         ${loop.index != 0 ? ',' : ''}
-                                        ${author}
+                                        ${fn:escapeXml(author)}
                                     </c:forEach>
                                     <br>
-                                    <br><fmt:message key="book.publisher"/>: ${bookInfo.publisher}
+                                    <br><fmt:message key="book.publisher"/>: ${fn:escapeXml(bookInfo.publisher)}
                                     <br><fmt:message key="book.publication-year"/>: ${bookInfo.publicationYear}
                                     <br><fmt:message key="book.pages"/>: ${bookInfo.pages}
                                     <c:if test="${bookInfo.part > 0}">
                                         <br><fmt:message key="book.part"/>: ${bookInfo.part}
                                     </c:if>
-                                    <br>Type: ${bookInfo.type}
+                                    <br>Type: ${fn:escapeXml(bookInfo.type)}
                                     <br>Genres:
                                     <c:forEach var="genre" varStatus="loop" items="${bookInfo.genres}">
                                         ${loop.index != 0 ? ',' : ''}
-                                        ${genre}
+                                        ${fn:escapeXml(genre)}
                                     </c:forEach>
                                     <br>
                                     <c:if test="${bookInfo.isbn != ''}">
@@ -75,7 +76,7 @@
                                 </div>
                             </div>
                             <div class="w3-col annotation-div">
-                                <p class="w3-small annotation-p">${bookInfo.annotation}</p>
+                                <p class="w3-small annotation-p">${fn:escapeXml(bookInfo.annotation)}</p>
                             </div>
                         </div>
                     </div>

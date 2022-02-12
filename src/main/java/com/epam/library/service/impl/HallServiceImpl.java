@@ -5,6 +5,7 @@ import com.epam.library.dao.HallDAO;
 import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.instance.hall.Hall;
 import com.epam.library.service.HallService;
+import com.epam.library.service.exception.GeneralException;
 import com.epam.library.service.exception.ServiceException;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class HallServiceImpl implements HallService {
         try {
             return hallDAO.getHallsList();
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

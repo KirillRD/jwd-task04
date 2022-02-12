@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -50,21 +51,21 @@
                                 <div class="w3-third w3-container">
                                     <p>
                                         <label><fmt:message key="author.last-name"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${sessionScope.author.lastName}" required maxlength="30">
+                                        <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${fn:escapeXml(sessionScope.author.lastName)}" required maxlength="30">
                                     </p>
                                 </div>
 
                                 <div class="w3-third w3-container">
                                     <p>
                                         <label><fmt:message key="author.first-name"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${sessionScope.author.firstName}" required maxlength="30">
+                                        <input class="input-padding w3-input w3-round" type="text" name="first_name" value="${fn:escapeXml(sessionScope.author.firstName)}" required maxlength="30">
                                     </p>
                                 </div>
 
                                 <div class="w3-third w3-container">
                                     <p>
                                         <label><fmt:message key="author.father-name"/></label>
-                                        <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${sessionScope.author.fatherName}" maxlength="30">
+                                        <input class="input-padding w3-input w3-round" type="text" name="father_name" value="${fn:escapeXml(sessionScope.author.fatherName)}" maxlength="30">
                                     </p>
                                 </div>
 
@@ -89,9 +90,9 @@
                                 <tr class="
                                 ${author.id == sessionScope.author.id ? 'w3-theme-l3' : ''}"
                                 >
-                                    <td>${author.lastName}</td>
-                                    <td>${author.firstName}</td>
-                                    <td>${author.fatherName}</td>
+                                    <td>${fn:escapeXml(author.lastName)}</td>
+                                    <td>${fn:escapeXml(author.firstName)}</td>
+                                    <td>${fn:escapeXml(author.fatherName)}</td>
                                     <td>
                                         <form action="controller" method="get">
                                             <input type="hidden" name="command" value="author-page">

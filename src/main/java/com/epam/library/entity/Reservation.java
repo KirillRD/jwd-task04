@@ -1,9 +1,16 @@
 package com.epam.library.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity of reservation
+ */
 public class Reservation implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -8586560363624655471L;
+
     private int id;
     private int instanceID;
     private int readerID;

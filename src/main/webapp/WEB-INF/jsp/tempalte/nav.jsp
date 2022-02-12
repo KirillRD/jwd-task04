@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -57,7 +58,7 @@
                 <a class="w3-bar-item w3-button w3-right" href="controller?command=go-to-authentication-page"><fmt:message key="nav.sign-in"/></a>
             </c:if>
             <c:if test="${sessionScope.session_user != null}">
-                <a class="w3-bar-item w3-button w3-right" href="controller?command=go-to-user-page">${sessionScope.session_user.nickname}</a>
+                <a class="w3-bar-item w3-button w3-right" href="controller?command=go-to-user-page">${fn:escapeXml(sessionScope.session_user.nickname)}</a>
             </c:if>
         </div>
     </div>

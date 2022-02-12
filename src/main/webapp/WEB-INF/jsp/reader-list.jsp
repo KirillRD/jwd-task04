@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -22,7 +23,7 @@
                         <div class="w3-third w3-container">
                             <p>
                                 <label><fmt:message key="user.filter.last-name"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${requestScope.last_name}">
+                                <input class="input-padding w3-input w3-round" type="text" name="last_name" value="${fn:escapeXml(requestScope.last_name)}">
                             </p>
                             <div class="w3-row">
                                 <div class="w3-half">
@@ -40,10 +41,10 @@
                             <label><fmt:message key="user.filter.reservation-date"/></label>
                             <div class="w3-row w3-margin-bottom">
                                 <div class="half-from w3-half w3-container">
-                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.form"/>" type="text" name="reservation_date_from" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${requestScope.reservation_date_from}" min="1900-01-01" max="2099-12-31">
+                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.form"/>" type="text" name="reservation_date_from" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${fn:escapeXml(requestScope.reservation_date_from)}" min="1900-01-01" max="2099-12-31">
                                 </div>
                                 <div class="half-to w3-half w3-container">
-                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.to"/>" type="text" name="reservation_date_to" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${requestScope.reservation_date_to}" min="1900-01-01" max="2099-12-31">
+                                    <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="user.filter.placeholder.to"/>" type="text" name="reservation_date_to" onfocus="(this.type='date')" onblur="if(this.value==''){this.type='text'}" value="${fn:escapeXml(requestScope.reservation_date_to)}" min="1900-01-01" max="2099-12-31">
                                 </div>
                             </div>
                             <div class="w3-row">
@@ -103,10 +104,10 @@
                             <tr>
                                 <td>
                                     <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-reader-page&reader_id=${reader.id}">
-                                        ${reader.lastName} ${reader.firstName} ${reader.fatherName}
+                                        ${fn:escapeXml(reader.lastName)} ${fn:escapeXml(reader.firstName)} ${fn:escapeXml(reader.fatherName)}
                                     </a>
                                 </td>
-                                <td>${reader.address}</td>
+                                <td>${fn:escapeXml(reader.address)}</td>
                                 <td>${reader.phone}</td>
                                 <td>${reader.birthday}</td>
                                 <td>

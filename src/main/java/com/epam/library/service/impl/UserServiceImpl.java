@@ -8,12 +8,17 @@ import com.epam.library.entity.user.constant.Gender;
 import com.epam.library.entity.user.SessionUser;
 import com.epam.library.entity.user.UserInfo;
 import com.epam.library.service.UserService;
-import com.epam.library.service.exception.*;
-import com.epam.library.service.exception.user.length.*;
-import com.epam.library.service.exception.user.password.*;
-import com.epam.library.service.exception.user.*;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.ServiceException;
+import com.epam.library.service.exception.validation.UserValidationException;
+import com.epam.library.service.exception.validation.user.*;
+import com.epam.library.service.exception.validation.user.length.*;
+import com.epam.library.service.exception.validation.user.password.*;
 import com.epam.library.service.validation.Validator;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,15 +36,19 @@ public class UserServiceImpl implements UserService {
     private static final int PASSPORT_LENGTH = 20;
     private static final int ADDRESS_LENGTH = 100;
 
+    private static final String DEFAULT_IMAGE_USER = "default_image_user.jpg";
+    private static final String USERS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT = "E:\\Users\\Kirill\\Programs\\EPAM\\jwd-task04\\src\\main\\webapp\\images\\users\\";
+    private static final String USERS_IMAGES_DIRECTORY_DEPLOYED_PROJECT = "D:\\Program Files\\Program\\Tomcat 10.0\\webapps\\jwd_task04\\images\\users\\";
+
     public UserServiceImpl() {}
 
     @Override
     public int registration(UserInfo user, String password, String repeatedPassword) throws ServiceException {
 
-        List<UserException> exceptions = new ArrayList<>();
+        List<UserValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmail(user.getEmail())) {
-                if (!userDAO.checkEmail(user.getId(), user.getEmail())) {
+                if (userDAO.emailExists(user.getId(), user.getEmail())) {
                     exceptions.add(new ExistEmailException());
                 }
             } else {
@@ -113,10 +122,10 @@ public class UserServiceImpl implements UserService {
             if (exceptions.isEmpty()) {
                 return userDAO.registration(user, password);
             } else {
-                throw new UserException(exceptions);
+                throw new UserValidationException(exceptions);
             }
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -125,14 +134,14 @@ public class UserServiceImpl implements UserService {
         try {
             return userDAO.authentication(email, password);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateUser(UserInfo user, String currentPassword, String newPassword, String repeatedNewPassword) throws ServiceException {
 
-        List<UserException> exceptions = new ArrayList<>();
+        List<UserValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmpty(user.getLastName())) {
                 exceptions.add(new EmptyLastNameException());
@@ -178,7 +187,7 @@ public class UserServiceImpl implements UserService {
             }
 
             if (validator.isEmail(user.getEmail())) {
-                if (!userDAO.checkEmail(user.getId(), user.getEmail())) {
+                if (userDAO.emailExists(user.getId(), user.getEmail())) {
                     exceptions.add(new ExistEmailException());
                 }
             } else {
@@ -199,7 +208,7 @@ public class UserServiceImpl implements UserService {
             if (!validator.isEmpty(currentPassword) || !validator.isEmpty(newPassword) || !validator.isEmpty(repeatedNewPassword)) {
                 if (validator.isEmpty(currentPassword)) {
                     exceptions.add(new EmptyCurrentPasswordException());
-                } else if (!userDAO.checkPassword(user.getId(), currentPassword)) {
+                } else if (!userDAO.equalCurrentPassword(user.getId(), currentPassword)) {
                     exceptions.add(new InvalidCurrentPasswordException());
                 }
                 if (validator.isEmpty(newPassword)) {
@@ -220,29 +229,36 @@ public class UserServiceImpl implements UserService {
                     userDAO.updateUser(user, newPassword);
                 }
             } else {
-                throw new UserException(exceptions);
+                throw new UserValidationException(exceptions);
             }
 
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateUserImage(int userID, String imageURL) throws ServiceException {
         try {
+            String userImage = userDAO.getUser(userID).getImageURL();
+
             userDAO.updateUserImage(userID, imageURL);
-        } catch (DAOException e) {
-            throw new ServiceException(e);
+
+            if (!DEFAULT_IMAGE_USER.equals(userImage)) {
+                Files.deleteIfExists(Paths.get(USERS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + userImage));
+                Files.deleteIfExists(Paths.get(USERS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + userImage));
+            }
+        } catch (DAOException | IOException e) {
+            throw new GeneralException(e);
         }
     }
 
     @Override
-    public boolean checkUserLock(int userID) throws ServiceException {
+    public boolean userIsLock(int userID) throws ServiceException {
         try {
-            return userDAO.checkUserLock(userID);
+            return userDAO.userIsLock(userID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -251,7 +267,7 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.lockUser(userID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -260,7 +276,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userDAO.getUser(userID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -269,7 +285,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userDAO.getUsersByFilter(filters, page);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -278,7 +294,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userDAO.getPagesCount(filters);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -287,7 +303,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userDAO.getSessionUser(userID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

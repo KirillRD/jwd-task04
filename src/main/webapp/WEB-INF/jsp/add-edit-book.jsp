@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -44,7 +45,7 @@
 
                             <div class="w3-col w3-container w3-margin-top">
                                 <label><fmt:message key="book.book-name"/></label>
-                                <input class="input-padding w3-input w3-round" type="text" name="name" value="${sessionScope.book.name}" required maxlength="100">
+                                <input class="input-padding w3-input w3-round" type="text" name="name" value="${fn:escapeXml(sessionScope.book.name)}" required maxlength="100">
                             </div>
 
                             <div class="w3-half w3-container">
@@ -56,7 +57,7 @@
                                                     <c:forEach var="saved_author" items="${sessionScope.book.authorsID}">
                                                         ${author.id == saved_author ? 'selected' : ''}
                                                     </c:forEach>
-                                            >${author.lastName} ${author.firstName} ${author.fatherName}</option>
+                                            >${fn:escapeXml(author.lastName)} ${fn:escapeXml(author.firstName)} ${fn:escapeXml(author.fatherName)}</option>
                                         </c:forEach>
                                     </select>
                                     <script>
@@ -72,7 +73,7 @@
                                         <c:forEach var="publisher" items="${requestScope.publishers}">
                                             <option value="${publisher.id}"
                                                 ${publisher.id == sessionScope.book.publisherID ? 'selected' : ''}
-                                            >${publisher.name}</option>
+                                            >${fn:escapeXml(publisher.name)}</option>
                                         </c:forEach>
                                     </select>
                                     <script>
@@ -104,7 +105,7 @@
                                                     <c:forEach var="saved_genre" items="${sessionScope.book.genresID}">
                                                         ${genre.id == saved_genre ? 'selected' : ''}
                                                     </c:forEach>
-                                            >${genre.name}</option>
+                                            >${fn:escapeXml(genre.name)}</option>
                                         </c:forEach>
                                     </select>
                                     <script>
@@ -128,7 +129,7 @@
                                         <c:forEach var="type" items="${requestScope.types}">
                                             <option value="${type.id}"
                                                 ${type.id == sessionScope.book.typeID ? 'selected' : ''}
-                                            >${type.name}</option>
+                                            >${fn:escapeXml(type.name)}</option>
                                         </c:forEach>
                                     </select>
                                     <script>
@@ -145,7 +146,7 @@
                             </div>
                             <div class="w3-col w3-container">
                                 <label><fmt:message key="book.annotation"/></label>
-                                <textarea class="w3-input w3-round book-annotation" maxlength="1500" name="annotation">${sessionScope.book.annotation}</textarea>
+                                <textarea class="w3-input w3-round book-annotation" maxlength="1500" name="annotation">${fn:escapeXml(sessionScope.book.annotation)}</textarea>
                                 <button class="w3-button w3-right w3-theme w3-margin-bottom w3-margin-top w3-round-large" type="submit"><fmt:message key="add-edit-book.button"/></button>
                             </div>
                         </form>

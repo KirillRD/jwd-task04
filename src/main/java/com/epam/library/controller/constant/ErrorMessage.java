@@ -1,5 +1,8 @@
 package com.epam.library.controller.constant;
 
+/**
+ * Error messages
+ */
 public final class ErrorMessage {
 
     private ErrorMessage() {}

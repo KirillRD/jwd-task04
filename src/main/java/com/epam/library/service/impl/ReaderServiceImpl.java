@@ -8,6 +8,7 @@ import com.epam.library.entity.reservation.ReaderReservation;
 import com.epam.library.entity.user.Reader;
 import com.epam.library.constant.ReaderListFilterName;
 import com.epam.library.service.ReaderService;
+import com.epam.library.service.exception.GeneralException;
 import com.epam.library.service.exception.ServiceException;
 import com.epam.library.service.validation.Validator;
 
@@ -25,7 +26,7 @@ public class ReaderServiceImpl implements ReaderService {
         try {
             return readerDAO.getReader(readerID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -46,7 +47,7 @@ public class ReaderServiceImpl implements ReaderService {
 
             return readerDAO.getReadersByFilter(filters, page);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -55,7 +56,7 @@ public class ReaderServiceImpl implements ReaderService {
         try {
             return readerDAO.getPagesCount(filters);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -64,7 +65,7 @@ public class ReaderServiceImpl implements ReaderService {
         try {
             return readerDAO.getReaderIssuanceList(readerID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -73,7 +74,7 @@ public class ReaderServiceImpl implements ReaderService {
         try {
             return readerDAO.getReaderIssuanceHistoryList(readerID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -82,7 +83,7 @@ public class ReaderServiceImpl implements ReaderService {
         try {
             return readerDAO.getReaderReservationList(readerID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -91,7 +92,7 @@ public class ReaderServiceImpl implements ReaderService {
         try {
             return readerDAO.getReaderReservationHistoryList(readerID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 }

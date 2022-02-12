@@ -37,7 +37,7 @@ public class MYSQLPublisherDAO implements PublisherDAO {
     public MYSQLPublisherDAO() {}
 
     @Override
-    public boolean checkPublisher(Publisher publisher) throws DAOException {
+    public boolean publisherExists(Publisher publisher) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -50,10 +50,10 @@ public class MYSQLPublisherDAO implements PublisherDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (publisher.getId() == 0 || publisher.getId() != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

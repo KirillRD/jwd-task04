@@ -4,6 +4,9 @@ import com.epam.library.controller.command.book_catalog_filter.BookCatalogFilter
 import com.epam.library.controller.command.book_catalog_filter.FilterField;
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * Interface for adding a free instance field value to a filter
+ */
 public class FreeInstanceField implements FilterField {
 
     private static final String ON = "on";
@@ -12,11 +15,11 @@ public class FreeInstanceField implements FilterField {
     public FreeInstanceField() {}
 
     @Override
-    public void execute(String filterName, String filterValue, HttpServletRequest request) {
+    public void execute(String filterName, String filterValue, BookCatalogFilter bookCatalogFilter, HttpServletRequest request) {
         if (filterValue.equals(ON)) {
-            BookCatalogFilter.filters.put(filterName, filterValue);
+            bookCatalogFilter.getFilters().put(filterName, filterValue);
             request.setAttribute(filterName, CHECKED);
-            BookCatalogFilter.filterNames.remove(filterName);
+            bookCatalogFilter.getFilterNames().remove(filterName);
         }
     }
 }

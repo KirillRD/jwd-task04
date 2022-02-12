@@ -6,12 +6,16 @@ import com.epam.library.dao.exception.DAOException;
 import com.epam.library.entity.Book;
 import com.epam.library.entity.book.BookInfo;
 import com.epam.library.service.BookService;
-import com.epam.library.service.exception.BookException;
+import com.epam.library.service.exception.GeneralException;
+import com.epam.library.service.exception.validation.BookValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.book.*;
-import com.epam.library.service.exception.book.empty.*;
+import com.epam.library.service.exception.validation.book.*;
+import com.epam.library.service.exception.validation.book.empty.*;
 import com.epam.library.service.validation.Validator;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +26,16 @@ public class BookServiceImpl implements BookService {
     private static final int BOOK_NAME_LENGTH = 100;
     private static final int ANNOTATION_LENGTH = 1500;
 
+    private static final String DEFAULT_IMAGE_BOOK = "default_image_book.jpg";
+    private static final String BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT = "E:\\Users\\Kirill\\Programs\\EPAM\\jwd-task04\\src\\main\\webapp\\images\\books\\";
+    private static final String BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT = "D:\\Program Files\\Program\\Tomcat 10.0\\webapps\\jwd_task04\\images\\books\\";
+
     public BookServiceImpl() {}
 
     @Override
     public void addBook(BookInfo book) throws ServiceException {
 
-        List<BookException> exceptions = new ArrayList<>();
+        List<BookValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmpty(book.getName())) {
                 exceptions.add(new EmptyBookNameException());
@@ -103,7 +111,7 @@ public class BookServiceImpl implements BookService {
                 }
 
                 if (validator.isISBN(book.getIsbn()) || validator.isISSN(book.getIssn())) {
-                    if (!bookDAO.checkStandardNumber(book.getId(), book.getIsbn(), book.getIssn())) {
+                    if (bookDAO.standardNumberExists(book.getId(), book.getIsbn(), book.getIssn())) {
                         exceptions.add(new ExistStandardNumberException());
                     }
                 }
@@ -117,11 +125,11 @@ public class BookServiceImpl implements BookService {
                 book.setPart(validator.isEmpty(book.getPart()) ? "0" : book.getPart());
                 bookDAO.addBook(book);
             } else {
-                throw new BookException(exceptions);
+                throw new BookValidationException(exceptions);
             }
 
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
@@ -131,7 +139,7 @@ public class BookServiceImpl implements BookService {
         try {
             book = bookDAO.getBook(bookID);
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
         return book;
     }
@@ -139,7 +147,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void updateBook(BookInfo book) throws ServiceException {
 
-        List<BookException> exceptions = new ArrayList<>();
+        List<BookValidationException> exceptions = new ArrayList<>();
         try {
             if (validator.isEmpty(book.getName())) {
                 exceptions.add(new EmptyBookNameException());
@@ -215,7 +223,7 @@ public class BookServiceImpl implements BookService {
                 }
 
                 if (validator.isISBN(book.getIsbn()) || validator.isISSN(book.getIssn())) {
-                    if (!bookDAO.checkStandardNumber(book.getId(), book.getIsbn(), book.getIssn())) {
+                    if (bookDAO.standardNumberExists(book.getId(), book.getIsbn(), book.getIssn())) {
                         exceptions.add(new ExistStandardNumberException());
                     }
                 }
@@ -229,29 +237,44 @@ public class BookServiceImpl implements BookService {
                 book.setPart(validator.isEmpty(book.getPart()) ? "0" : book.getPart());
                 bookDAO.updateBook(book);
             } else {
-                throw new BookException(exceptions);
+                throw new BookValidationException(exceptions);
             }
 
         } catch (DAOException e) {
-            throw new ServiceException(e);
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public void updateBookImage(int bookID, String imageURL) throws ServiceException {
         try {
+            String bookImage = bookDAO.getBook(bookID).getImageURL();
+
             bookDAO.updateBookImage(bookID, imageURL);
-        } catch (DAOException e) {
-            throw new ServiceException(e);
+
+            if (!DEFAULT_IMAGE_BOOK.equals(bookImage)) {
+                Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + bookImage));
+                Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + bookImage));
+            }
+        } catch (DAOException | IOException e) {
+            throw new GeneralException(e);
         }
     }
 
     @Override
     public boolean deleteBook(int bookID) throws ServiceException {
         try {
-            return bookDAO.deleteBook(bookID);
-        } catch (DAOException e) {
-            throw new ServiceException(e);
+            String bookImage = bookDAO.getBook(bookID).getImageURL();
+
+            boolean result = bookDAO.deleteBook(bookID);
+
+            if (result && !DEFAULT_IMAGE_BOOK.equals(bookImage)) {
+                Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + bookImage));
+                Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + bookImage));
+            }
+            return result;
+        } catch (DAOException | IOException e) {
+            throw new GeneralException(e);
         }
     }
 }

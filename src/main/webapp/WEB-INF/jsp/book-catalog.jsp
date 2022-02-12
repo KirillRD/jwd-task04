@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <fmt:setLocale value="${sessionScope.locale}"/>
 <fmt:setBundle basename="locale"/>
@@ -21,7 +22,7 @@
                     <div class="w3-third w3-container">
                         <p>
                             <label><fmt:message key="book.filter.book-name"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="name" value="${requestScope.name}">
+                            <input class="input-padding w3-input w3-round" type="text" name="name" value="${fn:escapeXml(requestScope.name)}">
                         </p>
                         <p>
                             <label><fmt:message key="book.filter.authors"/></label>
@@ -31,7 +32,7 @@
                                             <c:forEach var="saved_author" items="${requestScope.saved_authors}">
                                                 ${author.id == saved_author ? 'selected' : ''}
                                             </c:forEach>
-                                    >${author.lastName} ${author.firstName} ${author.fatherName}</option>
+                                    >${fn:escapeXml(author.lastName)} ${fn:escapeXml(author.firstName)} ${fn:escapeXml(author.fatherName)}</option>
                                 </c:forEach>
                             </select>
                             <script>
@@ -48,7 +49,7 @@
                                             <c:forEach var="saved_genre" items="${requestScope.saved_genres}">
                                                 ${genre.id == saved_genre ? 'selected' : ''}
                                             </c:forEach>
-                                    >${genre.name}</option>
+                                    >${fn:escapeXml(genre.name)}</option>
                                 </c:forEach>
                             </select>
                             <script>
@@ -70,7 +71,7 @@
                                 <c:forEach var="publisher" items="${requestScope.publishers}">
                                     <option value="${publisher.id}"
                                             ${publisher.id == requestScope.saved_publisher ? 'selected' : ''}
-                                    >${publisher.name}</option>
+                                    >${fn:escapeXml(publisher.name)}</option>
                                 </c:forEach>
                             </select>
                             <script>
@@ -83,20 +84,20 @@
                         <label><fmt:message key="book.filter.publication-year"/></label>
                         <div class="w3-row">
                             <div class="half-from w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="number" name="publication_year_from" value="${requestScope.publication_year_from}" min="1900" max="2100">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="number" name="publication_year_from" value="${fn:escapeXml(requestScope.publication_year_from)}" min="1900" max="2100">
                             </div>
                             <div class="half-to w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="number" name="publication_year_to" value="${requestScope.publication_year_to}" min="1900" max="2100">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="number" name="publication_year_to" value="${fn:escapeXml(requestScope.publication_year_to)}" min="1900" max="2100">
                             </div>
                         </div>
                         <p></p>
                         <label><fmt:message key="book.filter.pages"/></label>
                         <div class="w3-row w3-margin-bottom">
                             <div class="half-from w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="number" name="pages_from" value="${requestScope.pages_from}" min="1">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.from"/>" type="number" name="pages_from" value="${fn:escapeXml(requestScope.pages_from)}" min="1">
                             </div>
                             <div class="half-to w3-half w3-container">
-                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="number" name="pages_to" value="${requestScope.pages_to}" min="1">
+                                <input class="input-padding w3-input w3-round" placeholder="<fmt:message key="book.filter.placeholder.to"/>" type="number" name="pages_to" value="${fn:escapeXml(requestScope.pages_to)}" min="1">
                             </div>
                         </div>
                         <div class="w3-half">
@@ -117,11 +118,11 @@
                     <div class="w3-third w3-container">
                         <p>
                             <label><fmt:message key="book.filter.isbn"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="isbn" value="${requestScope.isbn}">
+                            <input class="input-padding w3-input w3-round" type="text" name="isbn" value="${fn:escapeXml(requestScope.isbn)}">
                         </p>
                         <p>
                             <label><fmt:message key="book.filter.issn"/></label>
-                            <input class="input-padding w3-input w3-round" type="text" name="issn" value="${requestScope.issn}">
+                            <input class="input-padding w3-input w3-round" type="text" name="issn" value="${fn:escapeXml(requestScope.issn)}">
                         </p>
                         <p>
                             <label><fmt:message key="book.filter.type"/></label>
@@ -130,7 +131,7 @@
                                 <c:forEach var="type" items="${requestScope.types}">
                                     <option value="${type.id}"
                                             ${type.id == requestScope.saved_type ? 'selected' : ''}
-                                    >${type.name}</option>
+                                    >${fn:escapeXml(type.name)}</option>
                                 </c:forEach>
                             </select>
                             <script>
@@ -168,25 +169,25 @@
                                 <div class="book-catalog-half-right w3-half">
                                     <p>
                                         <a class="w3-hover-text-blue w3-text-dark-grey" href="controller?command=go-to-book-page&book_id=${bookInfo.id}">
-                                            <b>${bookInfo.name}</b>
+                                            <b>${fn:escapeXml(bookInfo.name)}</b>
                                         </a>
                                         <br>
                                         <c:forEach var="author" varStatus="loop" items="${bookInfo.authors}">
                                             ${loop.index != 0 ? ',' : ''}
-                                            ${author}
+                                            ${fn:escapeXml(author)}
                                         </c:forEach>
                                         <br>
-                                        <br><fmt:message key="book.publisher"/>: ${bookInfo.publisher}
+                                        <br><fmt:message key="book.publisher"/>: ${fn:escapeXml(bookInfo.publisher)}
                                         <br><fmt:message key="book.publication-year"/>: ${bookInfo.publicationYear}
                                         <br><fmt:message key="book.pages"/>: ${bookInfo.pages}
                                         <c:if test="${bookInfo.part > 0}">
                                             <br><fmt:message key="book.part"/>: ${bookInfo.part}
                                         </c:if>
-                                        <br><fmt:message key="book.type"/>: ${bookInfo.type}
+                                        <br><fmt:message key="book.type"/>: ${fn:escapeXml(bookInfo.type)}
                                         <br><fmt:message key="book.genres"/>:
                                         <c:forEach var="genre" varStatus="loop" items="${bookInfo.genres}">
                                             ${loop.index != 0 ? ',' : ''}
-                                            ${genre}
+                                            ${fn:escapeXml(genre)}
                                         </c:forEach>
                                         <br>
                                         <c:if test="${bookInfo.isbn != ''}">
@@ -199,7 +200,7 @@
                                 </div>
                             </div>
                             <div class="w3-col annotation-div">
-                                <p class="w3-small annotation-p">${bookInfo.annotation}</p>
+                                <p class="w3-small annotation-p">${fn:escapeXml(bookInfo.annotation)}</p>
                             </div>
                         </div>
                     </div>

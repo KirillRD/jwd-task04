@@ -1,6 +1,11 @@
 package com.epam.library.dao.connection_pool.exception;
 
+import java.io.Serial;
+
 public class ConnectionPoolException extends Exception {
+    @Serial
+    private static final long serialVersionUID = 6497184930357261454L;
+
     public ConnectionPoolException() {
         super();
     }

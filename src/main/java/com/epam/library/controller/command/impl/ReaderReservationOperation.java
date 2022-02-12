@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Command to change status of book reservation
+ */
 public class ReaderReservationOperation implements Command {
     private static final Logger logger = Logger.getLogger(ReaderReservationOperation.class.getName());
 
@@ -42,7 +45,7 @@ public class ReaderReservationOperation implements Command {
             readerID = Integer.parseInt(request.getParameter(READER_ID));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book reservation operation was failed"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
         try {
@@ -60,10 +63,10 @@ public class ReaderReservationOperation implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Book reservation operation was failed. Incorrect data format"));
             }
 
-            RequestProvider.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.READER_PAGE, readerID), request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error of the book reservation operation data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

@@ -54,7 +54,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     public MYSQLInstanceDAO() {}
 
     @Override
-    public boolean checkInstanceNumber(int instanceID, String number) throws DAOException {
+    public boolean instanceNumberExists(int instanceID, String number) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -67,10 +67,10 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (instanceID == 0 || instanceID != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {

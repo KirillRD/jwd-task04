@@ -1,5 +1,8 @@
 package com.epam.library.constant;
 
+/**
+ * Enum of operations with issued books
+ */
 public enum IssuanceOperation {
     RETURN("return"),
     EXTEND("extend"),

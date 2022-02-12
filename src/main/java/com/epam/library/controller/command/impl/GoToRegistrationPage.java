@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.PagePath;
 import com.epam.library.controller.util.LogMessageBuilder;
@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Command to go to registration page
+ */
 public class GoToRegistrationPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToRegistrationPage.class.getName());
 
@@ -19,6 +22,6 @@ public class GoToRegistrationPage implements Command {
         String logMessage = LogMessageBuilder.build(request);
         logger.info(LogMessageBuilder.message(logMessage, "Go to registration page"));
 
-        RequestProvider.forward(PagePath.REGISTRATION_PAGE, request, response);
+        RequestManager.forward(PagePath.REGISTRATION_PAGE, request, response);
     }
 }

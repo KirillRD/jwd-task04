@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.RedirectCommand;
@@ -9,10 +9,11 @@ import com.epam.library.controller.util.Util;
 import com.epam.library.entity.book.BookInfo;
 import com.epam.library.service.BookService;
 import com.epam.library.service.ServiceProvider;
-import com.epam.library.service.exception.BookException;
+import com.epam.library.service.exception.ValidationException;
+import com.epam.library.service.exception.validation.BookValidationException;
 import com.epam.library.service.exception.ServiceException;
-import com.epam.library.service.exception.book.*;
-import com.epam.library.service.exception.book.empty.*;
+import com.epam.library.service.exception.validation.book.*;
+import com.epam.library.service.exception.validation.book.empty.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command to add/edit book
+ */
 public class AddEditBook implements Command {
     private static final Logger logger = Logger.getLogger(AddEditBook.class.getName());
 
@@ -82,7 +86,7 @@ public class AddEditBook implements Command {
             logger.info(LogMessageBuilder.message(logMessage, "Book update started"));
         } else {
             logger.error(LogMessageBuilder.message(logMessage, "Invalid page attributes. Book was not updated"));
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.PAGE_NOT_FOUND), request, response);
             return;
         }
         book.setName(request.getParameter(NAME).trim());
@@ -113,27 +117,27 @@ public class AddEditBook implements Command {
                 logger.info(LogMessageBuilder.message(logMessage, "Book add completed"));
             }
 
-            RequestProvider.redirect(RedirectCommand.BOOK_LIST_PAGE, request, response);
-        } catch (BookException e) {
+            RequestManager.redirect(RedirectCommand.BOOK_LIST_PAGE, request, response);
+        } catch (BookValidationException e) {
             HttpSession session = request.getSession();
             session.setAttribute(BOOK, book);
             session.setAttribute(MESSAGES, errorMessageBuilder(e));
             if (book.getId() != 0) {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Book was not updated"));
-                RequestProvider.redirect(String.format(RedirectCommand.ADD_EDIT_BOOK_PAGE, REDIRECT_BOOK_ID + book.getId()), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ADD_EDIT_BOOK_PAGE, REDIRECT_BOOK_ID + book.getId()), request, response);
             } else {
                 logger.info(LogMessageBuilder.message(logMessage, "The entered data is invalid. Book was not added"));
-                RequestProvider.redirect(String.format(RedirectCommand.ADD_EDIT_BOOK_PAGE, ""), request, response);
+                RequestManager.redirect(String.format(RedirectCommand.ADD_EDIT_BOOK_PAGE, ""), request, response);
             }
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error adding/updating book data"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 
-    private List<String> errorMessageBuilder(BookException exception) {
+    private List<String> errorMessageBuilder(BookValidationException exception) {
         List<String> messages = new ArrayList<>();
-        for (BookException e : exception.getExceptions()) {
+        for (ValidationException e : exception.getExceptions()) {
             messages.add(exceptionMessages.get(e.getClass().getSimpleName()));
         }
         return messages;

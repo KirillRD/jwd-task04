@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+/**
+ * Filter to set the default locale value and save the last url
+ */
 public class URLFilter implements Filter {
     private static final String GET = "GET";
     private static final String COMMAND = "command";

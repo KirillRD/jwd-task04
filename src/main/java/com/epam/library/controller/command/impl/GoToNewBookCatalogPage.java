@@ -1,6 +1,6 @@
 package com.epam.library.controller.command.impl;
 
-import com.epam.library.controller.RequestProvider;
+import com.epam.library.controller.RequestManager;
 import com.epam.library.controller.command.Command;
 import com.epam.library.controller.constant.ErrorMessage;
 import com.epam.library.controller.constant.PagePath;
@@ -18,6 +18,9 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Command to go to new book catalog page
+ */
 public class GoToNewBookCatalogPage implements Command {
     private static final Logger logger = Logger.getLogger(GoToNewBookCatalogPage.class.getName());
 
@@ -35,10 +38,10 @@ public class GoToNewBookCatalogPage implements Command {
             request.setAttribute(BOOK_CATALOG, bookCatalog);
             logger.info(LogMessageBuilder.message(logMessage, "Going to catalog page of new books was completed"));
 
-            RequestProvider.forward(PagePath.NEW_POPULAR_BOOK_CATALOG_PAGE, request, response);
+            RequestManager.forward(PagePath.NEW_POPULAR_BOOK_CATALOG_PAGE, request, response);
         } catch (ServiceException e) {
             logger.error(LogMessageBuilder.message(logMessage, "Error in data while going to catalog page of new books"), e);
-            RequestProvider.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
+            RequestManager.redirect(String.format(RedirectCommand.ERROR_PAGE, ErrorMessage.GENERAL_ERROR), request, response);
         }
     }
 }

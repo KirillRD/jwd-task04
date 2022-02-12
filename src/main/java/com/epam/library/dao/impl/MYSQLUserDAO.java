@@ -152,7 +152,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean checkEmail(int userID, String email) throws DAOException {
+    public boolean emailExists(int userID, String email) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -165,10 +165,10 @@ public class MYSQLUserDAO implements UserDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 if (userID == 0 || userID != resultSet.getInt(ID)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -181,7 +181,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean checkPassword(int userID, String currentPassword) throws DAOException {
+    public boolean equalCurrentPassword(int userID, String currentPassword) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -192,10 +192,8 @@ public class MYSQLUserDAO implements UserDAO {
             preparedStatement = connection.prepareStatement(SELECT_USER);
             preparedStatement.setInt(1, userID);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next() && !BCrypt.checkpw(currentPassword, resultSet.getString(PASSWORD))) {
-                return false;
-            }
-            return true;
+            resultSet.next();
+            return BCrypt.checkpw(currentPassword, resultSet.getString(PASSWORD));
         } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
         } finally {
@@ -208,7 +206,7 @@ public class MYSQLUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean checkUserLock(int userID) throws DAOException {
+    public boolean userIsLock(int userID) throws DAOException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
