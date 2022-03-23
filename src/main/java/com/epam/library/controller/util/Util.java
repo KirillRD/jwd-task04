@@ -1,5 +1,7 @@
 package com.epam.library.controller.util;
 
+import java.math.BigInteger;
+
 public class Util {
 
     public Util () {}
@@ -19,6 +21,6 @@ public class Util {
                 return false;
             }
         }
-        return true;
+        return new BigInteger(String.valueOf(cs)).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0;
     }
 }

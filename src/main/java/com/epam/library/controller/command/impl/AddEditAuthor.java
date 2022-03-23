@@ -61,9 +61,9 @@ public class AddEditAuthor implements Command {
             logger.info(LogMessageBuilder.message(logMessage, "Author add started"));
         }
 
-        author.setLastName(request.getParameter(LAST_NAME));
-        author.setFirstName(request.getParameter(FIRST_NAME));
-        author.setFatherName(request.getParameter(FATHER_NAME));
+        author.setLastName(request.getParameter(LAST_NAME).trim());
+        author.setFirstName(request.getParameter(FIRST_NAME).trim());
+        author.setFatherName(request.getParameter(FATHER_NAME).trim());
         try {
             if (author.getId() != 0) {
                 authorService.updateAuthor(author);

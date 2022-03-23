@@ -56,7 +56,7 @@ public class AddEditGenre implements Command {
             logger.info(LogMessageBuilder.message(logMessage, "Genre add started"));
         }
 
-        genre.setName(request.getParameter(NAME));
+        genre.setName(request.getParameter(NAME).trim());
         try {
             if (genre.getId() != 0) {
                 genreService.updateGenre(genre);

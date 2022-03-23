@@ -112,7 +112,7 @@ public class MYSQLBookCatalogDAO implements BookCatalogDAO {
             "NOT EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND (date_return IS NULL OR lost=1)) AND " +
             "NOT EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')) ";
     private static final String COUNT_INSTANCES = "count_instances";
-    private static final String GET_INSTANCES = "SELECT COUNT(1) AS count_instances FROM instances WHERE books_id=?";
+    private static final String GET_INSTANCES = "SELECT COUNT(*) AS count_instances FROM instances WHERE books_id=?";
 
     private static final String WHERE = "WHERE ";
     private static final String AND = " AND ";

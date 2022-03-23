@@ -56,7 +56,7 @@ public class AddEditType implements Command {
             logger.info(LogMessageBuilder.message(logMessage, "Type add started"));
         }
 
-        type.setName(request.getParameter(NAME));
+        type.setName(request.getParameter(NAME).trim());
         try {
             if (type.getId() != 0) {
                 typeService.updateType(type);

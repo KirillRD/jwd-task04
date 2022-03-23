@@ -26,13 +26,14 @@ public class MYSQLInstanceDAO implements InstanceDAO {
     private static final String DATE_WRITE_OFF = "date_write_off";
     private static final String HALL_NAME = "hall_name";
     private static final String STATUS = "status";
+    private static final String READER_ID = "reader_id";
 
     private static final String GET_INSTANCE_BY_NUMBER = "SELECT * FROM instances WHERE number=?";
     private static final String GET_MAX_ID_INSTANCE = "SELECT MAX(id) FROM instances";
     private static final String INSERT_INSTANCE = "INSERT INTO instances (id, books_id, number, halls_id, date_received, date_write_off) VALUES (?,?,?,?,?,?)";
     private static final String UPDATE_INSTANCE = "UPDATE instances SET books_id=?, number=?, halls_id=?, date_received=?, date_write_off=? WHERE id=?";
-    private static final String GET_ISSUANCE = "SELECT COUNT(1) AS count_issuance FROM issuance WHERE instances_id=?";
-    private static final String GET_RESERVATIONS = "SELECT COUNT(1) AS count_reservations FROM reservation WHERE instances_id=?";
+    private static final String GET_ISSUANCE = "SELECT COUNT(*) AS count_issuance FROM issuance WHERE instances_id=?";
+    private static final String GET_RESERVATIONS = "SELECT COUNT(*) AS count_reservations FROM reservation WHERE instances_id=?";
     private static final String DELETE_INSTANCE = "DELETE FROM instances WHERE id=?";
     private static final String BOOK_INSTANCES =
             "SELECT instances.id, instances.number, instances.halls_id, halls.name AS hall_name, instances.date_received, instances.date_write_off, " +
@@ -41,7 +42,13 @@ public class MYSQLInstanceDAO implements InstanceDAO {
             "       WHEN EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND date_return IS NULL AND lost=0) THEN 'ISSUED' " +
             "       WHEN EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')) THEN 'RESERVED' " +
             "       ELSE 'FREE' " +
-            "  END AS status " +
+            "  END AS status, " +
+            "  CASE WHEN date_write_off IS NOT NULL THEN 0 " +
+            "       WHEN EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND date_return IS NOT NULL AND lost=1) THEN 0 " +
+            "       WHEN EXISTS(SELECT * FROM issuance WHERE instances_id=instances.id AND date_return IS NULL) THEN (SELECT reader_id FROM issuance WHERE instances_id=instances.id AND date_return IS NULL) " +
+            "       WHEN EXISTS(SELECT * FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')) THEN (SELECT reader_id FROM reservation WHERE instances_id=instances.id AND (status='RESERVED' OR status='READY')) " +
+            "       ELSE 0 " +
+            "  END AS reader_id " +
             "FROM instances " +
             "INNER JOIN halls ON instances.halls_id=halls.id " +
             "WHERE books_id=?";
@@ -236,6 +243,7 @@ public class MYSQLInstanceDAO implements InstanceDAO {
                 bookInstance.setReceivedDate(resultSet.getDate(DATE_RECEIVED));
                 bookInstance.setWriteOffDate(resultSet.getDate(DATE_WRITE_OFF));
                 bookInstance.setStatus(resultSet.getString(STATUS));
+                bookInstance.setReaderID(resultSet.getInt(READER_ID));
 
                 preparedStatement = connection.prepareStatement(GET_ISSUANCE);
                 preparedStatement.setInt(1, bookInstance.getId());

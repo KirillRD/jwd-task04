@@ -20,6 +20,7 @@ public class BookInstance implements Serializable {
     private Date writeOffDate;
     private String status;
     private boolean instanceIsUsed;
+    private int readerID;
 
     public BookInstance() {}
 
@@ -87,17 +88,25 @@ public class BookInstance implements Serializable {
         this.instanceIsUsed = instanceIsUsed;
     }
 
+    public int getReaderID() {
+        return readerID;
+    }
+
+    public void setReaderID(int readerID) {
+        this.readerID = readerID;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BookInstance that = (BookInstance) o;
-        return id == that.id && hallID == that.hallID && instanceIsUsed == that.instanceIsUsed && Objects.equals(number, that.number) && Objects.equals(hallName, that.hallName) && Objects.equals(receivedDate, that.receivedDate) && Objects.equals(writeOffDate, that.writeOffDate) && Objects.equals(status, that.status);
+        return id == that.id && hallID == that.hallID && instanceIsUsed == that.instanceIsUsed && readerID == that.readerID && Objects.equals(number, that.number) && Objects.equals(hallName, that.hallName) && Objects.equals(receivedDate, that.receivedDate) && Objects.equals(writeOffDate, that.writeOffDate) && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, number, hallID, hallName, receivedDate, writeOffDate, status, instanceIsUsed);
+        return Objects.hash(id, number, hallID, hallName, receivedDate, writeOffDate, status, instanceIsUsed, readerID);
     }
 
     @Override
@@ -111,6 +120,7 @@ public class BookInstance implements Serializable {
                 ", writeOffDate=" + writeOffDate +
                 ", status='" + status + '\'' +
                 ", instanceIsUsed=" + instanceIsUsed +
+                ", readerID=" + readerID +
                 '}';
     }
 }

@@ -157,10 +157,31 @@
                                            ${instance.status == 'ISSUED' ? 'w3-text-yellow' : ''}
                                            ${instance.status == 'RESERVED' ? 'w3-text-yellow' : ''}">
                                     <c:choose>
-                                        <c:when test="${instance.status == 'LOST'}"><fmt:message key="status.instance.lost"/></c:when>
+                                        <c:when test="${instance.status == 'LOST'}">
+                                            <c:if test="${instance.readerID == 0}">
+                                                <fmt:message key="status.instance.lost"/>
+                                            </c:if>
+                                            <c:if test="${instance.readerID != 0}">
+                                                <a class="w3-hover-text-blue" href="controller?command=go-to-reader-page&reader_id=${instance.readerID}"><fmt:message key="status.instance.lost"/></a>
+                                            </c:if>
+                                        </c:when>
+                                        <c:when test="${instance.status == 'ISSUED'}">
+                                            <c:if test="${instance.readerID == 0}">
+                                                <fmt:message key="status.instance.issued"/>
+                                            </c:if>
+                                            <c:if test="${instance.readerID != 0}">
+                                                <a class="w3-hover-text-blue" href="controller?command=go-to-reader-page&reader_id=${instance.readerID}"><fmt:message key="status.instance.issued"/></a>
+                                            </c:if>
+                                        </c:when>
+                                        <c:when test="${instance.status == 'RESERVED'}">
+                                            <c:if test="${instance.readerID == 0}">
+                                                <fmt:message key="status.instance.reserved"/>
+                                            </c:if>
+                                            <c:if test="${instance.readerID != 0}">
+                                                <a class="w3-hover-text-blue" href="controller?command=go-to-reader-page&reader_id=${instance.readerID}"><fmt:message key="status.instance.reserved"/></a>
+                                            </c:if>
+                                        </c:when>
                                         <c:when test="${instance.status == 'FREE'}"><fmt:message key="status.instance.free"/></c:when>
-                                        <c:when test="${instance.status == 'ISSUED'}"><fmt:message key="status.instance.issued"/></c:when>
-                                        <c:when test="${instance.status == 'RESERVED'}"><fmt:message key="status.instance.reserved"/></c:when>
                                         <c:when test="${instance.status == 'WRITE OFF'}"><fmt:message key="status.instance.write-off"/></c:when>
                                     </c:choose>
                                 </td>

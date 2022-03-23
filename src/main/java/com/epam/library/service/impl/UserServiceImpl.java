@@ -244,7 +244,7 @@ public class UserServiceImpl implements UserService {
 
             userDAO.updateUserImage(userID, imageURL);
 
-            if (!DEFAULT_IMAGE_USER.equals(userImage)) {
+            if (!DEFAULT_IMAGE_USER.equals(userImage) && !userImage.equals(imageURL)) {
                 Files.deleteIfExists(Paths.get(USERS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + userImage));
                 Files.deleteIfExists(Paths.get(USERS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + userImage));
             }

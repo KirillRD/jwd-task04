@@ -76,7 +76,7 @@ public class AddEditInstance implements Command {
         }
 
         instance.setBookID(bookID);
-        instance.setNumber(request.getParameter(NUMBER));
+        instance.setNumber(request.getParameter(NUMBER).trim());
         instance.setHallID(request.getParameter(HALL));
         instance.setReceivedDate(request.getParameter(RECEIVED_DATE));
         instance.setWriteOffDate(request.getParameter(WRITE_OFF_DATE));

@@ -59,8 +59,8 @@ public class AddEditPublisher implements Command {
             logger.info(LogMessageBuilder.message(logMessage, "Publisher add started"));
         }
 
-        publisher.setName(request.getParameter(NAME));
-        publisher.setCity(request.getParameter(CITY));
+        publisher.setName(request.getParameter(NAME).trim());
+        publisher.setCity(request.getParameter(CITY).trim());
         try {
             if (publisher.getId() != 0) {
                 publisherService.updatePublisher(publisher);

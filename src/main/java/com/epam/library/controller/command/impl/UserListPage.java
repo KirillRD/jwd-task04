@@ -39,11 +39,20 @@ public class UserListPage implements Command {
         String logMessage = LogMessageBuilder.build(request);
         logger.info(LogMessageBuilder.message(logMessage, "User list build started"));
 
-        int page;
+        int page = 0;
         String url = (String) request.getSession().getAttribute(URL);
-        if (Util.isID(request.getParameter(PAGE))) {
-            page = Integer.parseInt(request.getParameter(PAGE));
-        } else {
+        String[] pageValues = request.getParameterValues(PAGE);
+        if (pageValues == null) {
+            response.sendRedirect(url + REDIRECT_PAGE + 1);
+            return;
+        }
+        for (String pageValue : pageValues) {
+            if (Util.isID(pageValue) && page == 0) {
+                page = Integer.parseInt(pageValue);
+            }
+            url = url.replaceFirst(REDIRECT_PAGE + pageValue, "");
+        }
+        if (page == 0 || pageValues.length != 1) {
             response.sendRedirect(url + REDIRECT_PAGE + 1);
             return;
         }
@@ -82,7 +91,7 @@ public class UserListPage implements Command {
         }
 
         request.setAttribute(PAGE, page);
-        request.setAttribute(URL, request.getQueryString().replaceAll(REDIRECT_PAGE + page, ""));
+        request.setAttribute(URL, url.replaceFirst(request.getRequestURI(), ""));
 
         List<User> users;
         try {

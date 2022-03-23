@@ -252,7 +252,7 @@ public class BookServiceImpl implements BookService {
 
             bookDAO.updateBookImage(bookID, imageURL);
 
-            if (!DEFAULT_IMAGE_BOOK.equals(bookImage)) {
+            if (!DEFAULT_IMAGE_BOOK.equals(bookImage) && !bookImage.equals(imageURL)) {
                 Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_NON_DEPLOYED_PROJECT + bookImage));
                 Files.deleteIfExists(Paths.get(BOOKS_IMAGES_DIRECTORY_DEPLOYED_PROJECT + bookImage));
             }

@@ -32,7 +32,7 @@ public class MYSQLReviewDAO implements ReviewDAO {
     private static final String GET_MAX_ID_REVIEW = "SELECT MAX(id) FROM reviews";
     private static final String INSERT_REVIEW = "INSERT INTO reviews (id, books_id, reader_id, rating, comment, date) VALUES (?,?,?,?,?,CURDATE())";
 
-    private static final String BOOK_REVIEWS = "SELECT users.id AS user_id, users.nickname, users.image, reviews.id, reviews.rating, reviews.comment, reviews.date FROM reviews INNER JOIN users ON reviews.reader_id=users.id WHERE `lock`=0 AND reviews.books_id=?";
+    private static final String BOOK_REVIEWS = "SELECT users.id AS user_id, users.nickname, users.image, reviews.id, reviews.rating, reviews.comment, reviews.date FROM reviews INNER JOIN users ON reviews.reader_id=users.id WHERE `lock`=0 AND reviews.books_id=? ORDER BY reviews.date DESC";
 
     public MYSQLReviewDAO() {}
 

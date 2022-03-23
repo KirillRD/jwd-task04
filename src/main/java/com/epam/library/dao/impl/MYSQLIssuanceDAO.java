@@ -43,11 +43,11 @@ public class MYSQLIssuanceDAO implements IssuanceDAO {
     private static final String UPDATE_RETURN_ISSUANCE =
             "UPDATE issuance SET date_return=CURDATE(), " +
             "price = CASE WHEN lost=1 THEN (SELECT price FROM books INNER JOIN instances ON books.id=instances.books_id WHERE instances.id=issuance.instances_id) ELSE 0 END, " +
-            "rental_price = CASE WHEN ((SELECT halls_id FROM instances WHERE id=issuance.instances_id) = 2 AND date_return_planned<date_return) " +
-            "THEN IFNULL(DATEDIFF(date_return,date_return_planned),0) * (SELECT CAST(param_value AS decimal(4,2)) FROM config WHERE param_name = 'rental_price') ELSE 0 END " +
+            "rental_price = CASE WHEN ((SELECT halls_id FROM instances WHERE id=issuance.instances_id) = 2 AND date_return_planned<CURDATE()) " +
+            "THEN IFNULL(DATEDIFF(CURDATE(),date_return_planned),0) * (SELECT CAST(param_value AS decimal(4,2)) FROM config WHERE param_name = 'rental_price') ELSE 0 END " +
             "WHERE id=?";
     private static final String UPDATE_EXTEND_ISSUANCE =
-            "UPDATE issuance SET date_return_planned=DATE_ADD(CURDATE(), INTERVAL 30 DAY) WHERE id=? AND (SELECT halls_id FROM instances WHERE id=issuance.instances_id)=1";
+            "UPDATE issuance SET date_return_planned=DATE_ADD(CURDATE(), INTERVAL (SELECT CAST(param_value AS UNSIGNED) FROM config WHERE param_name = 'days_of_issue') DAY) WHERE id=? AND (SELECT halls_id FROM instances WHERE id=issuance.instances_id)=1";
     private static final String UPDATE_LOST_ISSUANCE = "UPDATE issuance SET lost= CASE WHEN IFNULL(lost,0)=0 THEN 1 ELSE 0 END WHERE id=?";
     private static final Map<String, String> operations = Map.of(
             IssuanceOperation.RETURN.getOperation(), UPDATE_RETURN_ISSUANCE,

@@ -1,5 +1,6 @@
 package com.epam.library.service.validation;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
@@ -50,7 +51,7 @@ public class Validator {
                 return false;
             }
         }
-        return true;
+        return new BigInteger(String.valueOf(cs)).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0;
     }
 
     /**

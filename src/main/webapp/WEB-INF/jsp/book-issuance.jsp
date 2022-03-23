@@ -177,7 +177,7 @@
 
                         <table class="w3-table w3-striped w3-border w3-hoverable">
                             <tr>
-                                <th style="width: 120px;"></th>
+                                <th style="min-width: 120px;"></th>
                                 <th><fmt:message key="book.name"/></th>
                                 <th><fmt:message key="book.authors"/></th>
                                 <th><fmt:message key="book.publisher"/></th>
@@ -222,7 +222,7 @@
                                     </td>
                                     <td>
                                         <c:if test="${bookInfo.hallFreeInstanceCatalogList.size() > 0}">
-                                            <span class="material-icons-outlined w3-text-green" title="<fmt:message key="book.free-instances-1"/>${bookInfo.freeInstanceCatalogList.size()}<fmt:message key="book.free-instances-2"/>">menu_book</span>
+                                            <span class="material-icons-outlined w3-text-green" title="<fmt:message key="book.free-instances-1"/> ${bookInfo.freeInstanceCatalogList.size()} <fmt:message key="book.free-instances-2"/>">menu_book</span>
                                         </c:if>
                                         <c:if test="${bookInfo.hallFreeInstanceCatalogList.size() == 0}">
                                             <span class="material-icons-outlined w3-text-gray" title="<fmt:message key="book.no-free-instances"/>">menu_book</span>
@@ -250,11 +250,11 @@
 
                     <div class="w3-center w3-section">
                         <div class="w3-bar">
-                            <a href="controller?${requestScope.url}&page=${requestScope.page > 1 ? requestScope.page-1 : 1}" class="w3-bar-item w3-button w3-theme-l4">&laquo;</a>
+                            <a href="controller${requestScope.url}&page=${requestScope.page > 1 ? requestScope.page-1 : 1}" class="w3-bar-item w3-button w3-theme-l4">&laquo;</a>
                             <c:forEach var="page_number" begin="1" end="${requestScope.pages_count}">
-                                <a href="controller?${requestScope.url}&page=${page_number}" class="w3-bar-item w3-button ${page_number == requestScope.page ? 'w3-theme' : 'w3-theme-l4'}">${page_number}</a>
+                                <a href="controller${requestScope.url}&page=${page_number}" class="w3-bar-item w3-button ${page_number == requestScope.page ? 'w3-theme' : 'w3-theme-l4'}">${page_number}</a>
                             </c:forEach>
-                            <a href="controller?${requestScope.url}&page=${requestScope.page < requestScope.pages_count ? requestScope.page+1 : requestScope.pages_count}" class="w3-bar-item w3-button w3-theme-l4">&raquo;</a>
+                            <a href="controller${requestScope.url}&page=${requestScope.page < requestScope.pages_count ? requestScope.page+1 : requestScope.pages_count}" class="w3-bar-item w3-button w3-theme-l4">&raquo;</a>
                         </div>
                     </div>
                 </div>
